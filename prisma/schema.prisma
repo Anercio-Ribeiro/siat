@@ -1,0 +1,68 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Utilizador {
+  id           String    @id @default(uuid())
+  nome         String
+  email        String    @unique
+  senha        String
+  role         Role
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  alugueis     Aluguel[]
+  imoveis      Imovel[]
+}
+
+model Imovel {
+  id             String        @id @default(uuid())
+  titulo         String
+  descricao      String
+  preco          Float
+  tipoAluguel    TipoAluguel
+  proprietarioId String
+  endereco       String
+  provincia      String
+  bairro         String
+  criadoEm       DateTime      @default(now())
+  atualizadoEm   DateTime      @updatedAt
+  alugueis       Aluguel[]
+  proprietario   Utilizador    @relation(fields: [proprietarioId], references: [id])
+  proximidades   Proximidade[]
+}
+
+model Aluguel {
+  id             String     @id @default(uuid())
+  imovelId       String
+  inquilinoId    String
+  periodoAluguel Int
+  contratoUrl    String?
+  criadoEm       DateTime   @default(now())
+  atualizadoEm   DateTime   @updatedAt
+  imovel         Imovel     @relation(fields: [imovelId], references: [id])
+  inquilino      Utilizador @relation(fields: [inquilinoId], references: [id])
+}
+
+model Proximidade {
+  id        String @id @default(uuid())
+  nome      String
+  distancia Float
+  imovelId  String
+  imovel    Imovel @relation(fields: [imovelId], references: [id])
+}
+
+enum Role {
+  INQUILINO
+  PROPRIETARIO
+  ADMIN
+}
+
+enum TipoAluguel {
+  RESIDENCIAL
+  TURISTICO
+}
