@@ -1,3 +1,4 @@
+import { HouseCard } from "@/components/house-components/house-card";
 import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
 
 export default function ImovelPage() {
@@ -12,8 +13,7 @@ export default function ImovelPage() {
         
       ]}
     >
-      {/* Conteúdo do dashboard será renderizado aqui */}
-      <p>Welcome to the Imovel!</p>
+      <HouseCard imovel={null}/>
     </PageWithBreadcrumb>
   );
 }

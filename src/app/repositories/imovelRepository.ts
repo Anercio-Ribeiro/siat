@@ -2,9 +2,11 @@ import { prisma } from '@/lib/prisma';
 import { Imovel } from '@prisma/client';
 
 export class ImovelRepository {
+
   async criarImovel(data: Omit<Imovel, 'id'>): Promise<Imovel> {
     return await prisma.imovel.create({
       data,
+      include: { imagens: true, proximidades: true }, // Inclui as relações criadas
     });
   }
 

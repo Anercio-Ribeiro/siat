@@ -10,9 +10,12 @@ datasource db {
 model Utilizador {
   id           String    @id @default(uuid())
   nome         String
+  username String
   email        String    @unique
   senha        String
+  telefone     String
   role         Role
+  favoritoIds  String[]
   criadoEm     DateTime  @default(now())
   atualizadoEm DateTime  @updatedAt
   alugueis     Aluguel[]
@@ -20,20 +23,44 @@ model Utilizador {
 }
 
 model Imovel {
-  id             String        @id @default(uuid())
-  titulo         String
-  descricao      String
-  preco          Float
-  tipoAluguel    TipoAluguel
-  proprietarioId String
-  endereco       String
-  provincia      String
-  bairro         String
-  criadoEm       DateTime      @default(now())
-  atualizadoEm   DateTime      @updatedAt
-  alugueis       Aluguel[]
-  proprietario   Utilizador    @relation(fields: [proprietarioId], references: [id])
-  proximidades   Proximidade[]
+  id              String        @id @default(uuid())
+  titulo          String
+  descricao       String
+  preco           Float
+  tipoAluguel     TipoAluguel
+  proprietarioId  String
+  endereco        String
+  provincia       String
+  bairro          String
+  numeroQuarto    Int
+  numeroCasaBanho Int
+  tipologia       String
+  criadoEm        DateTime      @default(now())
+  atualizadoEm    DateTime      @updatedAt
+  alugueis        Aluguel[]
+  imagens         Imagem[]
+  proprietario    Utilizador    @relation(fields: [proprietarioId], references: [id])
+  proximidades    Proximidade[]
+}
+
+model Imagem {
+  id       String @id @default(uuid())
+  url      String
+  imovelId String
+  imovel   Imovel @relation(fields: [imovelId], references: [id])
+}
+
+model Contrato {
+  id             String   @id @default(uuid())
+  aluguelId      String   @unique
+  dataInicio     DateTime
+  dataFim        DateTime
+  valorTotal     Float
+  termosContrato String
+  urlDocumento   String?
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  aluguel        Aluguel  @relation(fields: [aluguelId], references: [id])
 }
 
 model Aluguel {
@@ -46,6 +73,7 @@ model Aluguel {
   atualizadoEm   DateTime   @updatedAt
   imovel         Imovel     @relation(fields: [imovelId], references: [id])
   inquilino      Utilizador @relation(fields: [inquilinoId], references: [id])
+  contrato       Contrato?
 }
 
 model Proximidade {
