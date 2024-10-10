@@ -20,6 +20,16 @@ model Utilizador {
   atualizadoEm DateTime  @updatedAt
   alugueis     Aluguel[]
   imoveis      Imovel[]
+  sessao       Sessao[]
+}
+
+model Sessao {
+  id        String   @id
+  utilizadorId    String
+  expiresAt DateTime
+  utilizador Utilizador @relation(fields: [utilizadorId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
 
 model Imovel {

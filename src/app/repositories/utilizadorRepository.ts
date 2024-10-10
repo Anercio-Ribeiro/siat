@@ -1,6 +1,7 @@
 // src/repositories/utilizadorRepository.ts
 import { prisma } from '@/lib/prisma';
-import { Utilizador } from '@prisma/client';
+import { Role, Utilizador } from '@prisma/client';
+import { UtilizadorCustom } from '../model/type';
 
 export class UtilizadorRepository {
   async criarUtilizador(data: Omit<Utilizador, 'id'>): Promise<Utilizador> {
@@ -9,9 +10,41 @@ export class UtilizadorRepository {
     });
   }
 
-  async encontrarUtilizadorPorId(id: string): Promise<Utilizador | null> {
+  async encontrarUtilizadorPorId(id: string): Promise<UtilizadorCustom | null> {
     return await prisma.utilizador.findUnique({
       where: { id },
+      select: {
+        nome: true,
+        username: true,
+        email: true,
+        telefone: true,
+        role: true,
+        favoritoIds: true,
+        alugueis: true,
+        imoveis: true,
+        sessao: true,
+        senha: true,
+        id: true,
+      },
+    });
+  }
+
+  async encontrarUtilizadorPorUsername(username: string): Promise<UtilizadorCustom | null> {
+    return await prisma.utilizador.findFirst({
+      where: { username: username },
+      select: {
+        nome: true,
+        username: true,
+        email: true,
+        telefone: true,
+        role: true,
+        favoritoIds: true,
+        alugueis: true,
+        imoveis: true,
+        sessao: true,
+        senha: true,
+        id: true,
+      },
     });
   }
 

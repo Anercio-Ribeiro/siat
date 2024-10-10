@@ -1,3 +1,4 @@
+import { UtilizadorCustom } from '../model/type';
 import { UtilizadorRepository } from '../repositories/utilizadorRepository';
 import { Utilizador } from '@prisma/client';
 
@@ -8,8 +9,12 @@ export class UtilizadorService {
     return await utilizadorRepo.criarUtilizador(data);
   }
 
-  async encontrarUtilizadorPorId(id: string): Promise<Utilizador | null> {
+  async encontrarUtilizadorPorId(id: string): Promise<UtilizadorCustom | null> {
     return await utilizadorRepo.encontrarUtilizadorPorId(id);
+  }
+
+  async encontrarUtilizadorPorUsername(username: string): Promise<UtilizadorCustom | null> {
+    return await utilizadorRepo.encontrarUtilizadorPorUsername(username);
   }
 
   async atualizarUtilizador(id: string, data: Partial<Omit<Utilizador, 'id'>>): Promise<Utilizador> {

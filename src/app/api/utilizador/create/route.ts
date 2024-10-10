@@ -1,16 +1,15 @@
 import { UtilizadorService } from '@/app/services/utilizadorService';
 import { NextResponse } from 'next/server';
 
-
-
 export async function POST(req: Request) {
 
   const utilizadorService = new UtilizadorService();
     const body = await req.json();
-    const { nome, email, senha, role, telefone, favoritoIds } = body;
+    const { nome, username, email, senha, role, telefone, favoritoIds } = body;
 
         const data = {
             nome,
+            username,
             email,
             senha,
             role,
