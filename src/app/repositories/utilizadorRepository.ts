@@ -1,17 +1,28 @@
 // src/repositories/utilizadorRepository.ts
 import { prisma } from '@/lib/prisma';
-import { Role, Utilizador } from '@prisma/client';
+import { Role, User } from '@prisma/client';
 import { UtilizadorCustom } from '../model/type';
 
 export class UtilizadorRepository {
-  async criarUtilizador(data: Omit<Utilizador, 'id'>): Promise<Utilizador> {
-    return await prisma.utilizador.create({
-      data,
+  // async criarUtilizador(data: Omit<Utilizador, 'id'>): Promise<Utilizador> {
+  //   return await prisma.utilizador.create({
+  //     data,
+  //   });
+  // }
+  async criarUtilizador(data: Omit<User, 'id'>): Promise<User> {
+    const currentDate = new Date();
+    const utilizadorData = {
+      ...data,
+      criadoEm: currentDate,
+      atualizadoEm: currentDate
+    };
+    return await prisma.user.create({
+      data: utilizadorData,
     });
   }
 
   async encontrarUtilizadorPorId(id: string): Promise<UtilizadorCustom | null> {
-    return await prisma.utilizador.findUnique({
+    return await prisma.user.findUnique({
       where: { id },
       select: {
         nome: true,
@@ -22,7 +33,7 @@ export class UtilizadorRepository {
         favoritoIds: true,
         alugueis: true,
         imoveis: true,
-        sessao: true,
+        session: true,
         senha: true,
         id: true,
       },
@@ -30,7 +41,7 @@ export class UtilizadorRepository {
   }
 
   async encontrarUtilizadorPorUsername(username: string): Promise<UtilizadorCustom | null> {
-    return await prisma.utilizador.findFirst({
+    return await prisma.user.findFirst({
       where: { username: username },
       select: {
         nome: true,
@@ -41,28 +52,28 @@ export class UtilizadorRepository {
         favoritoIds: true,
         alugueis: true,
         imoveis: true,
-        sessao: true,
+        session: true,
         senha: true,
         id: true,
       },
     });
   }
 
-  async atualizarUtilizador(id: string, data: Partial<Omit<Utilizador, 'id'>>): Promise<Utilizador> {
-    return await prisma.utilizador.update({
+  async atualizarUtilizador(id: string, data: Partial<Omit<User, 'id'>>): Promise<User> {
+    return await prisma.user.update({
       where: { id },
       data,
     });
   }
 
-  async deletarUtilizador(id: string): Promise<Utilizador> {
-    return await prisma.utilizador.delete({
+  async deletarUtilizador(id: string): Promise<User> {
+    return await prisma.user.delete({
       where: { id },
     });
   }
 
-  async listarUtilizadores(): Promise<Utilizador[]> {
-    return await prisma.utilizador.findMany();
+  async listarUtilizadores(): Promise<User[]> {
+    return await prisma.user.findMany();
   }
 
   // async encontrarPrimeiroUtilizador(): Promise<Utilizador | null> {
@@ -71,7 +82,7 @@ export class UtilizadorRepository {
   //   return utilizador;
   // }
   async encontrarPrimeiroUtilizador(): Promise<string | null> {
-    return prisma.utilizador.findFirst({
+    return prisma.user.findFirst({
       select: {
         id: true, // Seleciona apenas o campo 'id'
       },

@@ -1,11 +1,11 @@
 import { UtilizadorCustom } from '../model/type';
 import { UtilizadorRepository } from '../repositories/utilizadorRepository';
-import { Utilizador } from '@prisma/client';
+import { User } from '@prisma/client';
 
 const utilizadorRepo = new UtilizadorRepository();
 
 export class UtilizadorService {
-  async criarUtilizador(data: Omit<Utilizador, 'id'>): Promise<Utilizador> {
+  async criarUtilizador(data: Omit<User, 'id'>): Promise<User> {
     return await utilizadorRepo.criarUtilizador(data);
   }
 
@@ -17,25 +17,25 @@ export class UtilizadorService {
     return await utilizadorRepo.encontrarUtilizadorPorUsername(username);
   }
 
-  async atualizarUtilizador(id: string, data: Partial<Omit<Utilizador, 'id'>>): Promise<Utilizador> {
+  async atualizarUtilizador(id: string, data: Partial<Omit<User, 'id'>>): Promise<User> {
     return await utilizadorRepo.atualizarUtilizador(id, data);
   }
 
-  async deletarUtilizador(id: string): Promise<Utilizador> {
+  async deletarUtilizador(id: string): Promise<User> {
     return await utilizadorRepo.deletarUtilizador(id);
   }
 
-  async listarUtilizadores(): Promise<Utilizador[]> {
+  async listarUtilizadores(): Promise<User[]> {
     return await utilizadorRepo.listarUtilizadores();
   }
 
   async encontrarPrimeiroUtilizadorId(): Promise<string | null> {
     try {
       const id = await utilizadorRepo.encontrarPrimeiroUtilizador();
-      return id; // Return the ID fetched from the repository
+      return id;
     } catch (error) {
       console.error("Error in service:", error);
-      return null; // Handle errors appropriately
+      return null;
     }
 
 };

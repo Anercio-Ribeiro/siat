@@ -1,4 +1,4 @@
-import { Aluguel, Imovel, Role, Sessao } from "@prisma/client";
+import { Aluguel, Imovel, Role, Session } from "@prisma/client";
 
 export type UtilizadorCustom = {
     id: string;
@@ -10,7 +10,7 @@ export type UtilizadorCustom = {
     favoritoIds: string[];
     alugueis: Aluguel[];  // Use o tipo correto para 'alugueis'
     imoveis: Imovel[];    // Use o tipo correto para 'imoveis'
-    sessao: Sessao[];  
+    session: Session[];  
     senha: string;   // Use o tipo correto para 'sessao'
   };
   

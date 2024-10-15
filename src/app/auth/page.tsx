@@ -6,45 +6,44 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { signIn } from "../authenticate/auth.action";
+import { toast } from "sonner";
 
-export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false); // Loading state
-  const [error, setError] = useState(""); // Error state for displaying error messages
+export const signInSchema = z.object({
+  username: z.string(),
+  senha: z.string().min(8)
+});
+
+const SignInForm = () => {
   const router = useRouter();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true); // Start loading state
-    setError(""); // Clear any previous error
-
-    try {
-      const response = await fetch("/api/auth/signin", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-      });
-
-      if (response.ok) {
-        const { role } = await response.json();
-        if (role === "ADMIN") {
-          router.push("/dashboard");
-        } else {
-          router.push("/");
-        }
-      } else {
-        const errorData = await response.json();
-        setError(errorData?.message || "Login failed. Please check your credentials.");
-      }
-    } catch (err) {
-      setError("Something went wrong. Please try again.");
-    } finally {
-      setLoading(false); // Stop loading state
+  const form = useForm<z.infer<typeof signInSchema>>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      username: "",
+      senha: ""
     }
-  };
+  });
+
+  const [loading, setLoading] = useState(false); 
+
+  // 2. Define a submit handler.
+  async function onSubmit(values: z.infer<typeof signInSchema>) {
+    const res = await signIn(values);
+    console.log(values);
+    if (res.success) {
+      toast.success("Login successful");
+      router.push("/dashboard");
+    } else {
+      toast.error(res.error);
+    }
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+  }
 
   return (
     <Card className="w-full max-w-sm">
@@ -53,34 +52,60 @@ export default function LoginForm() {
         <CardDescription>Enter your email below to login to your account.</CardDescription>
       </CardHeader>
       <CardContent className="grid gap-4">
-        <form onSubmit={handleSubmit} className="grid gap-4">
-          {error && <p className="text-red-500">{error}</p>}
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="m@example.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
+
+      <Form {...form}>
+          <form
+            className="flex flex-col gap-2"
+            onSubmit={form.handleSubmit(onSubmit)}
+          >
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="Enter your email..."
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
+            <FormField
+              control={form.control}
+              name="senha"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter your password..."
+                      {...field}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.trim();
+                        field.onChange(e);
+                      }}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+           
+            <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Signing in..." : "Entrar"}
           </Button>
-        </form>
+          </form>
+        </Form>
+
+
       </CardContent>
     </Card>
   );
 }
+export default SignInForm;
