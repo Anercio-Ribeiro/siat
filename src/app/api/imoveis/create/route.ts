@@ -96,7 +96,7 @@ export async function POST(req: Request) {
     }
 
     // Verificar se o proprietário existe
-    const proprietario = await prisma.utilizador.findFirst();
+    const proprietario = await prisma.user.findFirst();
     if (!proprietario) {
       return NextResponse.json({ error: "Proprietário não encontrado" }, { status: 404 });
     }

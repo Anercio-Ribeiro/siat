@@ -1,15 +1,12 @@
-// "use client";
-
 // import Link from "next/link";
 // import { LayoutGrid, LogOut, User } from "lucide-react";
-
 // import { Button } from "@/components/ui/button";
 // import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 // import {
 //   Tooltip,
 //   TooltipContent,
 //   TooltipTrigger,
-//   TooltipProvider
+//   TooltipProvider,
 // } from "@/components/ui/tooltip";
 // import {
 //   DropdownMenu,
@@ -18,13 +15,17 @@
 //   DropdownMenuItem,
 //   DropdownMenuLabel,
 //   DropdownMenuSeparator,
-//   DropdownMenuTrigger
+//   DropdownMenuTrigger,
 // } from "@/components/ui/dropdown-menu";
-// import { getUser } from "@/lib/lucia";
-// import { redirect } from "next/navigation";
 
-// export function UserNav() {
+// type NavbarProps = {
+//   user: {
+//     nome: string;
+//     email: string;
+//   };
+// };
 
+// export const NavbarDropDown: React.FC<NavbarProps> = ({ user }) => {
 //   return (
 //     <DropdownMenu>
 //       <TooltipProvider disableHoverableContent>
@@ -49,9 +50,9 @@
 //       <DropdownMenuContent className="w-56" align="end" forceMount>
 //         <DropdownMenuLabel className="font-normal">
 //           <div className="flex flex-col space-y-1">
-//             <p className="text-sm font-medium leading-none">John Doe</p>
+//             <p className="text-sm font-medium leading-none">{user.nome}</p>
 //             <p className="text-xs leading-none text-muted-foreground">
-//               johndoe@example.com
+//               {user.email}
 //             </p>
 //           </div>
 //         </DropdownMenuLabel>
@@ -78,11 +79,11 @@
 //       </DropdownMenuContent>
 //     </DropdownMenu>
 //   );
-// }
+// };
 
 
 
-"use client";
+"use client"; // Adicione esta linha no início
 
 import Link from "next/link";
 import { LayoutGrid, LogOut, User } from "lucide-react";
@@ -103,17 +104,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getUser } from "@/lib/lucia";
-import { redirect } from "next/navigation";
-import React from "react";
 
-export function UserNav() {
-  // Obtendo os dados do usuário de forma assíncrona
-  // const user = await getUser();
-  // if (!user) {
-  //   redirect("/authenticate");
-  // }
+type NavbarDropDownProps = {
+  user: {
+    nome: string;
+    email: string;
+  };
+};
 
+export const NavbarDropDown: React.FC<NavbarDropDownProps> = ({ user }) => {
   return (
     <DropdownMenu>
       <TooltipProvider disableHoverableContent>
@@ -126,9 +125,7 @@ export function UserNav() {
               >
                 <Avatar className="h-8 w-8">
                   <AvatarImage src="#" alt="Avatar" />
-                  <AvatarFallback className="bg-transparent">
-                    {/* {user.nome.charAt(0).toUpperCase()} */}
-                  </AvatarFallback>
+                  <AvatarFallback className="bg-transparent">JD</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
@@ -140,11 +137,9 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">
-              {/* {user.nome} */}
-              </p>
+            <p className="text-sm font-medium leading-none">{user.nome}</p>
             <p className="text-xs leading-none text-muted-foreground">
-              {/* {user.email} */}
+              {user.email}
             </p>
           </div>
         </DropdownMenuLabel>
@@ -172,4 +167,3 @@ export function UserNav() {
     </DropdownMenu>
   );
 };
-
