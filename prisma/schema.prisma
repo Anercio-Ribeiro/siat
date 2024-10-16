@@ -44,6 +44,7 @@ model Imovel {
   bairro          String
   numeroQuarto    Int
   numeroCasaBanho Int
+  garagem         Int
   tipologia       String
   criadoEm        DateTime      @default(now())
   atualizadoEm    DateTime      @updatedAt

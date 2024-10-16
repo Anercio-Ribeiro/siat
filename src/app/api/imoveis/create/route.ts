@@ -87,11 +87,12 @@ export async function POST(req: Request) {
       numeroQuarto,
       numeroCasaBanho,
       tipologia,
+      garagem,
       imagens
     } = body;
 
     // Validação básica dos campos obrigatórios
-    if (!titulo || !descricao || !preco || !tipoAluguel || !endereco || !provincia || !bairro) {
+    if (!titulo || !descricao || !preco || !tipoAluguel || !endereco || !provincia || !bairro || !garagem) {
       return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
     }
 
@@ -112,6 +113,7 @@ export async function POST(req: Request) {
       numeroQuarto,
       numeroCasaBanho,
       tipologia,
+      garagem,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })) // Criar as imagens a partir do array de URLs
       },

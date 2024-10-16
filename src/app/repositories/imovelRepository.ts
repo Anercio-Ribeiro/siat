@@ -60,6 +60,11 @@ export class ImovelRepository {
             role: true,
           },
         },
+        imagens: {
+          select: {
+            url: true,
+          }
+        }
       }
     }
     );

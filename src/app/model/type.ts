@@ -27,3 +27,18 @@ export type UtilizadorCustom = {
     criadoEm: Date;
     atualizadoEm: Date;
 }
+
+export interface ImovelLDto {
+  imagens: { url: string }[];
+  id: string;
+  titulo: string;
+  preco: number;
+  localizacao: string;
+  bairro: string;
+  provincia: string;
+  tipologia: string;
+  numeroQuarto: number;
+  numeroCasaBanho: number;
+  garagem: number;
+
+}
