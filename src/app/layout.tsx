@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { GeistSans } from "geist/font/sans";
 
 import "./globals.css";
-
 import { ThemeProvider } from "@/providers/theme-provider";
+import QueryClientWrapper from "@/providers/QueryClientWrapper";
+
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "shadcn/ui sidebar",
     description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness."
+      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop e mobile responsiveness."
   }
 };
 
@@ -43,7 +44,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
+          <QueryClientWrapper>{children}</QueryClientWrapper>
         </ThemeProvider>
       </body>
     </html>

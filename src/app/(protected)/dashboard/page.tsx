@@ -1,37 +1,33 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { PageWithBreadcrumb } from "../../../components/PageWithBreadcrumb";
 import { HouseCard } from "@/components/house-components/house-card";
 import { ImovelLDto } from "@/app/model/type";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
+
+// Função para buscar imóveis
+async function fetchImoveis(): Promise<ImovelLDto[]> {
+  const response = await fetch("/api/imoveis/getAll");
+  if (!response.ok) {
+    throw new Error("Erro ao buscar imóveis");
+  }
+  const data = await response.json();
+  return data.imoveis;
+}
 
 export default function DashboardPage() {
-  const [imoveis, setImoveis] = useState<ImovelLDto[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Usando useQuery para buscar os imóveis
+  const {
+    data: imoveis,
+    error,
+    isLoading,
+  } = useQuery<ImovelLDto[], Error>({
+    queryKey: ["imoveis"],
+    queryFn: fetchImoveis,
+  });
 
-  useEffect(() => {
-    const fetchImoveis = async () => {
-      try {
-        const response = await fetch("/api/imoveis/getAll");
-        if (!response.ok) {
-          throw new Error("Erro ao buscar imóveis");
-        }
-        const data = await response.json();
-        setImoveis(data.imoveis); // Verifique se `data.imoveis` tem a estrutura correta
-      } catch (err) {
-        console.log(err);
-        setError(err instanceof Error ? err.message : "Erro desconhecido");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchImoveis();
-  }, []);
-
-  if (error) return <div>Erro: {error}</div>;
+  if (error) return <div>Erro: {error.message}</div>;
 
   return (
     <PageWithBreadcrumb
@@ -42,16 +38,15 @@ export default function DashboardPage() {
       ]}
     >
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {loading
+        {isLoading
           ? Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="min-w-[300px] w-full">
-                {/* Skeleton for card */}
                 <Skeleton className="h-52 w-full mb-2" />
                 <Skeleton className="h-6 w-3/4 mb-2" />
                 <Skeleton className="h-6 w-1/2" />
               </div>
             ))
-          : imoveis.map((imovel) => (
+          : imoveis?.map((imovel: ImovelLDto) => (
               <div key={imovel.id} className="min-w-[300px] w-full">
                 <HouseCard imovel={imovel} />
               </div>
@@ -60,3 +55,5 @@ export default function DashboardPage() {
     </PageWithBreadcrumb>
   );
 }
+
+
