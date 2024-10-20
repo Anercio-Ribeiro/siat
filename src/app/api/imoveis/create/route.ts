@@ -79,7 +79,6 @@ export async function POST(req: Request) {
       titulo,
       descricao,
       preco,
-      tipoAluguel,
       endereco,
       provincia,
       bairro,
@@ -92,7 +91,8 @@ export async function POST(req: Request) {
     } = body;
 
     // Validação básica dos campos obrigatórios
-    if (!titulo || !descricao || !preco || !tipoAluguel || !endereco || !provincia || !bairro || !garagem) {
+    if (!titulo || !descricao || !preco || !endereco || !provincia || !bairro || !garagem) {
+      console.log("Erro de campos em falta")
       return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
     }
 
@@ -106,7 +106,6 @@ export async function POST(req: Request) {
       titulo,
       descricao,
       preco,
-      tipoAluguel,
       endereco,
       provincia,
       bairro,

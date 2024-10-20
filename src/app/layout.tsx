@@ -5,7 +5,6 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import QueryClientWrapper from "@/providers/QueryClientWrapper";
 
-
 export const metadata: Metadata = {
   metadataBase: new URL(
     process.env.APP_URL
@@ -43,9 +42,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          <QueryClientWrapper>{children}</QueryClientWrapper>
-        </ThemeProvider>
+        <QueryClientWrapper>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+            {children}
+          </ThemeProvider>
+        </QueryClientWrapper>
       </body>
     </html>
   );
