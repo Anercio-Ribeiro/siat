@@ -42,3 +42,10 @@ export interface ImovelLDto {
   garagem: number;
 
 }
+
+// types/User.ts
+export interface User {
+  nome: string;
+  email: string;
+  picture?: string;
+}
