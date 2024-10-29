@@ -24,7 +24,7 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
         const user = await utilizadorService.criarUtilizador({
             ...values,
             senha, 
-            favoritoIds: [], 
+            //favoritoIds: [], 
             criadoEm: currentDate, 
             atualizadoEm: currentDate 
         });

@@ -48,6 +48,7 @@ model Imovel {
   proprietarioId  String
   endereco        String
   provincia       String
+  municipio       String
   bairro          String
   numeroQuarto    Int
   numeroCasaBanho Int

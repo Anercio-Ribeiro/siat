@@ -7,7 +7,7 @@ export type UtilizadorCustom = {
     email: string;
     telefone: string;
     role: Role;
-    favoritoIds: string[];
+    //favoritoIds: string[];
     alugueis: Aluguel[];  // Use o tipo correto para 'alugueis'
     imoveis: Imovel[];    // Use o tipo correto para 'imoveis'
     session: Session[];  
@@ -23,7 +23,7 @@ export type UtilizadorCustom = {
     senha: string;
     telefone: string;
     role: Role;
-    favoritoIds: string[];
+    //favoritoIds: string[];
     criadoEm: Date;
     atualizadoEm: Date;
 }

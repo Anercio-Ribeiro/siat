@@ -61,7 +61,7 @@ const SignUpForm = () => {
       ...values,
       criadoEm: currentDate,
       atualizadoEm: currentDate,
-      favoritoIds: []
+      //favoritoIds: []
     };
 
     const res = await signUp(utilizadorData);

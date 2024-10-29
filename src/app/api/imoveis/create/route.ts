@@ -87,6 +87,7 @@ export async function POST(req: Request) {
       numeroCasaBanho,
       tipologia,
       garagem,
+      municipio,
       imagens
     } = body;
 
@@ -113,6 +114,7 @@ export async function POST(req: Request) {
       numeroCasaBanho,
       tipologia,
       garagem,
+      municipio,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })) // Criar as imagens a partir do array de URLs
       },

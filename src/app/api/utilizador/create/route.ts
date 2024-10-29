@@ -5,7 +5,7 @@ export async function POST(req: Request) {
 
   const utilizadorService = new UtilizadorService();
     const body = await req.json();
-    const { nome, username, email, senha, role, telefone, favoritoIds } = body;
+    const { nome, username, email, senha, role, telefone } = body;
 
         const data = {
             nome,
@@ -14,7 +14,6 @@ export async function POST(req: Request) {
             senha,
             role,
             telefone,
-            favoritoIds,
             criadoEm: new Date(), 
             atualizadoEm: new Date(), 
 };
