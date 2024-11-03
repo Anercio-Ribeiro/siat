@@ -10,7 +10,7 @@ export default function PlaceholderContent({ children }: PlaceholderContentProps
       <CardContent>
         <div className="min-h-[calc(100vh-56px-64px-20px)]">
           
-          <div className="">
+          <div>
             {children} {/* Renderiza o conteúdo aqui */}
           </div>
           

@@ -9,7 +9,7 @@ type Props = {
 
 const SignOutButton = ({ children }: Props) => {
     return (
-        <Button onClick={() => { logOut() }}>{children}</Button>
+        <Button className='bg-transparent text-black border-0 hover:bg-transparent' onClick={() => { logOut() }}>{children}</Button>
     )
 }
 

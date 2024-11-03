@@ -11,7 +11,6 @@
 //       titulo,
 //       descricao,
 //       preco,
-//       tipoAluguel,
 //       endereco,
 //       provincia,
 //       bairro,
@@ -19,33 +18,36 @@
 //       numeroQuarto,
 //       numeroCasaBanho,
 //       tipologia,
+//       garagem,
+//       municipio,
 //       imagens
 //     } = body;
 
-//     // Validação básica dos campos obrigatórios
-//     if (!titulo || !descricao || !preco || !tipoAluguel || !endereco || !provincia || !bairro) {
+//     // Validação dos campos obrigatórios
+//     if (!titulo || !descricao || !preco || !endereco || !provincia || !bairro || !garagem) {
 //       return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
 //     }
 
-//     // Verificar se o proprietário existe
-//     const proprietario = await prisma.utilizador.findFirst();
+//     // Obter usuário autenticado
+//     const proprietario = await getAuthUser(req);
 //     if (!proprietario) {
-//       return NextResponse.json({ error: "Proprietário não encontrado" }, { status: 404 });
+//       return NextResponse.json({ error: "Proprietário não autenticado" }, { status: 401 });
 //     }
 
 //     const imovelData = {
 //       titulo,
 //       descricao,
 //       preco,
-//       tipoAluguel,
 //       endereco,
 //       provincia,
 //       bairro,
 //       numeroQuarto,
 //       numeroCasaBanho,
 //       tipologia,
+//       garagem,
+//       municipio,
 //       imagens: {
-//         create: imagens || []
+//         create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
 //       },
 //       proprietarioId: proprietario.id,
 //       proximidades: {
@@ -66,9 +68,10 @@
 
 
 
+
 import { NextResponse } from "next/server";
 import { ImovelService } from "@/app/services/imovelService";
-import { prisma } from "@/lib/prisma";
+import { getAuthenticatedUser } from "@/lib/getAuthUser";
 
 export async function POST(req: Request) {
   const imovelService = new ImovelService();
@@ -91,17 +94,14 @@ export async function POST(req: Request) {
       imagens
     } = body;
 
-    // Validação básica dos campos obrigatórios
-    if (!titulo || !descricao || !preco || !endereco || !provincia || !bairro || !garagem) {
-      console.log("Erro de campos em falta")
-      return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
-    }
+    // if (!titulo || !descricao || !preco || !endereco || !provincia || !bairro || !garagem || !municipio) {
+    //   return NextResponse.json({ error: "Todos os campos são obrigatórios" }, { status: 400 });
+    // }
 
-    // Verificar se o proprietário existe
-    const proprietario = await prisma.user.findFirst();
-    if (!proprietario) {
-      return NextResponse.json({ error: "Proprietário não encontrado" }, { status: 404 });
-    }
+    // Obtém o usuário autenticado
+    const proprietario = await getAuthenticatedUser();
+
+    console.log("User logged: "+proprietario)
 
     const imovelData = {
       titulo,
@@ -116,7 +116,7 @@ export async function POST(req: Request) {
       garagem,
       municipio,
       imagens: {
-        create: imagens.map((imgUrl: string) => ({ url: imgUrl })) // Criar as imagens a partir do array de URLs
+        create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
       },
       proprietarioId: proprietario.id,
       proximidades: {

@@ -203,6 +203,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUser } from "@/hooks/getUser";
+import SignOutButton from "../SignOutButton";
 
 
 export function UserNav() {
@@ -269,10 +270,16 @@ export function UserNav() {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem className="hover:cursor-pointer" onClick={() => {
-          // handle sign out here
+          <SignOutButton>
+            <LogOut  className="w-4 h-4 mr-3 text-muted-foreground" />
+            Sair
+            </SignOutButton>
         }}>
-          <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
-          Sign out
+           <SignOutButton>
+           <LogOut  className="w-4 h-4 mr-3 text-muted-foreground" />
+            Sair
+            </SignOutButton>
+    
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

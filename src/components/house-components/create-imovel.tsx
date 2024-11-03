@@ -44,7 +44,7 @@ type UploadProgress = {
   [key: string]: number;
 };
 
-// Definindo o schema de validação com Zod
+
 const imovelSchema = z.object({
   titulo: z.string().min(3, { message: "O título é obrigatório." }),
   descricao: z.string().min(10, { message: "A descrição é obrigatória." }),
@@ -173,14 +173,21 @@ const handleProvinciaChange = (provinciaId: string) => {
       <Button onClick={() => setIsOpen(true)}>Registrar Imóvel</Button>
 
       <Dialog open={isOpen} onOpenChange={() => {}}>
+        
         <DialogContent className="w-full sm:w-[500px] md:w-[900px] lg:w-[1400px] h-[90vh] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Registrar Imóvel</DialogTitle>
             <DialogDescription>Preencha as informações abaixo para registrar o imóvel.</DialogDescription>
             <DialogClose asChild>
-              <Button onClick={() => setIsOpen(false)} variant="ghost" className="absolute right-4 top-4">
+            <Button
+                onClick={() => setIsOpen(false)}
+                className="absolute top-12 right-1/3 transform -translate-x-1/2"
+                variant="ghost" // Opção para estilo discreto do botão
+              >
                 <X className="w-5 h-5" />
+                
               </Button>
+              
             </DialogClose>
           </DialogHeader>
           <Form {...form}>
@@ -227,33 +234,6 @@ const handleProvinciaChange = (provinciaId: string) => {
                   </FormItem>
                 )}
               />
-
-{/* <FormField
-  control={form.control}
-  name="provincia"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Província</FormLabel>
-      <FormControl>
-        <Select value={selectedProvincia} onValueChange={handleProvinciaChange}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a província" />
-          </SelectTrigger>
-          <SelectContent>
-            {provincias.map((provincia) => (
-              <SelectItem key={provincia.id} value={provincia.id}>
-                {provincia.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/> */}
-
-
 <FormField
   control={form.control}
   name="provincia"
@@ -281,32 +261,6 @@ const handleProvinciaChange = (provinciaId: string) => {
     </FormItem>
   )}
 />
-
-
-{/* <FormField
-  control={form.control}
-  name="municipio"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Município</FormLabel>
-      <FormControl>
-        <Select value={municipios[0] || ""} onValueChange={(value) => console.log(value)}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione o município" />
-          </SelectTrigger>
-          <SelectContent>
-          {municipios.map((municipio) => (
-            <SelectItem key={municipio} value={municipio}>
-              {municipio}
-            </SelectItem>
-          ))}
-        </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/> */}
 
 <FormField
   control={form.control}
