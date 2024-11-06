@@ -101,6 +101,9 @@ export async function POST(req: Request) {
     // Obtém o usuário autenticado
     const proprietario = await getAuthenticatedUser();
 
+    if(!proprietario)
+
+      return NextResponse.json("Erro: user invalido");
     console.log("User logged: "+proprietario)
 
     const imovelData = {

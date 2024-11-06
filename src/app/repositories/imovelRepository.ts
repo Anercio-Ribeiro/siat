@@ -73,4 +73,20 @@ export class ImovelRepository {
   async encontrarPrimeiroImovel(): Promise<Imovel | null> {
     return await prisma.imovel.findFirst();
   }
+
+
+  async buscarImoveis(filters: any, skip: number, take: number) {
+    return prisma.imovel.findMany({
+      where: filters,
+      skip,
+      take,
+    });
+  }
+
+  async contarImoveis(filters: any) {
+    return prisma.imovel.count({
+      where: filters,
+    });
+  }
 }
+

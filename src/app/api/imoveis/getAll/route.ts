@@ -68,10 +68,12 @@
 // }
 
 
-
+// pages/api/imoveis/getAll.ts
+import { NextApiRequest, NextApiResponse } from "next";
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { ImovelService } from "@/app/services/imovelService";
 import { getAuthenticatedUser } from "@/lib/getAuthUser";
+import { ImovelService } from "@/app/services/imovelService";
 
 export async function GET() {
   const imovelService = new ImovelService();
@@ -100,3 +102,31 @@ export async function GET() {
     );
   }
 }
+
+
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const { minPreco, maxPreco, localizacao, tipologia } = req.query;
+
+  try {
+    const imoveis = await prisma.imovel.findMany({
+      where: {
+        preco: {
+          gte: minPreco ? parseFloat(minPreco as string) : undefined,
+          lte: maxPreco ? parseFloat(maxPreco as string) : undefined,
+        },
+        municipio: localizacao ? { contains: localizacao as string } : undefined,
+        tipologia: tipologia ? { contains: tipologia as string } : undefined,
+      },
+      include: { imagens: true, proprietario: true },
+    });
+
+    return NextResponse.json({ imoveis });
+  } catch (error) {
+    return NextResponse.json({ error: "Erro ao buscar imóveis" });
+  }
+}
+
+
+
+
