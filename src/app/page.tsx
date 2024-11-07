@@ -1,4 +1,494 @@
-"use client";
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// import { HouseCard } from "@/components/house-components/house-card";
+// import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { ImovelLDto } from "./model/type";
+
+// interface FetchImoveisResponse {
+//   imoveis: any[]; // Modifique para o tipo correto dos imóveis
+//   totalImoveis: number;
+//   totalPages: number;
+//   currentPage: number;
+// }
+
+// async function fetchImoveis(filters: Record<string, any>, page: number): Promise<FetchImoveisResponse> {
+//   const queryParams = new URLSearchParams(filters as any);
+//   queryParams.set('page', String(page)); // Adiciona a página na query string
+//   const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
+  
+//   if (!response.ok) {
+//     throw new Error("Erro ao buscar imóveis");
+//   }
+//   return response.json();
+// }
+
+// export default function HomePage() {
+//   // Estados para os filtros
+//   const [precoMin, setPrecoMin] = useState<string>("");
+//   const [precoMax, setPrecoMax] = useState<string>("");
+//   const [bairro, setBairro] = useState<string>("");
+//   const [tipologia, setTipologia] = useState<string>("");
+//   const [activeTab, setActiveTab] = useState<string>("preco");
+//   const [page, setPage] = useState<number>(1);
+
+//   // Usando useQuery para buscar imóveis com filtros
+//   const { data, isLoading, error, refetch } = useQuery<FetchImoveisResponse, Error>({
+//     queryKey: ["imoveis", { precoMin, precoMax, bairro, tipologia, page }],
+//     queryFn: () => fetchImoveis({ precoMin, precoMax, bairro, tipologia }, page),
+//     //keepPreviousData: true, // Mantém os dados antigos enquanto os novos estão sendo carregados
+//   });
+
+//   // Carregar os imóveis assim que a página for carregada sem filtros
+//   useEffect(() => {
+//     refetch(); // Chama a refetch para carregar os imóveis sem filtros
+//   }, []);
+
+//   // Função de busca com filtros
+//   const handleSearch = () => {
+//     refetch(); // Reexecuta a busca com os filtros atualizados
+//   };
+
+//   // Alterar tab ativa
+//   const handleTabChange = (tab: string) => {
+//     setActiveTab(tab);
+//   };
+
+//   // Alterar página
+//   const handlePageChange = (newPage: number) => {
+//     setPage(newPage);
+//   };
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <nav className="flex justify-between items-center p-4 bg-gray-50 shadow-sm rounded-md">
+//         <h1 className="text-2xl font-bold">Imóveis</h1>
+//         <div>
+//           <Button className="mr-2">Página Inicial</Button>
+//           <Button>Sobre</Button>
+//         </div>
+//       </nav>
+
+//       <div
+//         className="relative h-[500px] bg-cover bg-center rounded-lg overflow-hidden mt-8"
+//         style={{ backgroundImage: "url('/imoveis/home-background.jpg')" }}
+//       >
+//         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+//           <Tabs defaultValue="preco" onValueChange={handleTabChange} className="w-10/12 max-w-3xl bg-white p-4 rounded-md shadow-lg">
+//             <TabsList className="flex space-x-4 mb-4 bg-white w-96">
+//               <TabsTrigger
+//                 value="preco"
+//                 className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}
+//               >
+//                 Preço
+//               </TabsTrigger>
+//               <TabsTrigger
+//                 value="localizacao"
+//                 className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}
+//               >
+//                 Localização
+//               </TabsTrigger>
+//               <TabsTrigger
+//                 value="tipologia"
+//                 className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}
+//               >
+//                 Tipologia
+//               </TabsTrigger>
+//             </TabsList>
+//             <TabsContent value="preco">
+//               <div className="flex items-center space-x-2">
+//                 <Input
+//                   value={precoMin}
+//                   onChange={(e) => setPrecoMin(e.target.value)}
+//                   placeholder="Preço mínimo"
+//                   className="w-full"
+//                 />
+//                 <Input
+//                   value={precoMax}
+//                   onChange={(e) => setPrecoMax(e.target.value)}
+//                   placeholder="Preço máximo"
+//                   className="w-full"
+//                 />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="localizacao">
+//               <div className="flex items-center space-x-2">
+//                 <Input
+//                   value={bairro}
+//                   onChange={(e) => setBairro(e.target.value)}
+//                   placeholder="Digite a localização"
+//                   className="w-full"
+//                 />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="tipologia">
+//               <div className="flex items-center space-x-2">
+//                 <Input
+//                   value={tipologia}
+//                   onChange={(e) => setTipologia(e.target.value)}
+//                   placeholder="Digite a tipologia"
+//                   className="w-full"
+//                 />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//           </Tabs>
+//         </div>
+//       </div>
+
+//       {/* Seção de listagem de imóveis */}
+//       <div className="mt-8">
+//         {isLoading ? (
+//           // <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//           //   {Array.from({ length: 6 }).map((_, index) => (
+//           //     <Skeleton key={index} className="h-64 w-full" />
+//           //   ))}
+//           // </div>
+
+// <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+// {Array.from({ length: 6 }).map((_, index) => (
+//   <div key={index} className="min-w-[300px] w-full">
+//     <Skeleton className="h-52 w-full mb-2" />
+//     <Skeleton className="h-6 w-3/4 mb-2" />
+//     <Skeleton className="h-6 w-1/2" />
+//   </div>
+// ))}
+// </div>
+//         ) : error ? (
+//           <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//             {data?.imoveis.map((imovel) => (
+//               <HouseCard key={imovel.id} imovel={imovel} />
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       {/* Navegação de páginas */}
+//       <div className="mt-4 flex justify-between">
+//         <Button
+//           onClick={() => handlePageChange(page - 1)}
+//           disabled={page === 1}
+//         >
+//           Anterior
+//         </Button>
+//         <Button
+//           onClick={() => handlePageChange(page + 1)}
+//           disabled={page === data?.totalPages}
+//         >
+//           Próxima
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
+
+// "use client"
+
+// import { useState } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// import { HouseCard } from "@/components/house-components/house-card";
+// import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { ImovelLDto } from "./model/type";
+
+// interface FetchImoveisResponse {
+//   imoveis: any[];
+//   totalImoveis: number;
+//   totalPages: number;
+//   currentPage: number;
+// }
+
+// async function fetchImoveis(filters: Record<string, any>, page: number): Promise<FetchImoveisResponse> {
+//   const queryParams = new URLSearchParams(filters as any);
+//   queryParams.set('page', String(page));
+//   const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
+  
+//   if (!response.ok) {
+//     throw new Error("Erro ao buscar imóveis");
+//   }
+//   return response.json();
+// }
+
+// export default function HomePage() {
+//   const [precoMin, setPrecoMin] = useState<string>("");
+//   const [precoMax, setPrecoMax] = useState<string>("");
+//   const [bairro, setBairro] = useState<string>("");
+//   const [tipologia, setTipologia] = useState<string>("");
+//   const [activeTab, setActiveTab] = useState<string>("preco");
+//   const [page, setPage] = useState<number>(1);
+//   const [isSearchClicked, setIsSearchClicked] = useState(false);
+
+//   const { data, isLoading, error, refetch } = useQuery<FetchImoveisResponse, Error>({
+//     queryKey: ["imoveis", { precoMin, precoMax, bairro, tipologia, page, isSearchClicked }],
+//     queryFn: () => fetchImoveis({ precoMin, precoMax, bairro, tipologia }, page),
+//     enabled: isSearchClicked,
+//   });
+
+//   const handleSearch = () => {
+//     setIsSearchClicked(true);
+//     refetch();
+//   };
+
+//   const handleTabChange = (tab: string) => {
+//     setActiveTab(tab);
+//   };
+
+//   const handlePageChange = (newPage: number) => {
+//     setPage(newPage);
+//     refetch();
+//   };
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <nav className="flex justify-between items-center p-4 bg-gray-50 shadow-sm rounded-md">
+//         <h1 className="text-2xl font-bold">Imóveis</h1>
+//         <div>
+//           <Button className="mr-2">Página Inicial</Button>
+//           <Button>Sobre</Button>
+//         </div>
+//       </nav>
+
+//       <div
+//         className="relative h-[500px] bg-cover bg-center rounded-lg overflow-hidden mt-8"
+//         style={{ backgroundImage: "url('/imoveis/home-background.jpg')" }}
+//       >
+//         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+//           <Tabs defaultValue="preco" onValueChange={handleTabChange} className="w-10/12 max-w-3xl bg-white p-4 rounded-md shadow-lg">
+//             <TabsList className="flex space-x-4 mb-4 bg-white w-96">
+//               <TabsTrigger value="preco" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Preço
+//               </TabsTrigger>
+//               <TabsTrigger value="localizacao" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Localização
+//               </TabsTrigger>
+//               <TabsTrigger value="tipologia" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Tipologia
+//               </TabsTrigger>
+//             </TabsList>
+//             <TabsContent value="preco">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={precoMin} onChange={(e) => setPrecoMin(e.target.value)} placeholder="Preço mínimo" className="w-full" />
+//                 <Input value={precoMax} onChange={(e) => setPrecoMax(e.target.value)} placeholder="Preço máximo" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="localizacao">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Digite a localização" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="tipologia">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={tipologia} onChange={(e) => setTipologia(e.target.value)} placeholder="Digite a tipologia" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//           </Tabs>
+//         </div>
+//       </div>
+
+//       <div className="mt-8">
+//         {isLoading ? (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+//             {Array.from({ length: 6 }).map((_, index) => (
+//               <div key={index} className="min-w-[300px] w-full">
+//                 <Skeleton className="h-52 w-full mb-2" />
+//                 <Skeleton className="h-6 w-3/4 mb-2" />
+//                 <Skeleton className="h-6 w-1/2" />
+//               </div>
+//             ))}
+//           </div>
+//         ) : error ? (
+//           <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//             {data?.imoveis.map((imovel) => (
+//               <HouseCard key={imovel.id} imovel={imovel} />
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="mt-4 flex justify-between">
+//         <Button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
+//           Anterior
+//         </Button>
+//         <Button onClick={() => handlePageChange(page + 1)} disabled={page === data?.totalPages}>
+//           Próxima
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
+// "use client"
+// import { useState, useEffect } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// import { HouseCard } from "@/components/house-components/house-card";
+// import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { ImovelLDto } from "./model/type";
+
+// interface FetchImoveisResponse {
+//   imoveis: any[];
+//   totalImoveis: number;
+//   totalPages: number;
+//   currentPage: number;
+// }
+
+// async function fetchImoveis(filters: Record<string, any>, page: number): Promise<FetchImoveisResponse> {
+//   const queryParams = new URLSearchParams(filters as any);
+//   queryParams.set('page', String(page));
+//   const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
+  
+//   if (!response.ok) {
+//     throw new Error("Erro ao buscar imóveis");
+//   }
+//   return response.json();
+// }
+
+// export default function HomePage() {
+//   const [precoMin, setPrecoMin] = useState<string>("");
+//   const [precoMax, setPrecoMax] = useState<string>("");
+//   const [bairro, setBairro] = useState<string>("");
+//   const [tipologia, setTipologia] = useState<string>("");
+//   const [activeTab, setActiveTab] = useState<string>("preco");
+//   const [page, setPage] = useState<number>(1);
+//   const [isSearchClicked, setIsSearchClicked] = useState(false);
+
+//   // Configuração da query com `enabled: false` para impedir refetch automático
+//   const { data, isLoading, error, refetch } = useQuery<FetchImoveisResponse, Error>({
+//     queryKey: ["imoveis", page], // Apenas a página é usada no queryKey
+//     queryFn: () => fetchImoveis(
+//       isSearchClicked ? { precoMin, precoMax, bairro, tipologia } : {}, 
+//       page
+//     ),
+//     enabled: false, // Evita o fetch automático
+//     keepPreviousData: true,
+//   });
+
+//   // Carrega imóveis ao montar a página
+//   useEffect(() => {
+//     refetch(); // Executa a primeira pesquisa sem filtros ao carregar a página
+//   }, []);
+
+//   // Função para acionar a pesquisa com filtros
+//   const handleSearch = () => {
+//     setIsSearchClicked(true);
+//     refetch(); // Chama o endpoint apenas após o clique no botão
+//   };
+
+//   const handleTabChange = (tab: string) => {
+//     setActiveTab(tab);
+//   };
+
+//   const handlePageChange = (newPage: number) => {
+//     setPage(newPage);
+//     refetch();
+//   };
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <nav className="flex justify-between items-center p-4 bg-gray-50 shadow-sm rounded-md">
+//         <h1 className="text-2xl font-bold">Imóveis</h1>
+//         <div>
+//           <Button className="mr-2">Página Inicial</Button>
+//           <Button>Sobre</Button>
+//         </div>
+//       </nav>
+
+//       <div
+//         className="relative h-[500px] bg-cover bg-center rounded-lg overflow-hidden mt-8"
+//         style={{ backgroundImage: "url('/imoveis/home-background.jpg')" }}
+//       >
+//         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+//           <Tabs defaultValue="preco" onValueChange={handleTabChange} className="w-10/12 max-w-3xl bg-white p-4 rounded-md shadow-lg">
+//             <TabsList className="flex space-x-4 mb-4 bg-white w-96">
+//               <TabsTrigger value="preco" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Preço
+//               </TabsTrigger>
+//               <TabsTrigger value="localizacao" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Localização
+//               </TabsTrigger>
+//               <TabsTrigger value="tipologia" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Tipologia
+//               </TabsTrigger>
+//             </TabsList>
+//             <TabsContent value="preco">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={precoMin} onChange={(e) => setPrecoMin(e.target.value)} placeholder="Preço mínimo" className="w-full" />
+//                 <Input value={precoMax} onChange={(e) => setPrecoMax(e.target.value)} placeholder="Preço máximo" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="localizacao">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Digite a localização" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="tipologia">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={tipologia} onChange={(e) => setTipologia(e.target.value)} placeholder="Digite a tipologia" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//           </Tabs>
+//         </div>
+//       </div>
+
+//       <div className="mt-8">
+//         {isLoading ? (
+//           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+//             {Array.from({ length: 6 }).map((_, index) => (
+//               <div key={index} className="min-w-[300px] w-full">
+//                 <Skeleton className="h-52 w-full mb-2" />
+//                 <Skeleton className="h-6 w-3/4 mb-2" />
+//                 <Skeleton className="h-6 w-1/2" />
+//               </div>
+//             ))}
+//           </div>
+//         ) : error ? (
+//           <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//             {data?.imoveis.map((imovel) => (
+//               <HouseCard key={imovel.id} imovel={imovel} />
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="mt-4 flex justify-between">
+//         <Button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
+//           Anterior
+//         </Button>
+//         <Button onClick={() => handlePageChange(page + 1)} disabled={page === data?.totalPages}>
+//           Próxima
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
+"use client"
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +501,7 @@ import { Input } from "@/components/ui/input";
 import { ImovelLDto } from "./model/type";
 
 interface FetchImoveisResponse {
-  imoveis: any[]; // Modifique para o tipo correto dos imóveis
+  imoveis: any[];
   totalImoveis: number;
   totalPages: number;
   currentPage: number;
@@ -19,7 +509,7 @@ interface FetchImoveisResponse {
 
 async function fetchImoveis(filters: Record<string, any>, page: number): Promise<FetchImoveisResponse> {
   const queryParams = new URLSearchParams(filters as any);
-  queryParams.set('page', String(page)); // Adiciona a página na query string
+  queryParams.set('page', String(page));
   const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
   
   if (!response.ok) {
@@ -29,39 +519,50 @@ async function fetchImoveis(filters: Record<string, any>, page: number): Promise
 }
 
 export default function HomePage() {
-  // Estados para os filtros
   const [precoMin, setPrecoMin] = useState<string>("");
   const [precoMax, setPrecoMax] = useState<string>("");
   const [bairro, setBairro] = useState<string>("");
   const [tipologia, setTipologia] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("preco");
   const [page, setPage] = useState<number>(1);
+  const [isSearchClicked, setIsSearchClicked] = useState(false);
+  const [previousData, setPreviousData] = useState<FetchImoveisResponse | undefined>(undefined);
 
-  // Usando useQuery para buscar imóveis com filtros
+  // Configuração da query sem `keepPreviousData`
   const { data, isLoading, error, refetch } = useQuery<FetchImoveisResponse, Error>({
-    queryKey: ["imoveis", { precoMin, precoMax, bairro, tipologia, page }],
-    queryFn: () => fetchImoveis({ precoMin, precoMax, bairro, tipologia }, page),
-    //keepPreviousData: true, // Mantém os dados antigos enquanto os novos estão sendo carregados
+    queryKey: ["imoveis", page], // Apenas a página é usada no queryKey
+    queryFn: () => fetchImoveis(
+      isSearchClicked ? { precoMin, precoMax, bairro, tipologia } : {}, 
+      page
+    ),
+    enabled: false, // Evita o fetch automático
   });
 
-  // Carregar os imóveis assim que a página for carregada sem filtros
+  // Carrega imóveis ao montar a página
   useEffect(() => {
-    refetch(); // Chama a refetch para carregar os imóveis sem filtros
+    refetch(); // Executa a primeira pesquisa sem filtros ao carregar a página
   }, []);
 
-  // Função de busca com filtros
+  // Atualiza previousData após o carregamento dos dados
+  useEffect(() => {
+    if (!isLoading && data) {
+      setPreviousData(data);
+    }
+  }, [data, isLoading]);
+
+  // Função para acionar a pesquisa com filtros
   const handleSearch = () => {
-    refetch(); // Reexecuta a busca com os filtros atualizados
+    setIsSearchClicked(true);
+    refetch(); // Chama o endpoint apenas após o clique no botão
   };
 
-  // Alterar tab ativa
   const handleTabChange = (tab: string) => {
     setActiveTab(tab);
   };
 
-  // Alterar página
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+    refetch();
   };
 
   return (
@@ -81,61 +582,32 @@ export default function HomePage() {
         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
           <Tabs defaultValue="preco" onValueChange={handleTabChange} className="w-10/12 max-w-3xl bg-white p-4 rounded-md shadow-lg">
             <TabsList className="flex space-x-4 mb-4 bg-white w-96">
-              <TabsTrigger
-                value="preco"
-                className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}
-              >
+              <TabsTrigger value="preco" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}>
                 Preço
               </TabsTrigger>
-              <TabsTrigger
-                value="localizacao"
-                className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}
-              >
+              <TabsTrigger value="localizacao" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}>
                 Localização
               </TabsTrigger>
-              <TabsTrigger
-                value="tipologia"
-                className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}
-              >
+              <TabsTrigger value="tipologia" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}>
                 Tipologia
               </TabsTrigger>
             </TabsList>
             <TabsContent value="preco">
               <div className="flex items-center space-x-2">
-                <Input
-                  value={precoMin}
-                  onChange={(e) => setPrecoMin(e.target.value)}
-                  placeholder="Preço mínimo"
-                  className="w-full"
-                />
-                <Input
-                  value={precoMax}
-                  onChange={(e) => setPrecoMax(e.target.value)}
-                  placeholder="Preço máximo"
-                  className="w-full"
-                />
+                <Input value={precoMin} onChange={(e) => setPrecoMin(e.target.value)} placeholder="Preço mínimo" className="w-full" />
+                <Input value={precoMax} onChange={(e) => setPrecoMax(e.target.value)} placeholder="Preço máximo" className="w-full" />
                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
               </div>
             </TabsContent>
             <TabsContent value="localizacao">
               <div className="flex items-center space-x-2">
-                <Input
-                  value={bairro}
-                  onChange={(e) => setBairro(e.target.value)}
-                  placeholder="Digite a localização"
-                  className="w-full"
-                />
+                <Input value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Digite a localização" className="w-full" />
                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
               </div>
             </TabsContent>
             <TabsContent value="tipologia">
               <div className="flex items-center space-x-2">
-                <Input
-                  value={tipologia}
-                  onChange={(e) => setTipologia(e.target.value)}
-                  placeholder="Digite a tipologia"
-                  className="w-full"
-                />
+                <Input value={tipologia} onChange={(e) => setTipologia(e.target.value)} placeholder="Digite a tipologia" className="w-full" />
                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
               </div>
             </TabsContent>
@@ -143,40 +615,200 @@ export default function HomePage() {
         </div>
       </div>
 
-      {/* Seção de listagem de imóveis */}
       <div className="mt-8">
         {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, index) => (
-              <Skeleton key={index} className="h-64 w-full" />
+              <div key={index} className="min-w-[300px] w-full">
+                <Skeleton className="h-52 w-full mb-2" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-6 w-1/2" />
+              </div>
             ))}
           </div>
         ) : error ? (
           <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {data?.imoveis.map((imovel) => (
+            {(data || previousData)?.imoveis.map((imovel) => (
               <HouseCard key={imovel.id} imovel={imovel} />
             ))}
           </div>
         )}
       </div>
 
-      {/* Navegação de páginas */}
       <div className="mt-4 flex justify-between">
-        <Button
-          onClick={() => handlePageChange(page - 1)}
-          disabled={page === 1}
-        >
+        <Button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
           Anterior
         </Button>
-        <Button
-          onClick={() => handlePageChange(page + 1)}
-          disabled={page === data?.totalPages}
-        >
+        <Button onClick={() => handlePageChange(page + 1)} disabled={page === data?.totalPages}>
           Próxima
         </Button>
       </div>
     </div>
   );
 }
+
+
+// "use client"
+// import { useState, useEffect } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// import { HouseCard } from "@/components/house-components/house-card";
+// import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Button } from "@/components/ui/button";
+// import { Input } from "@/components/ui/input";
+// import { ImovelLDto } from "./model/type";
+// import { LoaderCircle } from 'lucide-react';
+// // Supondo que você tenha um componente de Spinner
+
+// interface FetchImoveisResponse {
+//   imoveis: any[];
+//   totalImoveis: number;
+//   totalPages: number;
+//   currentPage: number;
+// }
+
+// async function fetchImoveis(filters: Record<string, any>, page: number): Promise<FetchImoveisResponse> {
+//   const queryParams = new URLSearchParams(filters as any);
+//   queryParams.set('page', String(page));
+//   const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
+  
+//   if (!response.ok) {
+//     throw new Error("Erro ao buscar imóveis");
+//   }
+//   return response.json();
+// }
+
+// export default function HomePage() {
+//   const [precoMin, setPrecoMin] = useState<string>("");
+//   const [precoMax, setPrecoMax] = useState<string>("");
+//   const [bairro, setBairro] = useState<string>("");
+//   const [tipologia, setTipologia] = useState<string>("");
+//   const [activeTab, setActiveTab] = useState<string>("preco");
+//   const [page, setPage] = useState<number>(1);
+//   const [isSearchClicked, setIsSearchClicked] = useState(false);
+//   const [previousData, setPreviousData] = useState<FetchImoveisResponse | undefined>(undefined);
+//   const [showSpinner, setShowSpinner] = useState(false);
+
+//   const { data, isLoading, error, refetch } = useQuery<FetchImoveisResponse, Error>({
+//     queryKey: ["imoveis", page],
+//     queryFn: () => fetchImoveis(
+//       isSearchClicked ? { precoMin, precoMax, bairro, tipologia } : {}, 
+//       page
+//     ),
+//     enabled: false,
+//   });
+
+//   useEffect(() => {
+//     refetch();
+//   }, []);
+
+//   useEffect(() => {
+//     if (!isLoading && data) {
+//       setPreviousData(data);
+//     }
+//   }, [data, isLoading]);
+
+//   useEffect(() => {
+//     if (isLoading) {
+//       setShowSpinner(true);
+//       const timeoutId = setTimeout(() => setShowSpinner(false), 3000);
+//       return () => clearTimeout(timeoutId);
+//     }
+//     setShowSpinner(false);
+//   }, [isLoading]);
+
+//   const handleSearch = () => {
+//     setIsSearchClicked(true);
+//     refetch();
+//   };
+
+//   const handleTabChange = (tab: string) => {
+//     setActiveTab(tab);
+//   };
+
+//   const handlePageChange = (newPage: number) => {
+//     setPage(newPage);
+//     refetch();
+//   };
+
+//   return (
+//     <div className="container mx-auto p-4">
+//       <nav className="flex justify-between items-center p-4 bg-gray-50 shadow-sm rounded-md">
+//         <h1 className="text-2xl font-bold">Imóveis</h1>
+//         <div>
+//           <Button className="mr-2">Página Inicial</Button>
+//           <Button>Sobre</Button>
+//         </div>
+//       </nav>
+
+//       <div
+//         className="relative h-[500px] bg-cover bg-center rounded-lg overflow-hidden mt-8"
+//         style={{ backgroundImage: "url('/imoveis/home-background.jpg')" }}
+//       >
+//         <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+//           <Tabs defaultValue="preco" onValueChange={handleTabChange} className="w-10/12 max-w-3xl bg-white p-4 rounded-md shadow-lg">
+//             <TabsList className="flex space-x-4 mb-4 bg-white w-96">
+//               <TabsTrigger value="preco" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'preco' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Preço
+//               </TabsTrigger>
+//               <TabsTrigger value="localizacao" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'localizacao' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Localização
+//               </TabsTrigger>
+//               <TabsTrigger value="tipologia" className={`text-xl font-medium bg-white hover:bg-gray-200 ${activeTab === 'tipologia' ? 'border-b-2 border-red-500' : ''}`}>
+//                 Tipologia
+//               </TabsTrigger>
+//             </TabsList>
+//             <TabsContent value="preco">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={precoMin} onChange={(e) => setPrecoMin(e.target.value)} placeholder="Preço mínimo" className="w-full" />
+//                 <Input value={precoMax} onChange={(e) => setPrecoMax(e.target.value)} placeholder="Preço máximo" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="localizacao">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={bairro} onChange={(e) => setBairro(e.target.value)} placeholder="Digite a localização" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//             <TabsContent value="tipologia">
+//               <div className="flex items-center space-x-2">
+//                 <Input value={tipologia} onChange={(e) => setTipologia(e.target.value)} placeholder="Digite a tipologia" className="w-full" />
+//                 <Button className="ml-2" onClick={handleSearch}>Pesquisar</Button>
+//               </div>
+//             </TabsContent>
+//           </Tabs>
+//         </div>
+//       </div>
+
+//       <div className="mt-8">
+//         {showSpinner ? (
+//           <div className="flex justify-center">
+//             <LoaderCircle /> {/* Componente de spinner exibido enquanto showSpinner é true */}
+//           </div>
+//         ) : error ? (
+//           <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
+//         ) : (
+//           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+//             {(data || previousData)?.imoveis.map((imovel) => (
+//               <HouseCard key={imovel.id} imovel={imovel} />
+//             ))}
+//           </div>
+//         )}
+//       </div>
+
+//       <div className="mt-4 flex justify-between">
+//         <Button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
+//           Anterior
+//         </Button>
+//         <Button onClick={() => handlePageChange(page + 1)} disabled={page === data?.totalPages}>
+//           Próxima
+//         </Button>
+//       </div>
+//     </div>
+//   );
+// }
+
