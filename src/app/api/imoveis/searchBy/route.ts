@@ -118,7 +118,7 @@ export async function GET(req: NextApiRequest, res: NextApiResponse) {
 
   // Paginação
   const pageNumber = page ? parseInt(page, 10) : 1;
-  const pageSize = 10;
+  const pageSize = 8;
   const skip = (pageNumber - 1) * pageSize;
 
   try {
