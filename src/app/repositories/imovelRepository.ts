@@ -78,9 +78,17 @@ export class ImovelRepository {
   async buscarImoveis(filters: any, skip: number, take: number) {
     return prisma.imovel.findMany({
       where: filters,
+      include: {
+        imagens: {
+          select: {
+            url: true,
+          }
+    }
+  },
       skip,
       take,
-    });
+    }, 
+  );
   }
 
   async contarImoveis(filters: any) {
