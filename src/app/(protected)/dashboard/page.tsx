@@ -143,6 +143,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Info } from "lucide-react"; // ícone de informação
 import { useQuery } from "@tanstack/react-query";
+import { useUser } from "@/hooks/getUser";
+
 
 // Função para buscar imóveis
 async function fetchImoveis(): Promise<ImovelLDto[]> {
@@ -156,6 +158,8 @@ async function fetchImoveis(): Promise<ImovelLDto[]> {
 
 export default function DashboardPage() {
   // Usando useQuery para buscar os imóveis
+
+  
   const {
     data: imoveis,
     error,
@@ -165,6 +169,15 @@ export default function DashboardPage() {
     queryFn: fetchImoveis,
     refetchOnWindowFocus: false, // Evita refetch desnecessário quando a janela foca
   });
+
+  const { user, loading: userLoading } = useUser();
+  console.log(user)
+
+  // Redireciona para "/" caso o usuário não esteja logado
+  // if (!user && !userLoading) {
+  //   return redirect("/");
+    
+  // }
 
   if (error) return <div>Erro: {error.message}</div>;
 
