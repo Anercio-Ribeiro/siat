@@ -1,41 +1,12 @@
-// // hooks/useUser.js
-// import { useState, useEffect } from 'react';
-
-// export function useUser() {
-//   const [user, setUser] = useState(null);
-//   const [loading, setLoading] = useState(true);
-
-//   useEffect(() => {
-//     const fetchUser = async () => {
-//       setLoading(true);
-//       try {
-//         const response = await fetch('/api/getauthuser');
-//         if (response.ok) {
-//           const data = await response.json();
-//           setUser(data);
-//         } else {
-//           setUser(null);
-//         }
-//       } catch (error) {
-//         console.error("Erro ao buscar o usuário:", error);
-//         setUser(null);
-//       } finally {
-//         setLoading(false);
-//       }
-//     };
-    
-//     fetchUser();
-//   }, []);
-
-//   return { user, loading };
-// }
-
-
-// hooks/useUser.ts
-import { useQuery } from "@tanstack/react-query";
 import { User } from "@/app/model/type";
+import { useQuery } from "@tanstack/react-query";
+import { redirect, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export function useUser() {
+  const router = useRouter();
+
+  // Definindo o estado de autenticação e carregamento
   const { data: user, isLoading: loading, isError, error } = useQuery<User | null>({
     queryKey: ["authUser"],
     queryFn: async () => {
@@ -44,13 +15,14 @@ export function useUser() {
       return response.json();
     },
     initialData: null,
+    retry: false, // Evitar múltiplas tentativas
   });
 
-  if (isError) {
-    console.error("Erro ao buscar o usuário:", error);
-  }
+  useEffect(() => {
+    if (!loading && !user && isError) {
+      redirect("/"); // Redireciona imediatamente se o usuário não estiver autenticado
+    }
+  }, [user, loading, isError, router]);
 
   return { user, loading, error };
 }
-
-
