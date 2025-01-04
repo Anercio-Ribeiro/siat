@@ -28,19 +28,44 @@ export type UtilizadorCustom = {
     atualizadoEm: Date;
 }
 
+// export interface ImovelLDto {
+//   imagens: { url: string }[];
+//   id: string;
+//   titulo: string;
+//   preco: number;
+//   localizacao: string;
+//   bairro: string;
+//   provincia: string;
+//   tipologia: string;
+//   numeroQuarto: number;
+//   numeroCasaBanho: number;
+//   garagem: number;
+
+// }
+
 export interface ImovelLDto {
-  imagens: { url: string }[];
   id: string;
   titulo: string;
+  descricao: string;
   preco: number;
-  localizacao: string;
-  bairro: string;
+  endereco: string;
   provincia: string;
-  tipologia: string;
+  municipio: string;
+  bairro: string;
   numeroQuarto: number;
   numeroCasaBanho: number;
   garagem: number;
-
+  tipologia: string;
+  criadoEm: string;
+  atualizadoEm: string;
+  imagens: { url: string }[];
+  proximidades: { nome: string }[];
+  proprietario: {
+    id: string;
+    nome: string;
+    email: string;
+    role: string;
+  };
 }
 
 // types/User.ts

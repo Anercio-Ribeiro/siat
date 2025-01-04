@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { GeistSans } from "geist/font/sans";
+import { Urbanist } from 'next/font/google';
 
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -34,6 +34,8 @@ export const metadata: Metadata = {
   }
 };
 
+const urbanist = Urbanist({ subsets: ['latin'], weight: ['400', '700'] });
+
 export default function RootLayout({
   children
 }: Readonly<{
@@ -41,7 +43,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={GeistSans.className}>
+      <body className={urbanist.className}>
         <QueryClientWrapper>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}

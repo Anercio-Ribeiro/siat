@@ -82,11 +82,26 @@ export class ImovelRepository {
         imagens: {
           select: {
             url: true,
-          }
+          },
+        
+    },
+    proximidades: {
+      select: {
+        nome: true,
+      },
+    },
+    proprietario: {
+      select: {
+        id: true,
+        nome: true,
+        email: true,
+        role: true,
+      },
     }
+    
   },
       skip,
-      take,
+      take, 
     }, 
   );
   }

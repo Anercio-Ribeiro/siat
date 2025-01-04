@@ -501,7 +501,7 @@ import { Input } from "@/components/ui/input";
 import { ImovelLDto } from "./model/type";
 
 interface FetchImoveisResponse {
-  imoveis: any[];
+  imoveis: ImovelLDto[];
   totalImoveis: number;
   totalPages: number;
   currentPage: number;
