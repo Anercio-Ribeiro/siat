@@ -3,11 +3,11 @@ import { prisma } from '@/lib/prisma';
 import { Proximidade } from '@prisma/client';
 
 export class ProximidadeRepository {
-  async criarProximidade(data: Omit<Proximidade, 'id'>): Promise<Proximidade> {
-    return await prisma.proximidade.create({
-      data,
-    });
-  }
+  // async criarProximidade(data: Omit<Proximidade, 'id'>): Promise<Proximidade> {
+  //   return await prisma.proximidade.create({
+  //     data,
+  //   });
+  // }
 
   async encontrarProximidadePorId(id: string): Promise<Proximidade | null> {
     return await prisma.proximidade.findUnique({

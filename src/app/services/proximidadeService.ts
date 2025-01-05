@@ -4,10 +4,10 @@ import { Proximidade } from '@prisma/client';
 const proximidadeRepo = new ProximidadeRepository();
 
 export class ProximidadeService {
-  async criarProximidade(data: Omit<Proximidade, 'id'>): Promise<Proximidade> {
-    // Adicione aqui a lógica de negócios que desejar
-    return await proximidadeRepo.criarProximidade(data);
-  }
+  // async criarProximidade(data: Omit<Proximidade, 'id'>): Promise<Proximidade> {
+  //   // Adicione aqui a lógica de negócios que desejar
+  //   return await proximidadeRepo.criarProximidade(data);
+  // }
 
   async encontrarProximidadePorId(id: string): Promise<Proximidade | null> {
     return await proximidadeRepo.encontrarProximidadePorId(id);

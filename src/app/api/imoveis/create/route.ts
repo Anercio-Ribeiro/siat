@@ -130,6 +130,7 @@ export async function POST(req: Request) {
     };
 
     const imovel = await imovelService.criarImovel(imovelData);
+    console.log(imovel);
     return NextResponse.json(imovel, { status: 201 });
 
   } catch (error) {

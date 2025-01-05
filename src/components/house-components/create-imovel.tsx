@@ -1,56 +1,72 @@
-"use client";
 
-import { useState } from "react";
+"use client";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
 import { useDropzone } from "react-dropzone";
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import { X } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogClose,
 } from "@/components/ui/dialog";
-import provincias from "@/lib/data/provincias.json";
-import municipiosData from "@/lib/data/municipiosData.json";
 import {
   Form,
-  FormItem,
-  FormLabel,
   FormControl,
   FormField,
+  FormItem,
+  FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectItem, SelectTrigger, SelectContent, SelectValue } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
-import Image from "next/image";
-import { X } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Importando ScrollArea
-import { toast } from "sonner"; // Importando o Sonner
-import { ComboboxProvincia } from "../combobox-provincia";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "sonner";
 
+// Import data
+import provincias from "@/lib/data/provincias.json";
+import municipiosData from "@/lib/data/municipiosData.json";
 
-type FileWithPreview = {
-  file: File;
-  preview: string;
-};
+// Dynamic import for Map component
+const MapWithNoSSR = dynamic(() => import("../map-component/map"), {
+  ssr: false
+});
 
-type UploadProgress = {
-  [key: string]: number;
-};
+// Constants
+const TIPOS_PROXIMIDADE = [
+  "HOSPITAL",
+  "ESCOLA",
+  "SHOPPING",
+  "FARMACIA",
+  "RESTAURANTE",
+  "SUPERMERCADO",
+  "ACADEMIA",
+  "BANCO",
+  "PARQUE",
+] as const;
 
-
+// Schema definitions
 const imovelSchema = z.object({
   titulo: z.string().min(3, { message: "O título é obrigatório." }),
   descricao: z.string().min(10, { message: "A descrição é obrigatória." }),
   preco: z.preprocess((val) => Number(val), z.number().min(1, { message: "O preço é obrigatório." })),
   provincia: z.string().min(3, { message: "Selecione a província." }),
-  municipio: z.string().min(3, { message: "Selecione a municipio." }),
+  municipio: z.string().min(3, { message: "Selecione o municipio." }),
   bairro: z.string().min(3, { message: "Digite o bairro." }),
   endereco: z.string().min(3, { message: "Digite o endereço." }),
   tipologia: z.string().min(2, { message: "Digite a tipologia." }),
@@ -59,52 +75,73 @@ const imovelSchema = z.object({
   garagem: z.preprocess((val) => Number(val), z.number().min(0)),
 });
 
-const RegisterImovelForm = () => {
+const proximidadeSchema = z.object({
+  nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
+  tipo: z.enum(TIPOS_PROXIMIDADE),
+  latitude: z.number(),
+  longitude: z.number(),
+  distancia: z.number(),
+  imovelId: z.string()
+});
+
+const registerSchema = z.object({
+  imovel: imovelSchema,
+  proximidades: z.array(proximidadeSchema)
+});
+
+type FormData = z.infer<typeof registerSchema>;
+type FileWithPreview = { file: File; preview: string; };
+
+const RegistrarImovelForm = () => {
+  // State management
   const [isOpen, setIsOpen] = useState(false);
-  const [files, setFiles] = useState<FileWithPreview[]>([]);
-  const [uploadProgress, setUploadProgress] = useState<UploadProgress>({});
+  const [activeTab, setActiveTab] = useState("imovel");
+  const [selectedLocation, setSelectedLocation] = useState<{lat: number; lng: number} | null>(null);
+  const [municipios, setMunicipios] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-const [selectedProvincia, setSelectedProvincia] = useState("");
-const [municipios, setMunicipios] = useState<string[]>([]);
-const [selectedMunicipio, setSelectedMunicipio] = useState("");
+  const [files, setFiles] = useState<FileWithPreview[]>([]);
+  const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
 
-
-const handleProvinciaChange = (provinciaId: string) => {
-  setSelectedProvincia(provinciaId);
-  const novosMunicipios = municipiosData[provinciaId as keyof typeof municipiosData] || [];
-  setMunicipios(novosMunicipios);
-};
-
-  const form = useForm({
-    resolver: zodResolver(imovelSchema),
+  // Form initialization
+  const form = useForm<FormData>({
+    resolver: zodResolver(registerSchema),
+    defaultValues: {
+      imovel: {
+        titulo: "",
+        descricao: "",
+        preco: 0,
+        provincia: "",
+        municipio: "",
+        bairro: "",
+        endereco: "",
+        tipologia: "",
+        numeroQuarto: 0,
+        numeroCasaBanho: 0,
+        garagem: 0,
+      },
+      proximidades: []
+    }
   });
 
+  // File handling
   const onDrop = (acceptedFiles: File[]) => {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
       reader.onprogress = (e) => {
         if (e.lengthComputable) {
           const percent = Math.round((e.loaded / e.total) * 100);
-          setUploadProgress((prev) => ({
-            ...prev,
-            [file.name]: percent,
-          }));
+          setUploadProgress(prev => ({ ...prev, [file.name]: percent }));
         }
       };
 
       reader.onloadend = () => {
         setTimeout(() => {
-          setUploadProgress((prev) => ({
-            ...prev,
-            [file.name]: 100,
-          }));
-
+          setUploadProgress(prev => ({ ...prev, [file.name]: 100 }));
           setTimeout(() => {
-            setFiles((prev) => [...prev, { file, preview: URL.createObjectURL(file) }]);
-            setUploadProgress((prev) => {
-              const updatedProgress = { ...prev };
-              delete updatedProgress[file.name];
-              return updatedProgress;
+            setFiles(prev => [...prev, { file, preview: URL.createObjectURL(file) }]);
+            setUploadProgress(prev => {
+              const { [file.name]: _, ...rest } = prev;
+              return rest;
             });
           }, 500);
         }, 500);
@@ -116,53 +153,92 @@ const handleProvinciaChange = (provinciaId: string) => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
-  const removeFile = (fileName: string) => {
-    setFiles((prev) => prev.filter((file) => file.file.name !== fileName));
+  // Form handlers
+  const handleProvinciaChange = (provinciaId: string) => {
+    const novosMunicipios = municipiosData[provinciaId as keyof typeof municipiosData] || [];
+    form.setValue("imovel.municipio", "");
+    setMunicipios(novosMunicipios);
   };
 
-  const handleSubmit = async (data: any) => {
+  const handleMapClick = (lat: number, lng: number) => {
+    setSelectedLocation({ lat, lng });
+  };
+
+  const handleAddProximidade = () => {
+    if (!selectedLocation) return;
+    const proximidades = form.getValues("proximidades");
+    form.setValue("proximidades", [
+      ...proximidades,
+      {
+        nome: "",
+        tipo: "HOSPITAL",
+        latitude: selectedLocation.lat,
+        longitude: selectedLocation.lng,
+        distancia: 0,
+        imovelId: ""
+      }
+    ]);
+  };
+
+  const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
-
     try {
-      const imagens = await Promise.all(
-        files.map(async (file) => {
+      // Upload images first
+      const imageUrls = await Promise.all(
+        files.map(async ({ file }) => {
           const formData = new FormData();
-          formData.append("file", file.file);
-
-          const uploadResponse = await fetch("/api/imoveis/upload", {
+          formData.append("file", file);
+          const response = await fetch("/api/imoveis/upload", {
             method: "POST",
             body: formData,
           });
-          const { url } = await uploadResponse.json();
+          const { url } = await response.json();
           return url;
         })
       );
 
-      const response = await fetch("/api/imoveis/create", {
+      // Create imóvel with images
+      const imovelResponse = await fetch("/api/imoveis/create", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data,
-          imagens,
+          ...data.imovel,
+          imagens: imageUrls,
+          proximidades: data.proximidades.map(proximidade => ({
+            nome: proximidade.nome,
+            tipo: proximidade.tipo,
+            latitude: proximidade.latitude,
+            longitude: proximidade.longitude,
+            distancia: proximidade.distancia
+          }))
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Erro ao registrar o imóvel.");
-      }
+      const imovel = await imovelResponse.json();
 
-      const result = await response.json();
-      console.log("Imóvel registrado com sucesso:", result);
-      toast.success("Imóvel registrado com sucesso!"); // Notificação de sucesso
-      setIsOpen(false); // Fechar o popup após o sucesso
-      form.reset(); // Resetar o formulário
-      setFiles([]); // Limpar os arquivos
+      // Create proximidades
+      // if (data.proximidades.length > 0) {
+      //   await Promise.all(
+      //     data.proximidades.map(proximidade =>
+      //       fetch("/api/proximidade/create", {
+      //         method: "POST",
+      //         headers: { "Content-Type": "application/json" },
+      //         body: JSON.stringify({
+      //           ...proximidade,
+      //           imovelId: imovel.id
+      //         })
+      //       })
+      //     )
+      //   );
+      // }
 
+      toast.success("Imóvel registrado com sucesso!");
+      setIsOpen(false);
+      form.reset();
+      setFiles([]);
     } catch (error) {
-      console.error("Erro ao enviar o formulário:", error);
-      toast.error("Erro ao registrar o imóvel."); // Notificação de erro
+      console.error(error);
+      toast.error("Erro ao registrar imóvel");
     } finally {
       setIsSubmitting(false);
     }
@@ -172,30 +248,29 @@ const handleProvinciaChange = (provinciaId: string) => {
     <>
       <Button onClick={() => setIsOpen(true)}>Registrar Imóvel</Button>
 
-      <Dialog open={isOpen} onOpenChange={() => {}}>
-        
-        <DialogContent className="w-full sm:w-[500px] md:w-[900px] lg:w-[1400px] h-[90vh] max-h-[90vh] overflow-y-auto">
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Registrar Imóvel</DialogTitle>
-            <DialogDescription>Preencha as informações abaixo para registrar o imóvel.</DialogDescription>
-            <DialogClose asChild>
-            <Button
-                onClick={() => setIsOpen(false)}
-                className="absolute top-12 right-1/3 transform -translate-x-1/2"
-                variant="ghost" // Opção para estilo discreto do botão
-              >
-                <X className="w-5 h-5" />
-                
-              </Button>
-              
-            </DialogClose>
+            <DialogTitle>Registrar Novo Imóvel</DialogTitle>
+            <DialogDescription>
+              Preencha os dados do imóvel e suas áreas de interesse próximas
+            </DialogDescription>
           </DialogHeader>
-          <Form {...form}>
-            <form className="grid grid-cols-2 gap-4" onSubmit={form.handleSubmit(handleSubmit)}>
-              {/* Campos do formulário */}
-              <FormField
+
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="imovel">Dados do Imóvel</TabsTrigger>
+              <TabsTrigger value="proximidades">Áreas de Interesse</TabsTrigger>
+            </TabsList>
+
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+                <TabsContent value="imovel" className="grid grid-cols-2 gap-4">
+                
+
+                <FormField
                 control={form.control}
-                name="titulo"
+                name="imovel.titulo"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Título</FormLabel>
@@ -206,10 +281,9 @@ const handleProvinciaChange = (provinciaId: string) => {
                   </FormItem>
                 )}
               />
-
-              <FormField
+                   <FormField
                 control={form.control}
-                name="tipologia"
+                name="imovel.tipologia"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Tipologia</FormLabel>
@@ -220,13 +294,14 @@ const handleProvinciaChange = (provinciaId: string) => {
                   </FormItem>
                 )}
               />
-
+        
+              {/* Preço */}
               <FormField
                 control={form.control}
-                name="preco"
+                name="imovel.preco"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Preço</FormLabel>
+                    <FormLabel>Preço (AKZ)</FormLabel>
                     <FormControl>
                       <Input type="number" {...field} />
                     </FormControl>
@@ -234,70 +309,60 @@ const handleProvinciaChange = (provinciaId: string) => {
                   </FormItem>
                 )}
               />
-<FormField
-  control={form.control}
-  name="provincia"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Província</FormLabel>
-      <FormControl>
-        <Select value={field.value} onValueChange={(value) => {
-          field.onChange(value); // Atualiza o estado do formulário
-          handleProvinciaChange(value); // Chama a função para atualizar os municípios
-        }}>
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione a província" />
-          </SelectTrigger>
-          <SelectContent>
-            {provincias.map((provincia) => (
-              <SelectItem key={provincia.id} value={provincia.id}>
-                {provincia.nome}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
-<FormField
-  control={form.control}
-  name="municipio"
-  render={({ field }) => (
-    <FormItem>
-      <FormLabel>Município</FormLabel>
-      <FormControl>
-        <Select 
-          value={field.value} 
-          onValueChange={(value) => {
-            field.onChange(value)
-            console.log("Município selecionado:", value);
-            setSelectedMunicipio(value); // Atualiza o estado do município selecionado
-            console.log(value); 
-          }} // Atualiza o estado do formulário
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Selecione o município" />
-          </SelectTrigger>
-          <SelectContent>
-            {municipios.map((municipio) => (
-              <SelectItem key={municipio} value={municipio}>
-                {municipio}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </FormControl>
-      <FormMessage />
-    </FormItem>
-  )}
-/>
-
+      
+              {/* Província */}
               <FormField
                 control={form.control}
-                name="bairro"
+                name="imovel.provincia"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Província</FormLabel>
+                    <Select onValueChange={(value) => {
+                      field.onChange(value);
+                      handleProvinciaChange(value);
+                    }}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione a província" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {provincias.map((provincia) => (
+                          <SelectItem key={provincia.id} value={provincia.id}>
+                            {provincia.nome}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Município */}
+              <FormField
+                control={form.control}
+                name="imovel.municipio"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Município</FormLabel>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecione o município" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {municipios.map((municipio) => (
+                          <SelectItem key={municipio} value={municipio}>
+                            {municipio}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {/* Outros campos */}
+              <FormField
+                control={form.control}
+                name="imovel.bairro"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Bairro</FormLabel>
@@ -309,9 +374,9 @@ const handleProvinciaChange = (provinciaId: string) => {
                 )}
               />
 
-              <FormField
+<FormField
                 control={form.control}
-                name="endereco"
+                name="imovel.endereco"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Endereço</FormLabel>
@@ -323,9 +388,9 @@ const handleProvinciaChange = (provinciaId: string) => {
                 )}
               />
 
-              <FormField
+<FormField
                 control={form.control}
-                name="numeroQuarto"
+                name="imovel.numeroQuarto"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Número de Quartos</FormLabel>
@@ -337,9 +402,9 @@ const handleProvinciaChange = (provinciaId: string) => {
                 )}
               />
 
-              <FormField
+<FormField
                 control={form.control}
-                name="numeroCasaBanho"
+                name="imovel.numeroCasaBanho"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Número de Casas de Banho</FormLabel>
@@ -351,9 +416,9 @@ const handleProvinciaChange = (provinciaId: string) => {
                 )}
               />
 
-              <FormField
+<FormField
                 control={form.control}
-                name="garagem"
+                name="imovel.garagem"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Garagem</FormLabel>
@@ -364,73 +429,166 @@ const handleProvinciaChange = (provinciaId: string) => {
                   </FormItem>
                 )}
               />
-
-              <div className="col-span-2">
-                <FormField
-                  control={form.control}
-                  name="descricao"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Descrição</FormLabel>
-                      <FormControl>
-                        <Textarea rows={3} {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                 <div className="col-span-2">
-                {selectedMunicipio && (
-                  <p>Município Selecionado: {selectedMunicipio}</p>
+                    {/* Descrição */}
+                    <FormField
+                control={form.control}
+                name="imovel.descricao"
+                render={({ field }) => (
+                  <FormItem className="col-span-2">
+                    <FormLabel>Descrição</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
                 )}
-              </div>
-              </div>
+              />
+                  {/* Add all other form fields similarly */}
+                  
+                  <div className="col-span-2">
+                    <div {...getRootProps()} className="border-2 border-dashed p-4 cursor-pointer">
+                      <input {...getInputProps()} />
+                      <p>Arraste e solte arquivos aqui, ou clique para selecionar arquivos</p>
+                    </div>
 
-              {/* Dropzone para upload de imagens */}
-              <div className="col-span-2">
-                <div {...getRootProps()} className="border-2 border-dashed p-4 cursor-pointer">
-                  <input {...getInputProps()} />
-                  <p>Arraste e solte arquivos aqui, ou clique para selecionar arquivos.</p>
-                </div>
+                    <ScrollArea className="h-32 mt-2">
+                      <div className="flex flex-wrap gap-2">
+                        {files.map((file, index) => (
+                          <div key={index} className="relative">
+                            <Image
+                              src={file.preview}
+                              alt={`Preview ${index}`}
+                              width={100}
+                              height={100}
+                              className="rounded object-cover"
+                            />
+                            <Button
+                              type="button"
+                              onClick={() => setFiles(files.filter((_, i) => i !== index))}
+                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
 
-                <ScrollArea className="mt-2 h-32 border p-2 overflow-auto">
-                  <div className="flex flex-col space-y-2">
-                    {files.map((file, index) => (
-                      <div key={index} className="relative flex items-center">
-                        <Image
-                          src={file.preview}
-                          alt={`Preview ${index}`}
-                          width={100}
-                          height={100}
-                          className="rounded"
+                    {Object.keys(uploadProgress).length > 0 && (
+                      <Progress 
+                        value={
+                          Object.values(uploadProgress).reduce((a, b) => a + b, 0) / 
+                          Object.keys(uploadProgress).length
+                        } 
+                        className="mt-2"
+                      />
+                    )}
+                  </div>
+
+                  <div className="col-span-2 flex justify-end">
+                    <Button type="button" onClick={() => setActiveTab("proximidades")}>
+                      Próximo
+                    </Button>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="proximidades" className="space-y-4">
+                  <div className="h-[400px]">
+                    <MapWithNoSSR
+                      onLocationSelected={handleMapClick}
+                      markers={form.getValues("proximidades")}
+                    />
+                  </div>
+
+                  <Button
+                    type="button"
+                    onClick={handleAddProximidade}
+                    disabled={!selectedLocation}
+                  >
+                    Adicionar Ponto de Interesse
+                  </Button>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {form.watch("proximidades").map((_, index) => (
+                      <div key={index} className="border p-4 rounded-lg">
+                        <FormField
+                          control={form.control}
+                          name={`proximidades.${index}.nome`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Nome</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
                         />
+
+                        <FormField
+                          control={form.control}
+                          name={`proximidades.${index}.tipo`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tipo</FormLabel>
+                              <Select 
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Selecione o tipo" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {TIPOS_PROXIMIDADE.map(tipo => (
+                                    <SelectItem key={tipo} value={tipo}>
+                                      {tipo}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
                         <Button
                           type="button"
-                          className="absolute top-0 right-0 text-white bg-red-500 rounded-full p-1"
-                          onClick={() => removeFile(file.file.name)}
+                          variant="destructive"
+                          onClick={() => {
+                            const proximidades = form.getValues("proximidades");
+                            form.setValue(
+                              "proximidades",
+                              proximidades.filter((_, i) => i !== index)
+                            );
+                          }}
+                          className="mt-2"
                         >
-                          <X className="w-4 h-4" />
+                          Remover
                         </Button>
                       </div>
                     ))}
                   </div>
-                </ScrollArea>
 
-                <Progress value={Object.values(uploadProgress).reduce((a, b) => a + b, 0) / files.length || 0} />
-              </div>
-
-              {/* Botão de submit */}
-              <div className="col-span-2">
-                <Button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? "Enviando..." : "Registrar Imóvel"}
-                </Button>
-              </div>
-            </form>
-          </Form>
+                  <div className="flex justify-between">
+                    <Button 
+                      type="button" 
+                      variant="outline"
+                      onClick={() => setActiveTab("imovel")}
+                    >
+                      Voltar
+                    </Button>
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting ? "Registrando..." : "Registrar Imóvel"}
+                    </Button>
+                  </div>
+                </TabsContent>
+              </form>
+            </Form>
+          </Tabs>
         </DialogContent>
       </Dialog>
     </>
   );
 };
 
-export default RegisterImovelForm;
+export default RegistrarImovelForm;
