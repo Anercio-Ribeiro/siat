@@ -59,12 +59,19 @@ export interface ImovelLDto {
   criadoEm: string;
   atualizadoEm: string;
   imagens: { url: string }[];
-  proximidades: { nome: string }[];
+  proximidades: { 
+    nome: string;
+    latitude: number;
+    longitude: number;
+    tipo: string;
+    distancia: string;
+  }[];
   proprietario: {
     id: string;
     nome: string;
     email: string;
     role: string;
+  
   };
 }
 
