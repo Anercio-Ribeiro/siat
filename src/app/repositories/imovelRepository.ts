@@ -88,6 +88,8 @@ export class ImovelRepository {
     proximidades: {
       select: {
         nome: true,
+        latitude: true,
+        longitude: true
       },
     },
     proprietario: {
