@@ -1,4 +1,3 @@
-
 "use client";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -35,7 +34,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 // Import data
@@ -47,20 +45,7 @@ const MapWithNoSSR = dynamic(() => import("../map-component/map"), {
   ssr: false
 });
 
-// Constants
-const TIPOS_PROXIMIDADE = [
-  "HOSPITAL",
-  "ESCOLA",
-  "SHOPPING",
-  "FARMACIA",
-  "RESTAURANTE",
-  "SUPERMERCADO",
-  "ACADEMIA",
-  "BANCO",
-  "PARQUE",
-] as const;
-
-// Schema definitions
+// Schema definition
 const imovelSchema = z.object({
   titulo: z.string().min(3, { message: "O título é obrigatório." }),
   descricao: z.string().min(10, { message: "A descrição é obrigatória." }),
@@ -73,30 +58,15 @@ const imovelSchema = z.object({
   numeroQuarto: z.preprocess((val) => Number(val), z.number().min(1)),
   numeroCasaBanho: z.preprocess((val) => Number(val), z.number().min(1)),
   garagem: z.preprocess((val) => Number(val), z.number().min(0)),
+  latitude: z.number({ required_error: "Selecione a localização no mapa" }),
+  longitude: z.number({ required_error: "Selecione a localização no mapa" }),
 });
 
-const proximidadeSchema = z.object({
-  nome: z.string().min(3, "Nome deve ter pelo menos 3 caracteres"),
-  tipo: z.enum(TIPOS_PROXIMIDADE),
-  latitude: z.number(),
-  longitude: z.number(),
-  distancia: z.number(),
-  imovelId: z.string()
-});
-
-const registerSchema = z.object({
-  imovel: imovelSchema,
-  proximidades: z.array(proximidadeSchema)
-});
-
-type FormData = z.infer<typeof registerSchema>;
+type FormData = z.infer<typeof imovelSchema>;
 type FileWithPreview = { file: File; preview: string; };
 
 const RegistrarImovelForm = () => {
-  // State management
   const [isOpen, setIsOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("imovel");
-  const [selectedLocation, setSelectedLocation] = useState<{lat: number; lng: number} | null>(null);
   const [municipios, setMunicipios] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState<FileWithPreview[]>([]);
@@ -104,22 +74,21 @@ const RegistrarImovelForm = () => {
 
   // Form initialization
   const form = useForm<FormData>({
-    resolver: zodResolver(registerSchema),
+    resolver: zodResolver(imovelSchema),
     defaultValues: {
-      imovel: {
-        titulo: "",
-        descricao: "",
-        preco: 0,
-        provincia: "",
-        municipio: "",
-        bairro: "",
-        endereco: "",
-        tipologia: "",
-        numeroQuarto: 0,
-        numeroCasaBanho: 0,
-        garagem: 0,
-      },
-      proximidades: []
+      titulo: "",
+      descricao: "",
+      preco: 0,
+      provincia: "",
+      municipio: "",
+      bairro: "",
+      endereco: "",
+      tipologia: "",
+      numeroQuarto: 0,
+      numeroCasaBanho: 0,
+      garagem: 0,
+      latitude: undefined,
+      longitude: undefined,
     }
   });
 
@@ -153,31 +122,17 @@ const RegistrarImovelForm = () => {
 
   const { getRootProps, getInputProps } = useDropzone({ onDrop });
 
+  // Map handler
+  const handleMapClick = (lat: number, lng: number) => {
+    form.setValue("latitude", lat);
+    form.setValue("longitude", lng);
+  };
+
   // Form handlers
   const handleProvinciaChange = (provinciaId: string) => {
     const novosMunicipios = municipiosData[provinciaId as keyof typeof municipiosData] || [];
-    form.setValue("imovel.municipio", "");
+    form.setValue("municipio", "");
     setMunicipios(novosMunicipios);
-  };
-
-  const handleMapClick = (lat: number, lng: number) => {
-    setSelectedLocation({ lat, lng });
-  };
-
-  const handleAddProximidade = () => {
-    if (!selectedLocation) return;
-    const proximidades = form.getValues("proximidades");
-    form.setValue("proximidades", [
-      ...proximidades,
-      {
-        nome: "",
-        tipo: "HOSPITAL",
-        latitude: selectedLocation.lat,
-        longitude: selectedLocation.lng,
-        distancia: 0,
-        imovelId: ""
-      }
-    ]);
   };
 
   const onSubmit = async (data: FormData) => {
@@ -198,39 +153,18 @@ const RegistrarImovelForm = () => {
       );
 
       // Create imóvel with images
-      const imovelResponse = await fetch("/api/imoveis/create", {
+      const response = await fetch("/api/imoveis/create", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          ...data.imovel,
+          ...data,
           imagens: imageUrls,
-          proximidades: data.proximidades.map(proximidade => ({
-            nome: proximidade.nome,
-            tipo: proximidade.tipo,
-            latitude: proximidade.latitude,
-            longitude: proximidade.longitude,
-            distancia: proximidade.distancia
-          }))
         }),
       });
 
-      const imovel = await imovelResponse.json();
-
-      // Create proximidades
-      // if (data.proximidades.length > 0) {
-      //   await Promise.all(
-      //     data.proximidades.map(proximidade =>
-      //       fetch("/api/proximidade/create", {
-      //         method: "POST",
-      //         headers: { "Content-Type": "application/json" },
-      //         body: JSON.stringify({
-      //           ...proximidade,
-      //           imovelId: imovel.id
-      //         })
-      //       })
-      //     )
-      //   );
-      // }
+      if (!response.ok) {
+        throw new Error("Erro ao criar imóvel");
+      }
 
       toast.success("Imóvel registrado com sucesso!");
       setIsOpen(false);
@@ -253,338 +187,249 @@ const RegistrarImovelForm = () => {
           <DialogHeader>
             <DialogTitle>Registrar Novo Imóvel</DialogTitle>
             <DialogDescription>
-              Preencha os dados do imóvel e suas áreas de interesse próximas
+              Preencha os dados do imóvel e selecione sua localização no mapa
             </DialogDescription>
           </DialogHeader>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="imovel">Dados do Imóvel</TabsTrigger>
-              <TabsTrigger value="proximidades">Áreas de Interesse</TabsTrigger>
-            </TabsList>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="h-[400px] mb-4">
+                <MapWithNoSSR
+                  onLocationSelected={handleMapClick}
+                  selectedLocation={form.watch(["latitude", "longitude"]).every(Boolean) ? {
+                    lat: form.watch("latitude"),
+                    lng: form.watch("longitude")
+                  } : null}
+                />
+              </div>
 
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <TabsContent value="imovel" className="grid grid-cols-2 gap-4">
-                
+              <div className="grid grid-cols-2 gap-4">
+                <FormField
+                  control={form.control}
+                  name="titulo"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Título</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
-                control={form.control}
-                name="imovel.titulo"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Título</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-                   <FormField
-                control={form.control}
-                name="imovel.tipologia"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tipologia</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-        
-              {/* Preço */}
-              <FormField
-                control={form.control}
-                name="imovel.preco"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Preço (AKZ)</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-      
-              {/* Província */}
-              <FormField
-                control={form.control}
-                name="imovel.provincia"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Província</FormLabel>
-                    <Select onValueChange={(value) => {
-                      field.onChange(value);
-                      handleProvinciaChange(value);
-                    }}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione a província" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {provincias.map((provincia) => (
-                          <SelectItem key={provincia.id} value={provincia.id}>
-                            {provincia.nome}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {/* Município */}
-              <FormField
-                control={form.control}
-                name="imovel.municipio"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Município</FormLabel>
-                    <Select onValueChange={field.onChange}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o município" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {municipios.map((municipio) => (
-                          <SelectItem key={municipio} value={municipio}>
-                            {municipio}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {/* Outros campos */}
-              <FormField
-                control={form.control}
-                name="imovel.bairro"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Bairro</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  control={form.control}
+                  name="tipologia"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipologia</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-<FormField
-                control={form.control}
-                name="imovel.endereco"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Endereço</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="preco"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Preço (AKZ)</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-<FormField
-                control={form.control}
-                name="imovel.numeroQuarto"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de Quartos</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="provincia"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Província</FormLabel>
+                      <Select onValueChange={(value) => {
+                        field.onChange(value);
+                        handleProvinciaChange(value);
+                      }}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione a província" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {provincias.map((provincia) => (
+                            <SelectItem key={provincia.id} value={provincia.id}>
+                              {provincia.nome}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-<FormField
-                control={form.control}
-                name="imovel.numeroCasaBanho"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Número de Casas de Banho</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                <FormField
+                  control={form.control}
+                  name="municipio"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Município</FormLabel>
+                      <Select onValueChange={field.onChange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecione o município" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {municipios.map((municipio) => (
+                            <SelectItem key={municipio} value={municipio}>
+                              {municipio}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-<FormField
-                control={form.control}
-                name="imovel.garagem"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Garagem</FormLabel>
-                    <FormControl>
-                      <Input type="number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-                    {/* Descrição */}
-                    <FormField
-                control={form.control}
-                name="imovel.descricao"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Descrição</FormLabel>
-                    <FormControl>
-                      <Textarea {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-                  {/* Add all other form fields similarly */}
-                  
-                  <div className="col-span-2">
-                    <div {...getRootProps()} className="border-2 border-dashed p-4 cursor-pointer">
-                      <input {...getInputProps()} />
-                      <p>Arraste e solte arquivos aqui, ou clique para selecionar arquivos</p>
-                    </div>
+                <FormField
+                  control={form.control}
+                  name="bairro"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Bairro</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    <ScrollArea className="h-32 mt-2">
-                      <div className="flex flex-wrap gap-2">
-                        {files.map((file, index) => (
-                          <div key={index} className="relative">
-                            <Image
-                              src={file.preview}
-                              alt={`Preview ${index}`}
-                              width={100}
-                              height={100}
-                              className="rounded object-cover"
-                            />
-                            <Button
-                              type="button"
-                              onClick={() => setFiles(files.filter((_, i) => i !== index))}
-                              className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
-                            >
-                              <X className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                <FormField
+                  control={form.control}
+                  name="endereco"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Endereço</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                    {Object.keys(uploadProgress).length > 0 && (
-                      <Progress 
-                        value={
-                          Object.values(uploadProgress).reduce((a, b) => a + b, 0) / 
-                          Object.keys(uploadProgress).length
-                        } 
-                        className="mt-2"
-                      />
-                    )}
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="numeroQuarto"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número de Quartos</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <div className="col-span-2 flex justify-end">
-                    <Button type="button" onClick={() => setActiveTab("proximidades")}>
-                      Próximo
-                    </Button>
-                  </div>
-                </TabsContent>
+                <FormField
+                  control={form.control}
+                  name="numeroCasaBanho"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Número de Casas de Banho</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                <TabsContent value="proximidades" className="space-y-4">
-                  <div className="h-[400px]">
-                    <MapWithNoSSR
-                      onLocationSelected={handleMapClick}
-                      markers={form.getValues("proximidades")}
-                    />
-                  </div>
+                <FormField
+                  control={form.control}
+                  name="garagem"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Garagem</FormLabel>
+                      <FormControl>
+                        <Input type="number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <Button
-                    type="button"
-                    onClick={handleAddProximidade}
-                    disabled={!selectedLocation}
-                  >
-                    Adicionar Ponto de Interesse
-                  </Button>
+                <FormField
+                  control={form.control}
+                  name="descricao"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Descrição</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
 
-                  <div className="grid grid-cols-2 gap-4">
-                    {form.watch("proximidades").map((_, index) => (
-                      <div key={index} className="border p-4 rounded-lg">
-                        <FormField
-                          control={form.control}
-                          name={`proximidades.${index}.nome`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Nome</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+              <div className="col-span-2">
+                <div {...getRootProps()} className="border-2 border-dashed p-4 cursor-pointer">
+                  <input {...getInputProps()} />
+                  <p>Arraste e solte arquivos aqui, ou clique para selecionar arquivos</p>
+                </div>
+
+                <ScrollArea className="h-32 mt-2">
+                  <div className="flex flex-wrap gap-2">
+                    {files.map((file, index) => (
+                      <div key={index} className="relative">
+                        <Image
+                          src={file.preview}
+                          alt={`Preview ${index}`}
+                          width={100}
+                          height={100}
+                          className="rounded object-cover"
                         />
-
-                        <FormField
-                          control={form.control}
-                          name={`proximidades.${index}.tipo`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Tipo</FormLabel>
-                              <Select 
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Selecione o tipo" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {TIPOS_PROXIMIDADE.map(tipo => (
-                                    <SelectItem key={tipo} value={tipo}>
-                                      {tipo}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
                         <Button
                           type="button"
-                          variant="destructive"
-                          onClick={() => {
-                            const proximidades = form.getValues("proximidades");
-                            form.setValue(
-                              "proximidades",
-                              proximidades.filter((_, i) => i !== index)
-                            );
-                          }}
-                          className="mt-2"
+                          onClick={() => setFiles(files.filter((_, i) => i !== index))}
+                          className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                         >
-                          Remover
+                          <X className="h-4 w-4" />
                         </Button>
                       </div>
                     ))}
                   </div>
+                </ScrollArea>
 
-                  <div className="flex justify-between">
-                    <Button 
-                      type="button" 
-                      variant="outline"
-                      onClick={() => setActiveTab("imovel")}
-                    >
-                      Voltar
-                    </Button>
-                    <Button type="submit" disabled={isSubmitting}>
-                      {isSubmitting ? "Registrando..." : "Registrar Imóvel"}
-                    </Button>
-                  </div>
-                </TabsContent>
-              </form>
-            </Form>
-          </Tabs>
+                {Object.keys(uploadProgress).length > 0 && (
+                  <Progress 
+                    value={
+                      Object.values(uploadProgress).reduce((a, b) => a + b, 0) / 
+                      Object.keys(uploadProgress).length
+                    } 
+                    className="mt-2"
+                  />
+                )}
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button type="button" variant="outline" onClick={() => setIsOpen(false)}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? "Registrando..." : "Registrar Imóvel"}
+                </Button>
+              </div>
+            </form>
+          </Form>
         </DialogContent>
       </Dialog>
     </>

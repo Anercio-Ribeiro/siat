@@ -59,13 +59,8 @@ export interface ImovelLDto {
   criadoEm: string;
   atualizadoEm: string;
   imagens: { url: string }[];
-  proximidades: { 
-    nome: string;
-    latitude: number;
-    longitude: number;
-    tipo: string;
-    distancia: string;
-  }[];
+  latitude: number;
+  longitude: number;
   proprietario: {
     id: string;
     nome: string;
@@ -74,6 +69,14 @@ export interface ImovelLDto {
   
   };
 }
+
+export interface Proximidades { 
+  nome: string;
+  latitude: number;
+  longitude: number;
+  tipo: string;
+  distancia: string;
+}[];
 
 // types/User.ts
 export interface User {

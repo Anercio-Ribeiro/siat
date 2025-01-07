@@ -67,6 +67,15 @@
       --input: 240 3.7% 15.9%;
       --ring: 240 4.9% 83.9%;
     }
+
+    .leaflet-container {
+      z-index: 1;
+    }
+    
+    .custom-pin-icon svg {
+      color: #2563eb; /* blue-600 */
+      fill: white;
+    }
   }
 
   @layer base {

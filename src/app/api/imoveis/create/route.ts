@@ -85,7 +85,9 @@ export async function POST(req: Request) {
       endereco,
       provincia,
       bairro,
-      proximidades,
+      //proximidades,
+      latitude,
+      longitude,
       numeroQuarto,
       numeroCasaBanho,
       tipologia,
@@ -118,13 +120,15 @@ export async function POST(req: Request) {
       tipologia,
       garagem,
       municipio,
+      latitude,
+      longitude,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
       },
       proprietarioId: proprietario.id,
-      proximidades: {
-        create: proximidades || [],
-      },
+      // proximidades: {
+      //   create: proximidades || [],
+      // },
       criadoEm: new Date(),
       atualizadoEm: new Date(),
     };

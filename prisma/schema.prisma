@@ -54,12 +54,13 @@ model Imovel {
   numeroCasaBanho Int
   garagem         Int
   tipologia       String
-  criadoEm        DateTime      @default(now())
-  atualizadoEm    DateTime      @updatedAt
+  latitude        Float
+  longitude       Float
   alugueis        Aluguel[]
   imagens         Imagem[]
   proprietario    User          @relation(fields: [proprietarioId], references: [id])
-  proximidades    Proximidade[]
+  criadoEm        DateTime      @default(now())
+  atualizadoEm    DateTime      @updatedAt
 }
 
 model Imagem {
@@ -107,7 +108,6 @@ model Proximidade {
   imovelId     String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
-  imovel       Imovel   @relation(fields: [imovelId], references: [id])
 }
 
 enum Role {

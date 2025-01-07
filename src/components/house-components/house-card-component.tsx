@@ -268,7 +268,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               {/* Tab: Proximidades */}
               <TabsContent value="proximidades">
                 <div className="grid grid-cols-3 gap-4">
-                  {imovel.proximidades.length > 0 ? (
+                  {/* {imovel.proximidades.length > 0 ? (
                     imovel.proximidades.map((local, index) => (
                       <p key={index} className="text-sm text-muted-foreground">
                         {local.nome}
@@ -278,7 +278,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
                     <p className="text-sm text-muted-foreground col-span-3">
                       Nenhuma proximidade informada.
                     </p>
-                  )}
+                  )} */}
                 </div>
               </TabsContent>
             </Tabs>

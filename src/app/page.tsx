@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ImovelLDto } from "./model/type";
 import { useRouter } from "next/navigation";
+import { Info } from 'lucide-react';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 interface FetchImoveisResponse {
   imoveis: ImovelLDto[];
@@ -128,7 +130,7 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="mt-8">
+      {/* <div className="mt-8">
         {isLoading || isSkeletonVisible ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 6 }).map((_, index) => (
@@ -148,7 +150,44 @@ export default function HomePage() {
             ))}
           </div>
         )}
+      </div> */}
+
+
+<div className="mt-8">
+        {isLoading || isSkeletonVisible ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="min-w-[300px] w-full">
+                <Skeleton className="h-52 w-full mb-2" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-6 w-1/2" />
+              </div>
+            ))}
+          </div>
+        ) : error ? (
+          <div className="text-red-500">Erro ao carregar imóveis: {error.message}</div>
+        ) : data?.imoveis.length === 0 ? (
+          <div className="flex items-center justify-center min-h-[50vh]">
+            <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
+              <div className="flex items-center justify-center mb-2">
+                <Info className="h-6 w-6 text-blue-600" />
+              </div>
+              <AlertTitle className="font-bold text-lg text-gray-800">Nenhum imóvel disponível</AlertTitle>
+              <AlertDescription className="text-gray-600">
+                No momento, não há imóveis para exibição. Por favor, volte mais tarde para conferir novas opções.
+              </AlertDescription>
+            </Alert>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+            {data?.imoveis.map((imovel) => (
+              <HouseCard key={imovel.id} imovel={imovel} />
+            ))}
+          </div>
+        )}
       </div>
+
+      
 
       <div className="mt-4 flex justify-between">
         <Button onClick={() => handlePageChange(page - 1)} disabled={page === 1}>
@@ -161,3 +200,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+

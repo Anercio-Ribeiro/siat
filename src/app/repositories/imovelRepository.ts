@@ -6,7 +6,7 @@ export class ImovelRepository {
   async criarImovel(data: Omit<Imovel, 'id'>): Promise<Imovel> {
     return await prisma.imovel.create({
       data,
-      include: { imagens: true, proximidades: true }, // Inclui as relações criadas
+      include: { imagens: true,  }, // Inclui as relações criadas proximidades: true
     });
   }
 
@@ -21,7 +21,7 @@ export class ImovelRepository {
     return await prisma.imovel.findUnique({
       where: { id },
       include: {
-        proximidades: true,
+       // proximidades: true,
         proprietario: {
           select: {
             id: true,
@@ -51,7 +51,7 @@ export class ImovelRepository {
   async listarImoveis(): Promise<Imovel[]> {
     return await prisma.imovel.findMany({
       include: {
-        proximidades: true,
+        //proximidades: true,
         proprietario: {
           select: {
             id: true,
@@ -85,13 +85,13 @@ export class ImovelRepository {
           },
         
     },
-    proximidades: {
-      select: {
-        nome: true,
-        latitude: true,
-        longitude: true
-      },
-    },
+    // proximidades: {
+    //   select: {
+    //     nome: true,
+    //     latitude: true,
+    //     longitude: true
+    //   },
+    // },
     proprietario: {
       select: {
         id: true,
