@@ -6,6 +6,7 @@ import {
   Bookmark,
   LayoutGrid,
   LucideIcon,
+  Map,
   Home
 } from "lucide-react";
 
@@ -53,10 +54,10 @@ export function getMenuList(pathname: string): Group[] {
           submenus: []
         },
         {
-          href: "/categories",
-          label: "Categories",
-          active: pathname.includes("/categories"),
-          icon: Bookmark,
+          href: "/proximidades",
+          label: "Proximidades",
+          active: pathname.includes("/proximidades"),
+          icon: Map,
           submenus: []
         },
         {

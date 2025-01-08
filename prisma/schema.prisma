@@ -105,7 +105,6 @@ model Proximidade {
   latitude     Float
   longitude    Float
   distancia    Float
-  imovelId     String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
 }

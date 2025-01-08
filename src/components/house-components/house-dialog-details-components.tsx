@@ -727,8 +727,8 @@ const DialogContentComponent = ({ isLoading, imovel }: {
           <Tabs defaultValue="descricao" onValueChange={handleTabChange}>
             <TabsList className="mb-4">
               <TabsTrigger value="descricao">Descrição</TabsTrigger>
-              <TabsTrigger value="proximidades">Proximidades</TabsTrigger>
               <TabsTrigger value="localizacao">Localização</TabsTrigger>
+              <TabsTrigger value="proximidades">Proximidades</TabsTrigger>
             </TabsList>
 
             <TabsContent value="descricao">

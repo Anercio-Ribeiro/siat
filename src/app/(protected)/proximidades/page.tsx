@@ -1,4 +1,7 @@
+"use client"
 import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+
+import ProximidadePage from '../../../components/proximidade-component/ProximidadePage';
 
 
 export default function CategoriesPage() {
@@ -11,7 +14,7 @@ export default function CategoriesPage() {
         { label: "Categories" }
       ]}
     >
-       <p>Welcome to the Categories!</p>
-       </PageWithBreadcrumb>
+      <ProximidadePage />
+    </PageWithBreadcrumb>
   );
 }

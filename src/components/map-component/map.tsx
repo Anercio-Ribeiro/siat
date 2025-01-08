@@ -72,6 +72,7 @@
 
 
 
+
 // app/components/map-component/map.tsx
 import { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
