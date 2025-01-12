@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { Proximidade } from '@prisma/client';
+import { PaginationParams } from '../model/type';
 
 export class ProximidadeRepository {
   async criarProximidade(data: Omit<Proximidade, 'id'>): Promise<Proximidade> {
@@ -27,7 +28,20 @@ export class ProximidadeRepository {
     });
   }
 
-  async listarProximidades(): Promise<Proximidade[]> {
-    return await prisma.proximidade.findMany();
+  // async listarProximidades(): Promise<Proximidade[]> {
+  //   return await prisma.proximidade.findMany();
+  // }
+
+  async listarProximidades({ skip, take }: PaginationParams) {
+    // Update your database query to include skip/take
+    return await prisma.proximidade.findMany({
+      skip,
+      take,
+      orderBy: { /* your ordering */ }
+    });
+  }
+
+  async countProximidades() {
+    return await prisma.proximidade.count();
   }
 }

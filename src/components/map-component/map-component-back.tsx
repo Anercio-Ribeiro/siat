@@ -1,149 +1,132 @@
+// import React from 'react';
+// import { MapPin } from 'lucide-react';
 
+// const PropertyLocationMap = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
+//   const mapContainerStyle = {
+//     width: '100%',
+//     height: '300px',
+//     position: 'relative' as const,
+//     borderRadius: '8px',
+//     overflow: 'hidden'
+//   };
 
-// import { useEffect, useRef } from 'react';
-// import 'leaflet/dist/leaflet.css';
-// import type { Map, TileLayer } from 'leaflet';
-
-// type Proximidade = {
-//   latitude: number;
-//   longitude: number;
-//   nome: string;
-// };
-
-// interface ClientMapProps {
-//   proximidades: Proximidade[];
-//   zoom?: number;
-//   height?: string;
-// }
-
-// const ClientMap = ({ proximidades, zoom = 15, height = "300px" }: ClientMapProps) => {
-//   const mapRef = useRef<HTMLDivElement>(null);
-//   const mapInstanceRef = useRef<Map | null>(null);
-//   const tileLayerRef = useRef<TileLayer | null>(null);
-
-//   useEffect(() => {
-//     if (!mapRef.current || proximidades.length === 0) return;
-
-//     let isMounted = true;
-
-//     const initMap = async () => {
-//       try {
-//         const L = (await import('leaflet')).default;
-
-//         // Clean up existing map instance
-//         if (mapInstanceRef.current) {
-//           mapInstanceRef.current.remove();
-//           mapInstanceRef.current = null;
-//           tileLayerRef.current = null;
-//         }
-
-//         // Only proceed if the component is still mounted
-//         if (!isMounted || !mapRef.current) return;
-
-//         // Initialize map with default center point
-//         const map = L.map(mapRef.current, {
-//           zoomControl: true,
-//           scrollWheelZoom: true,
-//           dragging: true
-//         }).setView(
-//           [proximidades[0].latitude, proximidades[0].longitude],
-//           zoom
-//         );
-
-//         mapInstanceRef.current = map;
-
-//         // Add tile layer
-//         tileLayerRef.current = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-//           maxZoom: 19,
-//           attribution: '© OpenStreetMap contributors'
-//         }).addTo(map);
-
-//         // Add markers for each proximity point
-//         const bounds = L.latLngBounds([]);
-//         proximidades.forEach((point) => {
-//           const marker = L.marker([point.latitude, point.longitude])
-//             .bindPopup(point.nome)
-//             .addTo(map);
-//           bounds.extend([point.latitude, point.longitude]);
-//         });
-
-//         // Fit bounds if there are multiple points
-//         if (proximidades.length > 1) {
-//           map.fitBounds(bounds, { padding: [50, 50] });
-//         }
-
-//         // Force a map refresh after a short delay
-//         setTimeout(() => {
-//           if (mapInstanceRef.current && isMounted) {
-//             mapInstanceRef.current.invalidateSize();
-//           }
-//         }, 250);
-
-//       } catch (error) {
-//         console.error('Error initializing map:', error);
-//       }
-//     };
-
-//     initMap();
-
-//     // Cleanup function
-//     return () => {
-//       isMounted = false;
-//       if (mapInstanceRef.current) {
-//         mapInstanceRef.current.remove();
-//         mapInstanceRef.current = null;
-//         tileLayerRef.current = null;
-//       }
-//     };
-//   }, [proximidades, zoom]); // Dependencies array includes zoom level
+//   const pinStyle = {
+//     position: 'absolute' as const,
+//     top: '50%',
+//     left: '50%',
+//     transform: 'translate(-50%, -50%)',
+//     color: '#2563eb',
+//     zIndex: 10
+//   };
 
 //   return (
-//     <div 
-//       ref={mapRef} 
-//       style={{ height }} 
-//       className="w-full rounded-md" 
-//       data-testid="map-container"
-//     />
+//     <div style={mapContainerStyle} className="border">
+//       {/* <MapPin size={32} style={pinStyle} /> */}
+//       <iframe
+//         width="100%"
+//         height="100%"
+//         frameBorder="0"
+//         style={{ border: 0 }}
+//         src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`}
+//         allowFullScreen
+//       />
+//     </div>
 //   );
 // };
 
-// export default ClientMap;
+// export default PropertyLocationMap;
 
 
 
-import React from 'react';
-import { MapPin } from 'lucide-react';
 
-const PropertyLocationMap = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
-  const mapContainerStyle = {
-    width: '100%',
-    height: '300px',
-    position: 'relative' as const,
-    borderRadius: '8px',
-    overflow: 'hidden'
-  };
 
-  const pinStyle = {
-    position: 'absolute' as const,
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    color: '#2563eb',
-    zIndex: 10
-  };
+
+
+
+
+
+
+
+
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import { icon } from 'leaflet';
+import { useMemo } from 'react';
+
+interface Proximidade {
+  id: string;
+  nome: string;
+  tipo: string;
+  latitude: number;
+  longitude: number;
+  calculated_distance: number;
+}
+
+interface PropertyLocationMapProps {
+  latitude: number;
+  longitude: number;
+  proximidades?: Proximidade[];
+}
+
+const CUSTOM_ICON = icon({
+  iconUrl: '/map-icons/icons8-home-address-48.png',
+  iconSize: [12, 12],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -24],
+});
+
+const PROXIMIDADE_ICON = icon({
+  iconUrl: 'https://www.openstreetmap.org/assets/leaflet/dist/images/marker-icon-3d253116ec4ba0e1f22a01cdf1ff7f120fa4d89a6cd0933d68f12951d19809b4.png', // Make sure to add this icon to your public folder
+  iconSize: [12, 12],
+    iconAnchor: [12, 24],
+    popupAnchor: [0, -24],
+  
+});
+
+const PropertyLocationMap = ({ 
+  latitude, 
+  longitude, 
+  proximidades 
+}: PropertyLocationMapProps) => {
+  const center = useMemo(() => ({ lat: latitude, lng: longitude }), [latitude, longitude]);
 
   return (
-    <div style={mapContainerStyle} className="border">
-      <MapPin size={32} style={pinStyle} />
-      <iframe
-        width="100%"
-        height="100%"
-        frameBorder="0"
-        style={{ border: 0 }}
-        src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`}
-        allowFullScreen
+    <MapContainer
+      center={center}
+      zoom={15}
+      style={{ height: '300px', width: '100%', borderRadius: '0.5rem' }}
+    >
+      <TileLayer
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
-    </div>
+      
+      {/* Property Marker */}
+      <Marker position={center} icon={CUSTOM_ICON}>
+        <Popup>
+          Localização do Imóvel
+        </Popup>
+      </Marker>
+
+      {/* Proximidades Markers */}
+      {proximidades?.map((proximidade) => (
+        <Marker
+          key={proximidade.id}
+          position={[proximidade.latitude, proximidade.longitude]}
+          icon={PROXIMIDADE_ICON}
+        >
+          <Popup>
+            <div className="text-sm">
+              <p className="font-medium">{proximidade.nome}</p>
+              <p className="text-gray-600">{proximidade.tipo}</p>
+              <p className="text-gray-500 text-xs mt-1">
+                {proximidade.calculated_distance.toFixed(2)} km de distância
+              </p>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
   );
 };
 

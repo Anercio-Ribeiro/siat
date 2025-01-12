@@ -1,3 +1,4 @@
+import { PaginationParams } from '../model/type';
 import { ProximidadeRepository } from '../repositories/proximidadeRepository';
 import { Proximidade } from '@prisma/client';
 
@@ -21,7 +22,12 @@ export class ProximidadeService {
     return await proximidadeRepo.deletarProximidade(id);
   }
 
-  async listarProximidades(): Promise<Proximidade[]> {
-    return await proximidadeRepo.listarProximidades();
+  async listarProximidades({ skip, take }: PaginationParams): Promise<Proximidade[]> {
+    return await proximidadeRepo.listarProximidades({ skip, take });
   }
+
+  async countProximidades() {
+    return await proximidadeRepo.countProximidades();
+  }
+
 }

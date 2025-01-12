@@ -59,23 +59,59 @@ import { NextResponse } from "next/server";
 
 
 
-export async function GET() {
+// export async function GET() {
+//   const proximidadeService = new ProximidadeService();
+
+//   try {
+
+//     const proximidades = await proximidadeService.listarProximidades({ skip: 0, take: 10 });
+
+//    console.log(proximidades)
+//       return NextResponse.json( proximidades , { status: 200 });
+ 
+//   } catch (error) {
+//     console.error("Erro ao buscar imóveis:", error);
+//     return NextResponse.json(
+//       { error: error instanceof Error ? error.message : "Erro ao buscar imóveis" },
+//       { status: 500 }
+//     );
+//   }
+// }
+
+
+
+
+
+const ITEMS_PER_PAGE = 4;
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const page = parseInt(searchParams.get('page') || '1');
   const proximidadeService = new ProximidadeService();
 
   try {
-    // Obtém o usuário autenticado
-    //const user = await getAuthenticatedUser();
+    const skip = (page - 1) * ITEMS_PER_PAGE;
+    const [total, proximidades] = await Promise.all([
+      proximidadeService.countProximidades(),
+      proximidadeService.listarProximidades({
+        skip,
+        take: ITEMS_PER_PAGE
+      })
+    ]);
 
-    // Lista todos os imóveis do serviço
-    const proximidades = await proximidadeService.listarProximidades();
-
-   console.log(proximidades)
-      return NextResponse.json( proximidades , { status: 200 });
- 
+    return NextResponse.json({
+      data: proximidades,
+      pagination: {
+        total,
+        totalPages: Math.ceil(total / ITEMS_PER_PAGE),
+        currentPage: page,
+        perPage: ITEMS_PER_PAGE
+      }
+    }, { status: 200 });
   } catch (error) {
-    console.error("Erro ao buscar imóveis:", error);
+    console.error("Erro ao buscar proximidades:", error);
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : "Erro ao buscar imóveis" },
+      { error: error instanceof Error ? error.message : "Erro ao buscar proximidades" },
       { status: 500 }
     );
   }

@@ -88,8 +88,8 @@ interface MapProps {
 const createCustomIcon = () =>
   L.divIcon({
     className: 'custom-pin',
-    html: `<div style="color: red;"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" width="24" height="24"><path d="M12 2a6.5 6.5 0 0 0-6.5 6.5C5.5 13.98 12 22 12 22s6.5-8.02 6.5-13.5A6.5 6.5 0 0 0 12 2zm0 9.5a3 3 0 1 1 0-6 3 3 0 0 1 0 6z" /></svg></div>`,
-    iconSize: [24, 24],
+    html: `<img src="https://www.openstreetmap.org/assets/leaflet/dist/images/marker-icon-3d253116ec4ba0e1f22a01cdf1ff7f120fa4d89a6cd0933d68f12951d19809b4.png" />`,
+    iconSize: [12, 12],
     iconAnchor: [12, 24],
     popupAnchor: [0, -24],
   });

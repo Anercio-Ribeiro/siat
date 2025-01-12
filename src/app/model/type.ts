@@ -84,3 +84,9 @@ export interface User {
   email: string;
   picture?: string;
 }
+
+
+export interface PaginationParams {
+  skip: number;
+  take: number;
+}
