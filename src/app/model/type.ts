@@ -83,10 +83,19 @@ export interface User {
   nome: string;
   email: string;
   picture?: string;
+  id: string;
 }
 
 
 export interface PaginationParams {
   skip: number;
   take: number;
+}
+
+export interface Favorito {
+  id: string;
+  userId: string;
+  imovelId: string;
+  criadoEm: Date;
+  atualizadoEm: Date;
 }

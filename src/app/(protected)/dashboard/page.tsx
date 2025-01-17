@@ -8,6 +8,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Info, Loader } from "lucide-react"; // Ícone de spinner
 import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/hooks/getUser";
+import { useEffect } from "react";
 
 // Função para buscar imóveis
 async function fetchImoveis(): Promise<ImovelLDto[]> {
@@ -21,29 +22,30 @@ async function fetchImoveis(): Promise<ImovelLDto[]> {
 }
 
 export default function DashboardPage() {
+  const { user, loading: userLoading, refetch } = useUser();
   const {
     data: imoveis,
     error,
     isLoading,
-  } = useQuery<ImovelLDto[], Error>({
+  } = useQuery<ImovelLDto[]>({
     queryKey: ["imoveis"],
     queryFn: fetchImoveis,
+    enabled: !!user, // Só busca imóveis se houver usuário
     refetchOnWindowFocus: false,
   });
 
-  const { user, loading: userLoading } = useUser();
-  console.log(user);
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
 
-  if (isLoading || userLoading) {
+  if (userLoading || isLoading) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-        <Loader className="animate-spin text-cyan-300 h-16 w-16" />
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader className="w-10 h-10 animate-spin text-blue-500" />
       </div>
     );
   }
 
-  if (!user) return <div>Usuário não autenticado</div>;
-  if (error) return <div>Erro: {error.message}</div>;
 
   return (
     <PageWithBreadcrumb
@@ -87,3 +89,97 @@ export default function DashboardPage() {
     </PageWithBreadcrumb>
   );
 }
+
+
+
+// "use client";
+
+// import { useQuery } from "@tanstack/react-query";
+// import { useUser } from "@/hooks/getUser";
+// import { PageWithBreadcrumb } from "../../../components/PageWithBreadcrumb";
+// import { HouseCard } from "@/components/house-components/house-card";
+// import { ImovelLDto } from "@/app/model/type";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+// import { Info, Loader } from "lucide-react"; // Ícone de spinner
+// import React from "react";
+
+// // Função para buscar imóveis
+// async function fetchImoveis(): Promise<ImovelLDto[]> {
+//   const response = await fetch("/api/imoveis/getAll");
+//   if (!response.ok) {
+//     throw new Error("Erro ao buscar imóveis");
+//   }
+//   const data = await response.json();
+//   return data.imoveis;
+// }
+
+// export default function DashboardPage() {
+//   const { user, loading: userLoading } = useUser();
+//   const {
+//     data: imoveis,
+//     error,
+//     isLoading,
+//   } = useQuery<ImovelLDto[]>({
+//     queryKey: ["imoveis"],
+//     queryFn: fetchImoveis,
+//     enabled: !!user, // Só busca imóveis se houver usuário
+//     refetchOnWindowFocus: false,
+//   });
+
+//   if (userLoading || isLoading) {
+//     return (
+//       <div className="flex justify-center items-center min-h-screen">
+//         <Loader className="w-10 h-10 animate-spin text-blue-500" />
+//       </div>
+//     );
+//   }
+
+//   if (!user) {
+//     return (
+//       <div className="flex justify-center items-center min-h-screen">
+//         <Alert>
+//           <Info className="mr-2" />
+//           <AlertTitle>Usuário não autenticado</AlertTitle>
+//           <AlertDescription>
+//             Você precisa estar autenticado para acessar esta página.
+//           </AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+
+//   if (error) {
+//     return (
+//       <div className="flex justify-center items-center min-h-screen">
+//         <Alert>
+//           <Info className="mr-2" />
+//           <AlertTitle>Erro</AlertTitle>
+//           <AlertDescription>{error.message}</AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+
+//   return (
+//     <PageWithBreadcrumb title="Dashboard" breadcrumbItems={[]}>
+//       {imoveis && imoveis.length > 0 ? (
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//           {imoveis.map((imovel) => (
+//             <HouseCard key={imovel.id} imovel={imovel} />
+//           ))}
+//         </div>
+//       ) : (
+//         <div className="flex items-center justify-center min-h-[50vh]">
+//           <Alert>
+//             <Info className="mr-2" />
+//             <AlertTitle>Nenhum imóvel disponível</AlertTitle>
+//             <AlertDescription>
+//               No momento, não há imóveis para exibição. Por favor, volte mais tarde.
+//             </AlertDescription>
+//           </Alert>
+//         </div>
+//       )}
+//     </PageWithBreadcrumb>
+//   );
+// }

@@ -26,9 +26,13 @@ model User {
 model Favoritos {
   id           String   @id @default(uuid())
   userId       String
+  imovelId     String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id])
+  imovel       Imovel   @relation(fields: [imovelId], references: [id])
+
+  @@unique([userId, imovelId])
 }
 
 model Session {
@@ -61,6 +65,8 @@ model Imovel {
   proprietario    User          @relation(fields: [proprietarioId], references: [id])
   criadoEm        DateTime      @default(now())
   atualizadoEm    DateTime      @updatedAt
+
+  Favoritos Favoritos[]
 }
 
 model Imagem {

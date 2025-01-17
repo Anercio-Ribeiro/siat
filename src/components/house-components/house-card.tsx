@@ -10,6 +10,12 @@ import { useState, useEffect } from "react";
 import Image from 'next/image';
 import { ImovelLDto } from '@/app/model/type';
 import DialogContentComponent from './house-dialog-details-components';
+import { useFavorites } from '@/hooks/useFavoritos';
+
+
+import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { useUser } from '../../hooks/getUser';
 
 
 interface HouseCardProps {
@@ -18,10 +24,15 @@ interface HouseCardProps {
 }
 
 export function HouseCard({ imovel, onClick }: HouseCardProps) {
-  const [isFavorited, setIsFavorited] = useState(false);
+
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const { user } = useUser();
+  const [isFavorited, setIsFavorited] = useState(false);
+
+
+  const router = useRouter();
 
   useEffect(() => {
     if (isModalOpen) {
@@ -34,6 +45,9 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
     }
   }, [isModalOpen]);
 
+
+  
+
   const handleCardClick = () => {
     setIsModalOpen(true);
   };
@@ -42,10 +56,51 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
     setIsModalOpen(false);
   };
 
-  const toggleFavorite = (e: React.MouseEvent) => {
+  useEffect(() => {
+    const checkFavoriteStatus = async () => {
+      if (user?.id) {
+        try {
+          const response = await fetch(`/api/favorites?userId=${user.id}&imovelId=${imovel.id}`);
+          const data = await response.json();
+          setIsFavorited(data.isFavorite);
+        } catch (error) {
+          console.error('Erro ao verificar status do favorito:', error);
+        }
+      }
+    };
+
+    checkFavoriteStatus();
+  }, [user?.id, imovel.id]);
+
+  const toggleFavorite = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsFavorited(!isFavorited);
+    
+    if (!user) {
+      router.push('/login');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/favorites', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: user.id,
+          imovelId: imovel.id,
+        }),
+      });
+
+      const data = await response.json();
+      setIsFavorited(data.isFavorite);
+    } catch (error) {
+      console.error('Erro ao toggle favorito:', error);
+    }
   };
+
+
+  
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -85,11 +140,17 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               
             />
 
-            <div
+<div
               onClick={toggleFavorite}
-              className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${isFavorited ? "bg-white" : ""}`}
+              className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${
+                isFavorited ? "bg-white" : ""
+              }`}
             >
-              <Heart className={`w-6 h-6 ${isFavorited ? "fill-red-600 text-red-600" : "text-red-600"}`} />
+              <Heart
+                className={`w-6 h-6 ${
+                  isFavorited ? "fill-red-600 text-red-600" : "text-red-600"
+                }`}
+              />
             </div>
             {Array.isArray(imovel.imagens) && imovel.imagens.length > 1 && (
               <>

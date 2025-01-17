@@ -1,53 +1,3 @@
-// import React from 'react';
-// import { MapPin } from 'lucide-react';
-
-// const PropertyLocationMap = ({ latitude, longitude }: { latitude: number; longitude: number }) => {
-//   const mapContainerStyle = {
-//     width: '100%',
-//     height: '300px',
-//     position: 'relative' as const,
-//     borderRadius: '8px',
-//     overflow: 'hidden'
-//   };
-
-//   const pinStyle = {
-//     position: 'absolute' as const,
-//     top: '50%',
-//     left: '50%',
-//     transform: 'translate(-50%, -50%)',
-//     color: '#2563eb',
-//     zIndex: 10
-//   };
-
-//   return (
-//     <div style={mapContainerStyle} className="border">
-//       {/* <MapPin size={32} style={pinStyle} /> */}
-//       <iframe
-//         width="100%"
-//         height="100%"
-//         frameBorder="0"
-//         style={{ border: 0 }}
-//         src={`https://www.openstreetmap.org/export/embed.html?bbox=${longitude-0.01},${latitude-0.01},${longitude+0.01},${latitude+0.01}&layer=mapnik&marker=${latitude},${longitude}`}
-//         allowFullScreen
-//       />
-//     </div>
-//   );
-// };
-
-// export default PropertyLocationMap;
-
-
-
-
-
-
-
-
-
-
-
-
-
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { icon } from 'leaflet';
@@ -70,16 +20,16 @@ interface PropertyLocationMapProps {
 
 const CUSTOM_ICON = icon({
   iconUrl: '/map-icons/icons8-home-address-48.png',
-  iconSize: [12, 12],
+  iconSize: [40, 40],
     iconAnchor: [12, 24],
     popupAnchor: [0, -24],
 });
 
 const PROXIMIDADE_ICON = icon({
-  iconUrl: 'https://www.openstreetmap.org/assets/leaflet/dist/images/marker-icon-3d253116ec4ba0e1f22a01cdf1ff7f120fa4d89a6cd0933d68f12951d19809b4.png', // Make sure to add this icon to your public folder
-  iconSize: [12, 12],
-    iconAnchor: [12, 24],
-    popupAnchor: [0, -24],
+  iconUrl: 'https://www.openstreetmap.org/assets/leaflet/dist/images/marker-icon-3d253116ec4ba0e1f22a01cdf1ff7f120fa4d89a6cd0933d68f12951d19809b4.png',
+  iconSize: [24, 24], // Aumentado o tamanho do ícone
+  iconAnchor: [12, 24], // Ajuste para o novo tamanho
+  popupAnchor: [0, -24],
   
 });
 
