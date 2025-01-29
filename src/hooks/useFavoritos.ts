@@ -224,14 +224,58 @@
 
 
 
+// import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+
+// import { toast } from 'sonner';
+// import { useUser } from './getUser';
+// import { FavoritosService } from '@/app/services/favoritoService';
+
+
+
+// const favoritesService = new FavoritosService();
+
+// export function useFavorites() {
+//   const { user } = useUser();
+//   const queryClient = useQueryClient();
+
+//   const { data: favorites = [] } = useQuery({
+//     queryKey: ['favorites', user?.id],
+//     queryFn: () => (user ? favoritesService.getUserFavorites(user.id) : Promise.resolve([])),
+//     enabled: !!user,
+//   });
+
+//   const { mutate: toggleFavorite } = useMutation({
+//     mutationFn: async ({ imovelId, isFavorited }: { imovelId: string; isFavorited: boolean }) => {
+//       if (!user) {
+//         throw new Error('User must be logged in');
+//       }
+//       await favoritesService.toggleFavorite(user.id, imovelId);
+//     },
+//     onSuccess: () => {
+//       queryClient.invalidateQueries({ queryKey: ['favorites', user?.id] });
+//     },
+//     onError: (error) => {
+//       toast.error('Error updating favorites');
+//       console.error('Error updating favorites:', error);
+//     },
+//   });
+
+//   return {
+//     favorites,
+//     toggleFavorite,
+//     isAuthenticated: !!user,
+//   };
+// }
+
+
+
+
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-
-
 import { toast } from 'sonner';
 import { useUser } from './getUser';
 import { FavoritosService } from '@/app/services/favoritoService';
-
-
 
 const favoritesService = new FavoritosService();
 
@@ -251,13 +295,20 @@ export function useFavorites() {
         throw new Error('User must be logged in');
       }
       await favoritesService.toggleFavorite(user.id, imovelId);
+      return isFavorited; // Retorna o estado atual do favorito antes da mutação
     },
-    onSuccess: () => {
+    onSuccess: (isFavorited, { imovelId }) => {
       queryClient.invalidateQueries({ queryKey: ['favorites', user?.id] });
+
+      if (isFavorited) {
+        toast.success('Imóvel removido dos favoritos');
+      } else {
+        toast.success('Imóvel adicionado aos favoritos');
+      }
     },
     onError: (error) => {
-      toast.error('Error updating favorites');
-      console.error('Error updating favorites:', error);
+      toast.error('Erro ao atualizar favoritos');
+      console.error('Erro ao atualizar favoritos:', error);
     },
   });
 

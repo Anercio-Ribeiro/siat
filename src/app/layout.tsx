@@ -4,6 +4,7 @@ import { Urbanist } from 'next/font/google';
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
 import QueryClientWrapper from "@/providers/QueryClientWrapper";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -48,6 +49,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             {children}
           </ThemeProvider>
+          <Toaster position="top-right" />
         </QueryClientWrapper>
       </body>
     </html>

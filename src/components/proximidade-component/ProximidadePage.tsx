@@ -4,6 +4,7 @@ import { MapPin, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from "@/components/ui/skeleton";
 import dynamic from 'next/dynamic';
+// import ProximidadeDialog from './proximidade-component';
 import ProximidadeDialog from './proximidade-component';
 
 interface Proximidade {
@@ -126,7 +127,7 @@ const ProximidadePage = () => {
               key={proximidades.length}
               markers={mapMarkers}
               onLocationSelected={(lat, lng) => {}}
-              selectedLocation={null}
+              selectedLocation={undefined}
             />
           </div>
         </CardContent>
@@ -217,3 +218,28 @@ const ProximidadePage = () => {
 };
 
 export default ProximidadePage;
+
+
+// import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+// import { Button } from '@/components/ui/button';
+// interface ProximidadeDialogProps {
+//   open: boolean;
+//   onOpenChange: (open: boolean) => void;
+//   onSave: () => void;
+// }
+
+// const ProximidadeDialog = ({ open, onOpenChange, onSave }: ProximidadeDialogProps) => {
+//   return (
+//     <Dialog open={open} onOpenChange={onOpenChange}>
+//       <DialogContent>
+//         <DialogHeader>
+//           <DialogTitle>Adicionar Nova Proximidade</DialogTitle>
+//         </DialogHeader>
+//         {/* Conteúdo do diálogo */}
+//         <Button onClick={onSave}>Salvar</Button>
+//       </DialogContent>
+//     </Dialog>
+//   );
+// };
+
+// export default ProximidadeDialog;
