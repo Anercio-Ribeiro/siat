@@ -95,8 +95,11 @@ model Aluguel {
   id             String    @id @default(uuid())
   imovelId       String
   inquilinoId    String
+  checkIn        DateTime  // Nova coluna para a data de check-in
+  checkOut       DateTime  // Nova coluna para a data de check-out
   periodoAluguel Int
   contratoUrl    String?
+  status         String
   criadoEm       DateTime  @default(now())
   atualizadoEm   DateTime  @updatedAt
   imovel         Imovel    @relation(fields: [imovelId], references: [id])
