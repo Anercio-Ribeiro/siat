@@ -10,12 +10,6 @@ export class ImovelRepository {
     });
   }
 
-  // async encontrarImovelPorId(id: string): Promise<Imovel | null> {
-  //   return await prisma.imovel.findUnique({
-  //     where: { id },
-  //     include: { proximidades: true, proprietario: true }, // Incluindo proximidades se necessário
-  //   });
-  // }
 
   async encontrarImovelPorId(id: string): Promise<Imovel | null> {
     return await prisma.imovel.findUnique({

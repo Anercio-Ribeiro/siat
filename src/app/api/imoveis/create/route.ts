@@ -93,7 +93,9 @@ export async function POST(req: Request) {
       tipologia,
       garagem,
       municipio,
-      imagens
+      imagens,
+      precoMensal,
+      tipoAluguel,
     } = body;
 
     // if (!titulo || !descricao || !preco || !endereco || !provincia || !bairro || !garagem || !municipio) {
@@ -122,6 +124,8 @@ export async function POST(req: Request) {
       municipio,
       latitude,
       longitude,
+      precoMensal,
+      tipoAluguel,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
       },

@@ -34,22 +34,6 @@ export class ImovelService {
     return await this.imovelRepo.encontrarPrimeiroImovel();
   }
 
-  // async getAllImoveis(precoMin?: string, precoMax?: string, localizacao?: string, tipologia?: string, page: string = "1") {
-  //   const pageSize = 10;
-  //   const pageNumber = parseInt(page) || 1;
-  //   const filters: any = {};
-
-  //   if (precoMin) filters.preco = { gte: parseFloat(precoMin) };
-  //   if (precoMax) filters.preco = { ...filters.preco, lte: parseFloat(precoMax) };
-  //   if (localizacao) filters.bairro = { contains: localizacao, mode: "insensitive" };
-  //   if (tipologia) filters.tipologia = { equals: tipologia };
-
-  //   const imoveis = await this.imovelRepo.buscaImovelPor(filters, (pageNumber - 1) * pageSize, pageSize);
-  //   const totalImoveis = await this.imovelRepo.count(filters);
-  //   const totalPages = Math.ceil(totalImoveis / pageSize);
-
-  //   return { imoveis, totalPages, pageNumber };
-  // }
 
   async buscarImoveisBy(filters: any, skip: number, take: number) {
     try {

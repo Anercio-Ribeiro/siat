@@ -26,11 +26,11 @@ model User {
 model Favoritos {
   id           String   @id @default(uuid())
   userId       String
-  imovelId     String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
-  user         User     @relation(fields: [userId], references: [id])
+  imovelId     String
   imovel       Imovel   @relation(fields: [imovelId], references: [id])
+  user         User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, imovelId])
 }
@@ -45,36 +45,37 @@ model Session {
 }
 
 model Imovel {
-  id              String        @id @default(uuid())
+  id              String      @id @default(uuid())
   titulo          String
   descricao       String
   preco           Float
   proprietarioId  String
   endereco        String
   provincia       String
-  municipio       String
   bairro          String
   numeroQuarto    Int
   numeroCasaBanho Int
-  garagem         Int
   tipologia       String
+  criadoEm        DateTime    @default(now())
+  atualizadoEm    DateTime    @updatedAt
+  garagem         Int
   latitude        Float
   longitude       Float
+  municipio       String
+  precoMensal     Float?
+  tipoAluguel     TipoAluguel @default(RESIDENCIAL)
   alugueis        Aluguel[]
+  Favoritos       Favoritos[]
   imagens         Imagem[]
-  proprietario    User          @relation(fields: [proprietarioId], references: [id])
-  criadoEm        DateTime      @default(now())
-  atualizadoEm    DateTime      @updatedAt
-
-  Favoritos Favoritos[]
+  proprietario    User        @relation(fields: [proprietarioId], references: [id])
 }
 
 model Imagem {
   id           String   @id @default(uuid())
   url          String
   imovelId     String
-  criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now())
   imovel       Imovel   @relation(fields: [imovelId], references: [id])
 }
 
@@ -95,13 +96,13 @@ model Aluguel {
   id             String    @id @default(uuid())
   imovelId       String
   inquilinoId    String
-  checkIn        DateTime  // Nova coluna para a data de check-in
-  checkOut       DateTime  // Nova coluna para a data de check-out
   periodoAluguel Int
   contratoUrl    String?
-  status         String
   criadoEm       DateTime  @default(now())
   atualizadoEm   DateTime  @updatedAt
+  checkIn        DateTime
+  checkOut       DateTime
+  status         String
   imovel         Imovel    @relation(fields: [imovelId], references: [id])
   inquilino      User      @relation(fields: [inquilinoId], references: [id])
   contrato       Contrato?
@@ -110,12 +111,12 @@ model Aluguel {
 model Proximidade {
   id           String   @id @default(uuid())
   nome         String
-  tipo         String
+  distancia    Float
+  atualizadoEm DateTime @updatedAt
+  criadoEm     DateTime @default(now())
   latitude     Float
   longitude    Float
-  distancia    Float
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
+  tipo         String
 }
 
 enum Role {

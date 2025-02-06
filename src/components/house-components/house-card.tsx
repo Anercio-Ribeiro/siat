@@ -94,6 +94,8 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
 
       const data = await response.json();
       setIsFavorited(data.isFavorite);
+      data.isFavorite ? toast.success('Adicionado aos favoritos') : toast.error('Removido dos favoritos');
+      //toast.success(data.isFavorite ? 'Adicionado aos favoritos' : 'Removido dos  favoritos');
     } catch (error) {
       console.error('Erro ao toggle favorito:', error);
     }

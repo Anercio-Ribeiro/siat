@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Imovel" ALTER COLUMN "tipoAluguel" SET DEFAULT 'RESIDENCIAL';

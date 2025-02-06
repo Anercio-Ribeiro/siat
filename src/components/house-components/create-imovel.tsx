@@ -35,6 +35,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useEffect } from "react";
 
 // Import data
 import provincias from "@/lib/data/provincias.json";
@@ -50,6 +51,8 @@ const imovelSchema = z.object({
   titulo: z.string().min(3, { message: "O título é obrigatório." }),
   descricao: z.string().min(10, { message: "A descrição é obrigatória." }),
   preco: z.preprocess((val) => Number(val), z.number().min(1, { message: "O preço é obrigatório." })),
+  tipoAluguel: z.enum(["RESIDENCIAL", "TURISTICO"]), //
+  precoMensal: z.preprocess((val) => Number(val), z.number().optional()), 
   provincia: z.string().min(3, { message: "Selecione a província." }),
   municipio: z.string().min(3, { message: "Selecione o municipio." }),
   bairro: z.string().min(3, { message: "Digite o bairro." }),
@@ -62,6 +65,11 @@ const imovelSchema = z.object({
   longitude: z.number({ required_error: "Selecione a localização no mapa" }),
 });
 
+enum TipoAluguel {
+  RESIDENCIAL = "RESIDENCIAL",
+  TURISTICO = "TURISTICO",
+}
+
 type FormData = z.infer<typeof imovelSchema>;
 type FileWithPreview = { file: File; preview: string; };
 
@@ -71,6 +79,7 @@ const RegistrarImovelForm = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [files, setFiles] = useState<FileWithPreview[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{[key: string]: number}>({});
+  const [monthlyPriceSuggestion, setMonthlyPriceSuggestion] = useState<number | null>(null);
 
   // Form initialization
   const form = useForm<FormData>({
@@ -89,8 +98,27 @@ const RegistrarImovelForm = () => {
       garagem: 0,
       latitude: undefined,
       longitude: undefined,
+      precoMensal: undefined,
+      tipoAluguel: "RESIDENCIAL",
     }
   });
+
+  
+
+useEffect(() => {
+  const precoDiaria = form.watch("preco");
+
+  if (precoDiaria > 0) {
+    let precoMensalSugerido = precoDiaria * 30; // Preço base mensal
+
+    if (precoMensalSugerido >= 3 * precoDiaria * 30) {
+      precoMensalSugerido *= 0.8; // Aplicar um desconto de 20% se estiver muito alto
+    }
+
+    form.setValue("precoMensal", Math.round(precoMensalSugerido));
+  }
+}, [form.watch("preco")]);
+
 
   // File handling
   const onDrop = (acceptedFiles: File[]) => {
@@ -178,6 +206,29 @@ const RegistrarImovelForm = () => {
     }
   };
 
+  function calculateMonthlyPriceSuggestion(dailyPrice: number): number {
+    // Basic rule: Daily price * 30 days with a slight discount
+    const baseMonthlyPrice = dailyPrice * 30;
+    
+    // Apply a 20% discount for monthly rentals
+    const discountedPrice = baseMonthlyPrice * 0.8;
+    
+    // Round to nearest thousand for cleaner pricing
+    return Math.round(discountedPrice / 1000) * 1000;
+  }
+
+  const dailyPrice = form.watch('preco');
+
+  // Effect to calculate monthly price suggestion when daily price changes
+  useEffect(() => {
+    if (dailyPrice > 0) {
+      const suggestedMonthlyPrice = calculateMonthlyPriceSuggestion(dailyPrice);
+      setMonthlyPriceSuggestion(suggestedMonthlyPrice);
+    } else {
+      setMonthlyPriceSuggestion(null);
+    }
+  }, [dailyPrice]);
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)}>Registrar Imóvel</Button>
@@ -245,6 +296,57 @@ const RegistrarImovelForm = () => {
                     </FormItem>
                   )}
                 />
+
+<FormField
+        control={form.control}
+        name="precoMensal"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Preço Mensal (Opcional) - AKZ</FormLabel>
+            <FormControl>
+              <Input 
+                type="number" 
+                {...field} 
+                value={field.value ?? ''} 
+                onChange={(e) => {
+                  const value = e.target.value === '' ? null : Number(e.target.value);
+                  field.onChange(value);
+                }} 
+              />
+            </FormControl>
+            {monthlyPriceSuggestion && (
+              <small className="text-muted-foreground">
+                Sugestão baseada no preço diário: {monthlyPriceSuggestion.toLocaleString('pt-AO', { style: 'currency', currency: 'AOA' })}
+              </small>
+            )}
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+<FormField
+          control={form.control}
+          name="tipoAluguel"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Tipo de Aluguel</FormLabel>
+              <Select 
+                onValueChange={field.onChange} 
+                defaultValue={field.value}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione o tipo de aluguel" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={TipoAluguel.RESIDENCIAL}>Residencial</SelectItem>
+                  <SelectItem value={TipoAluguel.TURISTICO}>Turístico</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
 
                 <FormField
                   control={form.control}
@@ -437,3 +539,5 @@ const RegistrarImovelForm = () => {
 };
 
 export default RegistrarImovelForm;
+
+
