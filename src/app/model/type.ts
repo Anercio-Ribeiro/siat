@@ -48,6 +48,8 @@ export interface ImovelLDto {
   titulo: string;
   descricao: string;
   preco: number;
+  precoMensal?: number;
+  tipoAluguel?: string;
   endereco: string;
   provincia: string;
   municipio: string;

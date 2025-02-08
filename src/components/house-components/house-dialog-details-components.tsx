@@ -39,6 +39,12 @@ interface Proximidade {
   calculated_distance: number;
 }
 
+enum TipoAluguel {
+  TURISTICO = 'turistico',
+  RESIDENCIAL = 'residencial',
+  AMBOS = 'ambos'
+}
+
 const DialogContentComponent = ({ isLoading, imovel }: { 
   isLoading: boolean;
   imovel: ImovelLDto; 
@@ -254,8 +260,20 @@ const DialogContentComponent = ({ isLoading, imovel }: {
                     <p className="text-muted-foreground">Selecione as datas de locação</p>
                   </div>
 
-<RentalCard pricePerNight={imovel.preco} imovelId={imovel.id} />
+{/* <RentalCard pricePerNight={imovel.preco} imovelId={imovel.id} /> */}
 
+
+
+
+<RentalCard 
+  imovel={{
+    id: imovel.id,
+    titulo: imovel.titulo,
+    preco: imovel.preco,
+    precoMensal: imovel.precoMensal,
+    tipoAluguel: imovel.tipoAluguel as TipoAluguel || 'defaultTipoAluguel'
+  }} 
+/>
                   <Button 
                     className="w-full" 
                     disabled={!startDate || !endDate}

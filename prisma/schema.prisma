@@ -21,6 +21,9 @@ model User {
   favoritos    Favoritos[]
   imoveis      Imovel[]
   session      Session[]
+  mensagensEnviadas     Mensagem[]
+  conversasInquilino    Conversa[] @relation("InquilinoConversa")
+  conversasProprietario Conversa[] @relation("ProprietarioConversa")
 }
 
 model Favoritos {
@@ -68,6 +71,8 @@ model Imovel {
   Favoritos       Favoritos[]
   imagens         Imagem[]
   proprietario    User        @relation(fields: [proprietarioId], references: [id])
+
+  Conversa Conversa[]
 }
 
 model Imagem {
@@ -128,4 +133,30 @@ enum Role {
 enum TipoAluguel {
   RESIDENCIAL
   TURISTICO
+}
+
+model Conversa {
+  id           String    @id @default(uuid())
+  imovelId     String
+  inquilinoId  String
+  proprietarioId String
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  mensagens    Mensagem[]
+  imovel       Imovel    @relation(fields: [imovelId], references: [id])
+  inquilino    User      @relation("InquilinoConversa", fields: [inquilinoId], references: [id])
+  proprietario User      @relation("ProprietarioConversa", fields: [proprietarioId], references: [id])
+  
+  @@unique([imovelId, inquilinoId, proprietarioId])
+}
+
+model Mensagem {
+  id          String   @id @default(uuid())
+  conversaId  String
+  remetenteId String
+  conteudo    String
+  lida        Boolean  @default(false)
+  criadoEm    DateTime @default(now())
+  conversa    Conversa @relation(fields: [conversaId], references: [id])
+  remetente   User     @relation(fields: [remetenteId], references: [id])
 }
