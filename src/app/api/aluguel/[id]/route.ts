@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
     try {
+      const aluguelRepo = new AluguelRepository();
       const { searchParams } = new URL(request.url);
       const imovelId = searchParams.get('imovelId');
       console.log(imovelId);
@@ -11,9 +12,9 @@ export async function GET(request: Request) {
         return NextResponse.json({ error: 'ImovelId é obrigatório' }, { status: 400 });
       }
   
-      const alugueis = await AluguelRepository.getAlugueisByImovelId(imovelId);
+      const alugueis = await aluguelRepo.buscarAluguelByImovel(imovelId);
       return NextResponse.json(alugueis);
     } catch (error) {
       return NextResponse.json({ error: 'Erro ao buscar alugueis' }, { status: 500 });
     }
-  }
+  }  
