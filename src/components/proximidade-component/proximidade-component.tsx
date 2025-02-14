@@ -41,9 +41,13 @@ interface Location {
 
 interface ProximidadeDialogProps {
   onSave: () => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+
+  
 }
 
-const ProximidadeDialog = ({ onSave }: ProximidadeDialogProps) => {
+const ProximidadeDialog = ({ open, onOpenChange, onSave }: ProximidadeDialogProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(null);
 

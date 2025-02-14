@@ -105,6 +105,21 @@ const RegistrarImovelForm = () => {
 
   
 
+// useEffect(() => {
+//   const precoDiaria = form.watch("preco");
+
+//   if (precoDiaria > 0) {
+//     let precoMensalSugerido = precoDiaria * 30; // Preço base mensal
+
+//     if (precoMensalSugerido >= 3 * precoDiaria * 30) {
+//       precoMensalSugerido *= 0.8; // Aplicar um desconto de 20% se estiver muito alto
+//     }
+
+//     form.setValue("precoMensal", Math.round(precoMensalSugerido));
+//   }
+// }, [form.watch("preco")]);
+
+
 useEffect(() => {
   const precoDiaria = form.watch("preco");
 
@@ -117,7 +132,7 @@ useEffect(() => {
 
     form.setValue("precoMensal", Math.round(precoMensalSugerido));
   }
-}, [form.watch("preco")]);
+}, [form]);
 
 
   // File handling
