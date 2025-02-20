@@ -115,18 +115,12 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
       }
     }
 
-    // Check for booking conflicts
-    let hasConflict = false;
+    // Check for booking conflicts throughout the entire period
     for (let d = new Date(newStartDate); d <= newEndDate; d.setDate(d.getDate() + 1)) {
       if (isDateBooked(new Date(d))) {
-        hasConflict = true;
-        break;
+        toast.error("Existem datas indisponíveis no período selecionado");
+        return false;
       }
-    }
-
-    if (hasConflict) {
-      toast.error("Existem datas indisponíveis no período selecionado");
-      return false;
     }
 
     return true;
@@ -134,7 +128,7 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
 
   const handleDateRangeChange = (date: Date | null) => {
     if (!date) return;
-
+  
     if (tipoReserva === 'turistico') {
       if (activeTab === 'checkin') {
         if (!isDateBooked(date)) {
@@ -156,8 +150,22 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
     } else {
       // Residential booking logic
       if (!startDate) {
-        setStartDate(date);
+        if (!isDateBooked(date)) {
+          setStartDate(date);
+        } else {
+          toast.error("Data inicial indisponível");
+        }
       } else {
+        // Calculate end date for minimum 3-month period
+        const minimumEndDate = addMonths(startDate, 3);
+        
+        // Ensure selected end date is not before minimum period
+        if (isBefore(date, minimumEndDate)) {
+          toast.warning("Aluguel residencial requer no mínimo 3 meses (90 dias)");
+          return;
+        }
+
+        // Check for conflicts in the entire selected period
         const isValid = validateDateSelection(startDate, date);
         if (isValid) {
           setEndDate(date);
@@ -169,8 +177,7 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
 
   const isDateBooked = (date: Date) => {
     return bookedDates.some(booking => 
-      isWithinInterval(date, { start: booking.start, end: booking.end }) &&
-      (booking.tipo === tipoReserva || booking.tipo === TipoAluguel.AMBOS)
+      isWithinInterval(date, { start: booking.start, end: booking.end })
     );
   };
 
@@ -298,11 +305,11 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
     }
   };
 
-    const isDateInRange = (date: Date, ranges: { start: Date; end: Date }[]) => {
-      return ranges.some(range => 
-        isWithinInterval(date, { start: range.start, end: range.end })
-      );
-    };
+  const isDateInRange = (date: Date, ranges: { start: Date; end: Date }[]) => {
+    return ranges.some(range => 
+      isWithinInterval(date, { start: range.start, end: range.end })
+    );
+  };
 
   const CalendarContent = () => (
     <div className="flex gap-4">
@@ -363,7 +370,6 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
           selected={endDate}
           onChange={handleDateRangeChange}
           inline
-          
           locale={ptBR}
           minDate={startDate || TODAY}
           maxDate={addYears(TODAY, 1)}
@@ -413,6 +419,7 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
       </div>
     </div>
   );
+
   return (
     <Card className="w-full shadow-lg">
       <CardHeader className="pb-4 px-6">
@@ -474,33 +481,31 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
               </div>
 
               {tipoReserva === 'turistico' && (
-             
                 <div className="flex items-center gap-2">
-                                  <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'checkin' | 'checkout')} className="w-auto">
-                                    <TabsList className="p-0 h-auto bg-transparent">
-                                      <TabsTrigger
-                                        value="checkin"
-                                        className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none px-4 py-2"
-                                      >
-                                        <div className="text-left">
-                                          <div className="text-xs font-medium">CHECK-IN</div>
-                                          <div>{startDate ? startDate.toLocaleDateString() : 'Selecionar'}</div>
-                                        </div>
-                                      </TabsTrigger>
-                                      <div className="border-r h-12 mx-2"></div>
-                                      <TabsTrigger
-                                        value="checkout"
-                                        className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none px-4 py-2"
-                                      >
-                                        <div className="text-left">
-                                          <div className="text-xs font-medium">CHECKOUT</div>
-                                          <div>{endDate ? endDate.toLocaleDateString() : 'Selecionar'}</div>
-                                        </div>
-                                      </TabsTrigger>
-                                    </TabsList>
-                                  </Tabs>
-                                </div>
-
+                  <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'checkin' | 'checkout')} className="w-auto">
+                    <TabsList className="p-0 h-auto bg-transparent">
+                      <TabsTrigger
+                        value="checkin"
+                        className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none px-4 py-2"
+                      >
+                        <div className="text-left">
+                          <div className="text-xs font-medium">CHECK-IN</div>
+                          <div>{startDate ? format(startDate, 'dd/MM/yyyy') : 'Selecionar'}</div>
+                        </div>
+                      </TabsTrigger>
+                      <div className="border-r h-12 mx-2"></div>
+                      <TabsTrigger
+                        value="checkout"
+                        className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-black rounded-none px-4 py-2"
+                      >
+                        <div className="text-left">
+                          <div className="text-xs font-medium">CHECKOUT</div>
+                          <div>{endDate ? format(endDate, 'dd/MM/yyyy') : 'Selecionar'}</div>
+                        </div>
+                      </TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                </div>
               )}
             </div>
 
@@ -609,7 +614,6 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
           color: #484848;
           cursor: pointer;
           position: relative;
-          
         }
 
         .custom-airbnb-calendar .react-datepicker__day:hover:not(.react-datepicker__day--disabled) {
@@ -672,45 +676,29 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
           visibility: hidden;
           pointer-events: none;
         }
-        {/* .custom-airbnb-calendar .react-datepicker__day--disabled.booked-date {
-  text-decoration: line-through;
-  position: relative;
-  color: #ccc !important;
-} */}
 
-{/* .custom-airbnb-calendar .react-datepicker__day--disabled.booked-date::after {
-  content: '✕';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ff0000;
-  font-size: 14px;
-} */}
+        .react-datepicker__day.booked-date {
+          cursor: not-allowed;
+          opacity: 0.5;
+          background-color: #f0f0f0;
+          text-decoration: line-through;
+          position: relative;
+        }
 
-.react-datepicker__day.booked-date {
-  cursor: not-allowed;
-  opacity: 0.5;
-  background-color: #f0f0f0;
-  text-decoration: line-through;
-  position: relative;
-}
+        .react-datepicker__day.booked-date::after {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          color: #ff0000;
+          font-size: 14px;
+        }
 
-.react-datepicker__day.booked-date::after {
-  
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  color: #ff0000;
-  font-size: 14px;
-}
-
-.react-datepicker__day.booked-date:hover {
-  background-color: #f0f0f0 !important;
-  color: #999 !important;
-  cursor: not-allowed;
-}
+        .react-datepicker__day.booked-date:hover {
+          background-color: #f0f0f0 !important;
+          color: #999 !important;
+          cursor: not-allowed;
+        }
       `}</style>
     </Card>
   );
