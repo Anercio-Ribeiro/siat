@@ -222,7 +222,7 @@ export function UserNav() {
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarImage src={user.picture || "#"} alt="Avatar" />
+                  {/* <AvatarImage src={user.picture || "#"} alt="Avatar" /> */}
                   <AvatarFallback className="bg-transparent">
                     {user.nome}
                   </AvatarFallback>

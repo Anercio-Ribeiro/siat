@@ -123,7 +123,8 @@
 // }
 
 
-import { User } from "@/app/model/type";
+//import { User } from "@/app/model/type";
+import { User } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -168,6 +169,8 @@ export function useUser() {
       router.push('/');
     }
   }, [user, loading, router]);
+
+  console.log({ user });
 
   return { user, loading, error, refetch };
 }

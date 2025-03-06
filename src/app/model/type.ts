@@ -86,7 +86,35 @@ export interface User {
   email: string;
   picture?: string;
   id: string;
+  role?: string;
+  alugueis?: {
+    id: string;
+    imovelId: string;
+    inquilinoId: string;
+    periodoAluguel: number;
+    checkIn: string;
+    checkOut: string;
+    status: string;
+  }
+
 }
+
+
+// model Aluguel {
+//   id             String    @id @default(uuid())
+//   imovelId       String
+//   inquilinoId    String
+//   periodoAluguel Int
+//   contratoUrl    String?
+//   criadoEm       DateTime  @default(now())
+//   atualizadoEm   DateTime  @updatedAt
+//   checkIn        DateTime
+//   checkOut       DateTime
+//   status         String
+//   imovel         Imovel    @relation(fields: [imovelId], references: [id])
+//   inquilino      User      @relation(fields: [inquilinoId], references: [id])
+//   contrato       Contrato?
+// }
 
 
 export interface PaginationParams {

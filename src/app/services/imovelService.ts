@@ -26,12 +26,15 @@ export class ImovelService {
     return await this.imovelRepo.deletarImovel(id);
   }
 
-  async listarImoveis(): Promise<Imovel[]> {
-    return await this.imovelRepo.listarImoveis();
-  }
+  // async listarImoveis(): Promise<Imovel[]> {
+  //   return await this.imovelRepo.listarImoveis();
+  // }
 
-  async encontrarPrimeiroImovel(): Promise<Imovel | null> {
-    return await this.imovelRepo.encontrarPrimeiroImovel();
+  async listarImoveis(page: number = 1, pageSize: number = 6, userId?: string): Promise<{ imoveis: Imovel[], total: number, totalPages: number }> {
+    const { imoveis, total } = await this.imovelRepo.listarImoveis(page, pageSize, userId);
+    const totalPages = Math.ceil(total / pageSize);
+    
+    return { imoveis, total, totalPages };
   }
 
 

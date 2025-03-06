@@ -205,6 +205,8 @@ useEffect(() => {
         }),
       });
 
+      console.log("Form submitted");
+
       if (!response.ok) {
         throw new Error("Erro ao criar imóvel");
       }
@@ -542,6 +544,7 @@ useEffect(() => {
                   Cancelar
                 </Button>
                 <Button type="submit" disabled={isSubmitting}>
+                  
                   {isSubmitting ? "Registrando..." : "Registrar Imóvel"}
                 </Button>
               </div>
