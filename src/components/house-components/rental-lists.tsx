@@ -1,3 +1,4 @@
+
 // "use client";
 // import React, { useState, useEffect } from "react";
 // import { useQuery } from "@tanstack/react-query";
@@ -163,8 +164,8 @@
 //     router.push(`/detalhes/${rentalId}`);
 //   };
 
-//   // Mostrar loading quando estiver carregando inicialmente, quando o usuário estiver carregando ou durante a mudança de página
-//   if (userLoading || (isLoading && !isFetching) || isPageChanging) {
+//   // Mostrar loading apenas durante o carregamento inicial do usuário
+//   if (userLoading || (isLoading && !isFetching && !isPageChanging)) {
 //     return (
 //       <div className="flex justify-center items-center min-h-screen">
 //         <Loader2 className="w-10 h-10 animate-spin text-blue-500" />
@@ -183,13 +184,25 @@
 
 //   return (
 //     <div className="p-4 space-y-4">
-//       {isFetching ? (
+//       {/* Mostrar skeleton quando estiver buscando ou durante a mudança de página */}
+//       {(isFetching || isPageChanging) ? (
 //         <div className="space-y-4">
-//           {Array.from({ length: pageSize }).map((_, index) => (
-//             <div key={index} className="flex items-center space-x-4">
-//               <Skeleton className="h-12 w-full" />
-//             </div>
-//           ))}
+//           <div className="flex justify-end mb-4">
+//             <Skeleton className="h-10 w-[180px]" />
+//           </div>
+          
+//           <div className="w-full">
+//             <Skeleton className="h-10 w-full mb-2" /> {/* Cabeçalho da tabela */}
+//             {Array.from({ length: pageSize }).map((_, index) => (
+//               <Skeleton key={index} className="h-12 w-full mb-2" />
+//             ))}
+//           </div>
+          
+//           <div className="mt-4 flex justify-between items-center">
+//             <Skeleton className="h-10 w-24" /> {/* Botão anterior */}
+//             <Skeleton className="h-6 w-32" />  {/* Texto de paginação */}
+//             <Skeleton className="h-10 w-24" /> {/* Botão próxima */}
+//           </div>
 //         </div>
 //       ) : !data || !data.rentals || data.total === 0 ? (
 //         <div className="flex items-center justify-center min-h-[50vh]">
@@ -302,6 +315,7 @@
 
 
 
+
 "use client";
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -374,13 +388,22 @@ const formatRentalPeriod = (days: number): string => {
   return `${months} ${months === 1 ? "mês" : "meses"}`;
 };
 
-// Fetch rentals function
-async function fetchRentals(page: number, pageSize: number): Promise<RentalsResponse> {
+// Fetch rentals function based on user role
+async function fetchRentals(
+  userId: string,
+  role: string,
+  page: number,
+  pageSize: number
+): Promise<RentalsResponse> {
   try {
-    // Adicionar um delay artificial para mostrar o loading state
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const response = await fetch(`/api/user-alugueis?page=${page}&pageSize=${pageSize}`, {
+    await new Promise((resolve) => setTimeout(resolve, 800)); // Delay artificial
+
+    const endpoint =
+      role === "INQUILINO"
+        ? `/api/user-alugueis?page=${page}&pageSize=${pageSize}` // Para inquilinos
+        : `/api/proprietario-alugueis?page=${page}&pageSize=${pageSize}`; // Para proprietários
+
+    const response = await fetch(endpoint, {
       credentials: "include",
     });
 
@@ -420,8 +443,8 @@ const RentalListings: React.FC = () => {
     isFetching,
     refetch: refetchRentals,
   } = useQuery({
-    queryKey: ["rentals", page, pageSize, searchTrigger],
-    queryFn: () => fetchRentals(page, pageSize),
+    queryKey: ["rentals", user?.id, user?.role, page, pageSize, searchTrigger],
+    queryFn: () => fetchRentals(user!.id, user!.role, page, pageSize),
     enabled: !!user && !isPageChanging,
     refetchOnWindowFocus: false,
     staleTime: 30000,
@@ -434,17 +457,14 @@ const RentalListings: React.FC = () => {
     }
   }, [user]);
 
-  // Efeito para processar a mudança de página com timeout
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
-    
     if (isPageChanging) {
       timeoutId = setTimeout(() => {
         setIsPageChanging(false);
-        setSearchTrigger((prev) => prev + 1); // Forçar refetch após o timeout
-      }, 1000); // Tempo de espera de 1 segundo
+        setSearchTrigger((prev) => prev + 1);
+      }, 1000);
     }
-    
     return () => {
       if (timeoutId) clearTimeout(timeoutId);
     };
@@ -452,22 +472,21 @@ const RentalListings: React.FC = () => {
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
-    setIsPageChanging(true); // Ativar o estado de mudança de página
+    setIsPageChanging(true);
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handlePageSizeChange = (value: string) => {
     const newPageSize = Number(value);
     setPageSize(newPageSize);
-    setPage(1); // Resetar para a primeira página
-    setIsPageChanging(true); // Ativar o estado de mudança de página
+    setPage(1);
+    setIsPageChanging(true);
   };
 
   const handleRentalClick = (rentalId: string) => {
     router.push(`/detalhes/${rentalId}`);
   };
 
-  // Mostrar loading apenas durante o carregamento inicial do usuário
   if (userLoading || (isLoading && !isFetching && !isPageChanging)) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -487,24 +506,21 @@ const RentalListings: React.FC = () => {
 
   return (
     <div className="p-4 space-y-4">
-      {/* Mostrar skeleton quando estiver buscando ou durante a mudança de página */}
       {(isFetching || isPageChanging) ? (
         <div className="space-y-4">
           <div className="flex justify-end mb-4">
             <Skeleton className="h-10 w-[180px]" />
           </div>
-          
           <div className="w-full">
-            <Skeleton className="h-10 w-full mb-2" /> {/* Cabeçalho da tabela */}
+            <Skeleton className="h-10 w-full mb-2" />
             {Array.from({ length: pageSize }).map((_, index) => (
               <Skeleton key={index} className="h-12 w-full mb-2" />
             ))}
           </div>
-          
           <div className="mt-4 flex justify-between items-center">
-            <Skeleton className="h-10 w-24" /> {/* Botão anterior */}
-            <Skeleton className="h-6 w-32" />  {/* Texto de paginação */}
-            <Skeleton className="h-10 w-24" /> {/* Botão próxima */}
+            <Skeleton className="h-10 w-24" />
+            <Skeleton className="h-6 w-32" />
+            <Skeleton className="h-10 w-24" />
           </div>
         </div>
       ) : !data || !data.rentals || data.total === 0 ? (
@@ -517,7 +533,9 @@ const RentalListings: React.FC = () => {
               Nenhum aluguel encontrado
             </AlertTitle>
             <AlertDescription className="text-gray-600">
-              Você ainda não possui nenhum aluguel registrado.
+              {user?.role === "INQUILINO"
+                ? "Você ainda não possui nenhum aluguel registrado."
+                : "Nenhum aluguel registrado para seus imóveis."}
             </AlertDescription>
           </Alert>
         </div>
@@ -540,7 +558,7 @@ const RentalListings: React.FC = () => {
             <TableHeader>
               <TableRow>
                 <TableHead>ID Imóvel</TableHead>
-                <TableHead>Nome Proprietário</TableHead>
+                <TableHead>Responsável</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Check-In</TableHead>
                 <TableHead>Check-Out</TableHead>

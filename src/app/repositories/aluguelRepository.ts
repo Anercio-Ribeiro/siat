@@ -13,27 +13,6 @@ export class AluguelRepository {
     });
   }
 
-  // async buscarAluguelByUserId(inquilinoId: string): Promise<Aluguel[]> {
-  //   return await prisma.aluguel.findMany({
-  //     where: { inquilinoId },
-  //     include: { imovel: true, inquilino: true, contrato: true },
-  //   });
-  // }
-
-
-  // async buscarAluguelByUserId(
-  //   inquilinoId: string,
-  //   page: number = 1,
-  //   pageSize: number = 10
-  // ): Promise<Aluguel[]> {
-  //   return await prisma.aluguel.findMany({
-  //     where: { inquilinoId },
-  //     include: { imovel: true, inquilino: true, contrato: true },
-  //     take: pageSize, // Número de registros por página
-  //     skip: (page - 1) * pageSize, // Pular registros conforme a página
-  //   });
-  // }
-
   async findRentalsByUserId(
     inquilinoId: string,
     page: number = 1,
@@ -50,6 +29,35 @@ export class AluguelRepository {
 
   async countRentalsByUserId(inquilinoId: string): Promise<number> {
     return await prisma.aluguel.count({ where: { inquilinoId } });
+  }
+
+  async obterReservasPorProprietario(proprietarioId: string, page: number = 1,
+    pageSize: number = 10): Promise<Aluguel[]> {
+      const skip = (page - 1) * pageSize;
+    return await prisma.aluguel.findMany({
+      where: {
+        imovel: {
+          proprietarioId: proprietarioId,
+        },
+        NOT: {
+          inquilinoId: proprietarioId, // Exclui os alugueis feitos pelo próprio proprietário
+        },
+      },
+      include: {
+        imovel: true, // Inclui os detalhes do imóvel
+        inquilino: {
+          select: {
+            id: true,
+            nome: true,
+            email: true,
+            telefone: true,
+          },
+        },
+        
+      },
+      take: pageSize,
+      skip,
+    });
   }
   
 }
