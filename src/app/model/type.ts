@@ -129,3 +129,18 @@ export interface Favorito {
   criadoEm: Date;
   atualizadoEm: Date;
 }
+
+export interface DashboardStats {
+  neighborhoods: {
+    name: string;
+    rentalCount: number;
+  }[];
+  avgPrices: {
+    neighborhood: string;
+    averagePrice: number;
+  }[];
+  propertyTypes: {
+    type: string;
+    count: number;
+  }[];
+}

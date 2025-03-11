@@ -2,10 +2,14 @@ import { prisma } from "@/lib/prisma";
 
 export class FavoritosRepository {
     async addToFavorites(userId: string, imovelId: string) {
+      var countFavoritos  = 0;
+      countFavoritos = countFavoritos +1 ;
       return await prisma.favoritos.create({
         data: {
           userId,
           imovelId,
+          countFavoritos
+          
         },
       });
     }

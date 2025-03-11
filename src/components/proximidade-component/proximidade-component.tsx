@@ -15,15 +15,15 @@ const MapWithNoSSR = dynamic(() => import('../map-component/map'), {
 });
 
 const TIPOS_PROXIMIDADE = [
-  'Escola',
-  'Hospital',
-  'Supermercado',
-  'Farmácia',
-  'Restaurante',
-  'Banco',
-  'Parque',
-  'Shopping',
-  'Transporte Público'
+  "ESCOLA",
+  "HOSPITAL",
+  "SUPERMERCADO",
+  "FARMACIA",
+  "RESTAURANTE",
+  "BANCO",
+  "PARQUE",
+  "SHOPPING",
+  "TRANSPORTE_PUBLICO",
 ];
 
 const proximidadeSchema = z.object({

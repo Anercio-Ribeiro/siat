@@ -378,6 +378,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useUser } from "@/hooks/getUser";
 import { Button } from "@/components/ui/button";
 import RentalListings from "@/components/house-components/rental-lists";
+import Dashboard from "@/components/dashboard/dashboard";
+import EstatisticasDashboard from "@/components/dashboard/dashboard";
 
 export const dynamic = 'force-dynamic';
 
@@ -453,7 +455,10 @@ export default function DashboardPage() {
           { label: "Dashboard" },
         ]}
       >
+        {/* <Dashboard/> */}
+        <EstatisticasDashboard/>
         <RentalListings />
+
       </PageWithBreadcrumb>
     );
     
@@ -522,6 +527,7 @@ export default function DashboardPage() {
               </Button>
             </div>
           )}
+          
         </>
       )}
     </PageWithBreadcrumb>

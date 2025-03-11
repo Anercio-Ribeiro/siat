@@ -21,19 +21,17 @@ model User {
   favoritos    Favoritos[]
   imoveis      Imovel[]
   session      Session[]
-  mensagensEnviadas     Mensagem[]
-  conversasInquilino    Conversa[] @relation("InquilinoConversa")
-  conversasProprietario Conversa[] @relation("ProprietarioConversa")
 }
 
 model Favoritos {
-  id           String   @id @default(uuid())
-  userId       String
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
-  imovelId     String
-  imovel       Imovel   @relation(fields: [imovelId], references: [id])
-  user         User     @relation(fields: [userId], references: [id])
+  id             String   @id @default(uuid())
+  userId         String
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  imovelId       String
+  countFavoritos Int
+  imovel         Imovel   @relation(fields: [imovelId], references: [id])
+  user           User     @relation(fields: [userId], references: [id])
 
   @@unique([userId, imovelId])
 }
@@ -71,8 +69,45 @@ model Imovel {
   Favoritos       Favoritos[]
   imagens         Imagem[]
   proprietario    User        @relation(fields: [proprietarioId], references: [id])
+  visualizacoes Int      @default(0) // Para rastrear popularidade
+  proximidades  ProximidadeImovel[]
+}
 
-  Conversa Conversa[]
+// Relacionamento entre Imovel e Proximidade
+model ProximidadeImovel {
+  id           String    @id @default(uuid())
+  imovelId     String
+  proximidadeId String
+  distancia    Float
+  criadoEm     DateTime  @default(now())
+  atualizadoEm DateTime  @updatedAt
+  imovel       Imovel    @relation(fields: [imovelId], references: [id])
+  proximidade  Proximidade @relation(fields: [proximidadeId], references: [id])
+}
+
+// Ajustar Proximidade para suportar tipos predefinidos
+model Proximidade {
+  id           String   @id @default(uuid())
+  nome         String
+  distancia    Float
+  latitude     Float
+  longitude    Float
+  tipo         TipoProximidade
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  imoveis      ProximidadeImovel[]
+}
+
+enum TipoProximidade {
+  ESCOLA
+  HOSPITAL
+  SUPERMERCADO
+  FARMACIA
+  RESTAURANTE
+  BANCO
+  PARQUE
+  SHOPPING
+  TRANSPORTE_PUBLICO
 }
 
 model Imagem {
@@ -113,16 +148,16 @@ model Aluguel {
   contrato       Contrato?
 }
 
-model Proximidade {
-  id           String   @id @default(uuid())
-  nome         String
-  distancia    Float
-  atualizadoEm DateTime @updatedAt
-  criadoEm     DateTime @default(now())
-  latitude     Float
-  longitude    Float
-  tipo         String
-}
+// model Proximidade {
+//   id           String   @id @default(uuid())
+//   nome         String
+//   distancia    Float
+//   atualizadoEm DateTime @updatedAt
+//   criadoEm     DateTime @default(now())
+//   latitude     Float
+//   longitude    Float
+//   tipo         String
+// }
 
 enum Role {
   INQUILINO
@@ -133,30 +168,4 @@ enum Role {
 enum TipoAluguel {
   RESIDENCIAL
   TURISTICO
-}
-
-model Conversa {
-  id           String    @id @default(uuid())
-  imovelId     String
-  inquilinoId  String
-  proprietarioId String
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-  mensagens    Mensagem[]
-  imovel       Imovel    @relation(fields: [imovelId], references: [id])
-  inquilino    User      @relation("InquilinoConversa", fields: [inquilinoId], references: [id])
-  proprietario User      @relation("ProprietarioConversa", fields: [proprietarioId], references: [id])
-  
-  @@unique([imovelId, inquilinoId, proprietarioId])
-}
-
-model Mensagem {
-  id          String   @id @default(uuid())
-  conversaId  String
-  remetenteId String
-  conteudo    String
-  lida        Boolean  @default(false)
-  criadoEm    DateTime @default(now())
-  conversa    Conversa @relation(fields: [conversaId], references: [id])
-  remetente   User     @relation(fields: [remetenteId], references: [id])
 }
