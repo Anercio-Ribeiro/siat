@@ -40,3 +40,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Erro ao buscar favoritos' }, { status: 500 });
   }
 }
+
+
+
+
+
+
+// export async function GET(request: NextRequest) {
+//   try {
+//     const { searchParams } = new URL(request.url);
+//     const userId = searchParams.get('userId');
+//     const imovelId = searchParams.get('imovelId');
+
+//     if (!userId) {
+//       return NextResponse.json({ error: 'Usuário não autenticado' }, { status: 401 });
+//     }
+
+//     if (imovelId) {
+//       const isFavorite = await favoritosService.checkIsFavorite(userId, imovelId);
+//       return NextResponse.json({ isFavorite });
+//     }
+
+//     const favorites = await favoritosService.getUserFavorites(userId);
+//     return NextResponse.json({ favorites });
+//   } catch (error) {
+//     return NextResponse.json({ error: 'Erro ao buscar favoritos' }, { status: 500 });
+//   }
+// }

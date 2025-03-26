@@ -60,6 +60,7 @@ export interface ImovelLDto {
   tipologia: string;
   criadoEm: string;
   atualizadoEm: string;
+  proprietarioId?: string;
   imagens: { url: string }[];
   latitude: number;
   longitude: number;
@@ -72,6 +73,62 @@ export interface ImovelLDto {
   };
 }
 
+export interface Favorite {
+  id: string;
+  userId: string;
+  criadoEm: string;
+  atualizadoEm: string;
+  imovelId: string;
+  countFavoritos: number;
+  imovel: ImovelLDto;
+  
+  // Nested imovel matches ImovelLDto
+}
+
+
+// export interface ImovelLDto {
+//     id: string;
+//     titulo: string;
+//     descricao: string;
+//     preco: number;
+//     proprietarioId: string;
+//     endereco: string;
+//     provincia: string;
+//     bairro: string;
+//     numeroQuarto: number;
+//     numeroCasaBanho: number;
+//     tipologia: string;
+//     criadoEm: Date;
+//     atualizadoEm: Date;
+//     garagem: number;
+//     latitude: number;
+//     longitude: number;
+//     municipio: string;
+//     precoMensal?: number | null;
+//     tipoAluguel: 'RESIDENCIAL' | 'TURISTICO';
+//     visualizacoes: number;
+//     imagens: { id: string; url: string; imovelId: string; criadoEm: Date; atualizadoEm: Date }[];
+//     proprietario: { id: string; nome: string; email: string; telefone: string; picture?: string | null; role: 'INQUILINO' | 'PROPRIETARIO' | 'ADMIN'; criadoEm: Date; atualizadoEm: Date };
+//   }
+
+export interface FavoriteImovel {
+  id: string;
+  criadoEm: Date;
+  atualizadoEm: Date;
+  titulo: string;
+  descricao: string;
+  preco: number;
+  proprietarioId: string;
+  endereco: string;
+  provincia: string;
+  bairro: string;
+  numeroQuarto: number;
+  numeroCasaBanho: number;
+  tipologia: string;
+  garagem: number;
+  visualizacoes: number;
+  imagens?: { url: string }[];
+}
 export interface Proximidades { 
   nome: string;
   latitude: number;

@@ -126,6 +126,7 @@ export async function POST(req: Request) {
       longitude,
       precoMensal,
       tipoAluguel,
+      visualizacoes: 0,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
       },

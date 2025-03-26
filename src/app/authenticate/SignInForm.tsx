@@ -41,7 +41,6 @@ const SignInForm = () => {
     }
   });
 
-  // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof signInSchema>) {
     console.log(values);
     const res = await signIn(values);
@@ -53,11 +52,12 @@ const SignInForm = () => {
     }
     console.log(values);
   }
+
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Welcome back!</CardTitle>
-        <CardDescription>Sign in to your account to continue.</CardDescription>
+      <CardHeader className="text-center mt-2"> {/* Added text-center here */}
+        <CardTitle>Autenticação</CardTitle>
+        <CardDescription>Entrar</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Form {...form}>
@@ -70,11 +70,11 @@ const SignInForm = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Username</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="Enter your email..."
+                      placeholder="Digite o username"
                       {...field}
                     />
                   </FormControl>
@@ -87,11 +87,11 @@ const SignInForm = () => {
               name="senha"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Enter your password..."
+                      placeholder="Digite a sua senha"
                       {...field}
                       onChange={(e) => {
                         e.target.value = e.target.value.trim();
@@ -104,7 +104,7 @@ const SignInForm = () => {
               )}
             />
             <Button type="submit" className="self-start">
-              Login
+              Entrar
             </Button>
           </form>
         </Form>

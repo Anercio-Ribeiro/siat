@@ -1,5 +1,6 @@
 import RegistrarImovelForm from "@/components/house-components/create-imovel";
 import { HouseCard } from "@/components/house-components/house-card";
+import ImovelListings from "@/components/house-components/house-list-component";
 import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
 
 export default function ImovelPage() {
@@ -15,6 +16,7 @@ export default function ImovelPage() {
       ]}
     >
       <RegistrarImovelForm/>
+      <ImovelListings/>
     </PageWithBreadcrumb>
   );
 }

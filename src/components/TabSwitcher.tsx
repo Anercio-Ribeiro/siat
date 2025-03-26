@@ -10,10 +10,10 @@ type Props = {
 
 const TabSwitcher = (props: Props) => {
     return (
-        <Tabs className='max-w-[500px]' defaultValue='sign-in'>
+        <Tabs className='max-w-[700px]' defaultValue='sign-in'>
             <TabsList>
-                <TabsTrigger value='sign-in'>Sign In</TabsTrigger>
-                <TabsTrigger value='sign-up'>Sign Up</TabsTrigger>
+                <TabsTrigger value='sign-in'>Entrar</TabsTrigger>
+                <TabsTrigger value='sign-up'>Criar conta</TabsTrigger>
             </TabsList>
 
             <TabsContent value='sign-in'>{props.SignInTab}</TabsContent>

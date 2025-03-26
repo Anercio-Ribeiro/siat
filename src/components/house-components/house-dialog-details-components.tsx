@@ -272,7 +272,7 @@ const DialogContentComponent = ({ isLoading, imovel }: {
     preco: imovel.preco,
     precoMensal: imovel.precoMensal,
     tipoAluguel: imovel.tipoAluguel as TipoAluguel || 'defaultTipoAluguel',
-    proprietarioId: imovel.proprietario.id,
+    proprietarioId: imovel.proprietario?.id ?? '',
   }} 
 />
                   <Button 

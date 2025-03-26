@@ -31,7 +31,9 @@ export class FavoritosRepository {
           userId,
         },
         include: {
-          imovel: true,
+          imovel: {
+            include: { imagens: true },
+          }
         },
       });
     }
@@ -47,4 +49,59 @@ export class FavoritosRepository {
       });
       return !!favorite;
     }
-  }
+
+
+      // async getUserFavorites(userId: string) {
+      //   return await prisma.favoritos.findMany({
+      //     where: {
+      //       userId,
+      //     },
+      //     include: {
+      //       imovel: {
+      //         include: {
+      //           imagens: true, // Include property images
+      //         },
+      //       },
+      //     },
+      //   });
+      // }
+      // async checkUserRole(userId: string): Promise<string | null> {
+      //   const user = await prisma.user.findUnique({
+      //     where: { id: userId },
+      //     select: { role: true },
+      //   });
+      //   return user?.role ?? null;
+      // }
+
+
+      async getUserFavorites(userId: string) {
+        const favorites = await prisma.favoritos.findMany({
+          where: { userId },
+          include: {
+            imovel: {
+              include: {
+                imagens: true,
+                proprietario: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                    role: true,
+                  }
+                }
+              }
+            },
+          },
+        });
+        return favorites;
+      }
+    
+      async checkUserRole(userId: string): Promise<string | null> {
+        const user = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { role: true },
+        });
+        return user?.role ?? null;
+      }
+    }
+  

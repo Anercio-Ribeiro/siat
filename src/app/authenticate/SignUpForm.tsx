@@ -66,7 +66,7 @@ const SignUpForm = () => {
 
     const res = await signUp(utilizadorData);
     if (res.success) {
-      toast.success("Account created successfully");
+      toast.success("Conta criada com successo");
       router.push("/dashboard");
     } else {
       toast.error(res.error);
@@ -75,9 +75,9 @@ const SignUpForm = () => {
 
   return (
     <Card className="min-w-[500px]">
-      <CardHeader>
-        <CardTitle>Begin your journey...</CardTitle>
-        <CardDescription>Create your account to continue.</CardDescription>
+      <CardHeader className="text-center mt-2">
+        <CardTitle>Autenticação</CardTitle>
+        <CardDescription>Criação de conta</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Form {...form}>
@@ -92,7 +92,7 @@ const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Enter your name..." {...field} />
+                    <Input placeholder="Digite o nome" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -108,7 +108,7 @@ const SignUpForm = () => {
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="Enter your email..."
+                      placeholder="Digite o email"
                       {...field}
                     />
                   </FormControl>
@@ -122,11 +122,11 @@ const SignUpForm = () => {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>User</FormLabel>
+                  <FormLabel>Utilizador</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="Enter your username..."
+                      placeholder="Digite o username"
                       {...field}
                     />
                   </FormControl>
@@ -144,7 +144,7 @@ const SignUpForm = () => {
                   <FormControl>
                     <Input
                       type="text"
-                      placeholder="Enter your telefone..."
+                      placeholder="Digite o telefone"
                       {...field}
                     />
                   </FormControl>
@@ -158,21 +158,21 @@ const SignUpForm = () => {
               name="role"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Role</FormLabel>
+                  <FormLabel>Perfil</FormLabel>
                   <FormControl>
                     <Select
                       onValueChange={field.onChange} // Update form state on value change
                       value={field.value} // Set the current value
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select your role" />
+                        <SelectValue placeholder="Seleccione o perfil" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="INQUILINO">Inquilino</SelectItem>
                         <SelectItem value="PROPRIETARIO">
                           Proprietário
                         </SelectItem>
-                        <SelectItem value="ADMIN">Admin</SelectItem>
+                        {/* <SelectItem value="ADMIN">Admin</SelectItem> */}
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -186,11 +186,11 @@ const SignUpForm = () => {
               name="senha"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <FormLabel>Senha</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
-                      placeholder="Enter your password..."
+                      placeholder="Digite a senha"
                       {...field}
                       onChange={(e) => {
                         e.target.value = e.target.value.trim();
@@ -204,7 +204,7 @@ const SignUpForm = () => {
             />
 
             <Button type="submit" className="self-start">
-              Sign Up
+              Criar conta
             </Button>
           </form>
         </Form>

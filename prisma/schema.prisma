@@ -14,6 +14,7 @@ model User {
   email        String      @unique
   senha        String
   telefone     String
+  picture      String?
   role         Role
   criadoEm     DateTime    @default(now())
   atualizadoEm DateTime    @updatedAt

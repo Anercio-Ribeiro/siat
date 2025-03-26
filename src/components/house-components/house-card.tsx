@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Bath, Bed, Heart, ChevronLeft, ChevronRight, Car, DollarSign, Flag, Home, MapPin, ParkingCircle, Map, Pin } from 'lucide-react';
@@ -11,12 +11,9 @@ import Image from 'next/image';
 import { ImovelLDto } from '@/app/model/type';
 import DialogContentComponent from './house-dialog-details-components';
 import { useFavorites } from '@/hooks/useFavoritos';
-
-
 import { toast } from 'sonner';
 import { useRouter } from 'next/navigation';
 import { useUser } from '../../hooks/getUser';
-
 
 interface HouseCardProps {
   imovel: ImovelLDto;
@@ -24,14 +21,12 @@ interface HouseCardProps {
 }
 
 export function HouseCard({ imovel, onClick }: HouseCardProps) {
-
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthDialogOpen, setIsAuthDialogOpen] = useState(false);
   const { user } = useUser();
   const [isFavorited, setIsFavorited] = useState(false);
-
-
   const router = useRouter();
 
   useEffect(() => {
@@ -39,14 +34,10 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1500); // 1.5 seconds delay
-
+      }, 1500);
       return () => clearTimeout(timer);
     }
   }, [isModalOpen]);
-
-
-  
 
   const handleCardClick = () => {
     setIsModalOpen(true);
@@ -68,7 +59,6 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
         }
       }
     };
-
     checkFavoriteStatus();
   }, [user?.id, imovel.id]);
 
@@ -76,7 +66,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
     e.stopPropagation();
     
     if (!user) {
-      router.push('/login');
+      setIsAuthDialogOpen(true);
       return;
     }
 
@@ -95,14 +85,10 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
       const data = await response.json();
       setIsFavorited(data.isFavorite);
       data.isFavorite ? toast.success('Adicionado aos favoritos') : toast.error('Removido dos favoritos');
-      //toast.success(data.isFavorite ? 'Adicionado aos favoritos' : 'Removido dos  favoritos');
     } catch (error) {
       console.error('Erro ao toggle favorito:', error);
     }
   };
-
-
-  
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -139,10 +125,9 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               className="w-full h-full object-cover rounded-md transition-transform duration-700 ease-in-out transform-gpu"
               fill
               style={{ objectFit: "cover" }}
-              
             />
 
-<div
+            <div
               onClick={toggleFavorite}
               className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${
                 isFavorited ? "bg-white" : ""
@@ -154,6 +139,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
                 }`}
               />
             </div>
+            {/* Rest of the CardContent remains the same */}
             {Array.isArray(imovel.imagens) && imovel.imagens.length > 1 && (
               <>
                 <Button
@@ -184,6 +170,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               </div>
             )}
           </CardContent>
+          {/* Rest of the Card remains the same */}
           <div className="p-2">
             <div className="flex justify-between items-center">
               <div className="text-sm font-bold">{imovel.titulo}</div>
@@ -223,6 +210,34 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
           </DialogContent>
         </Dialog>
       )}
+
+      <Dialog open={isAuthDialogOpen} onOpenChange={setIsAuthDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Autenticação Necessária</DialogTitle>
+            <DialogDescription>
+              Apenas usuários autenticados podem adicionar imóveis à lista de favoritos. 
+              Por favor, faça login ou crie uma conta para usar esta funcionalidade.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button 
+              onClick={() => {
+                setIsAuthDialogOpen(false);
+                router.push('/authenticate');
+              }}
+            >
+              Ir para Autenticação
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => setIsAuthDialogOpen(false)}
+            >
+              Cancelar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

@@ -1,3 +1,6 @@
+// components/ContentLayout.tsx
+"use client";
+
 import { Navbar } from "@/components/admin-panel/navbar";
 
 interface ContentLayoutProps {
@@ -13,3 +16,5 @@ export function ContentLayout({ title, children }: ContentLayoutProps) {
     </div>
   );
 }
+
+export default ContentLayout;
