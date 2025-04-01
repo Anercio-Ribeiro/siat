@@ -37,7 +37,10 @@ export class UtilizadorService {
       console.error("Error in service:", error);
       return null;
     }
-
 };
+
+async criarBulkUtilizador(data: Omit<User, 'id'>[]): Promise<void> {
+  await utilizadorRepo.criarBulkUtilizador(data);
+}
 
 }

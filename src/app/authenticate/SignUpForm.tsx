@@ -31,6 +31,7 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
+import BulkUserUpload from "@/components/user-bulk-create";
 
 export const signUpSchema = z.object({
   nome: z.string().min(5),
@@ -74,6 +75,7 @@ const SignUpForm = () => {
   }
 
   return (
+    <>
     <Card className="min-w-[500px]">
       <CardHeader className="text-center mt-2">
         <CardTitle>Autenticação</CardTitle>
@@ -210,6 +212,9 @@ const SignUpForm = () => {
         </Form>
       </CardContent>
     </Card>
+    {/* <BulkUserUpload /> */}
+    </>
+
   );
 };
 

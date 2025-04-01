@@ -28,9 +28,6 @@ export class ProximidadeRepository {
     });
   }
 
-  // async listarProximidades(): Promise<Proximidade[]> {
-  //   return await prisma.proximidade.findMany();
-  // }
 
   async listarProximidades({ skip, take }: PaginationParams) {
     // Update your database query to include skip/take

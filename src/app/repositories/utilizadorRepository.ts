@@ -4,11 +4,7 @@ import { Role, User } from '@prisma/client';
 import { UtilizadorCustom } from '../model/type';
 
 export class UtilizadorRepository {
-  // async criarUtilizador(data: Omit<Utilizador, 'id'>): Promise<Utilizador> {
-  //   return await prisma.utilizador.create({
-  //     data,
-  //   });
-  // }
+
   async criarUtilizador(data: Omit<User, 'id'>): Promise<User> {
     const currentDate = new Date();
     const utilizadorData = {
@@ -21,6 +17,25 @@ export class UtilizadorRepository {
     });
   }
 
+  // async criarBulkUtilizador(data: Omit<User, 'id'>): Promise<User> {
+  //   const currentDate = new Date();
+  //   const utilizadorData = {
+  //     ...data,
+  //     criadoEm: currentDate,
+  //     atualizadoEm: currentDate
+  //   };
+  //   return await prisma.user.createMany({
+  //     data: utilizadorData,
+  //   });
+  // }
+
+  async criarBulkUtilizador(data: Omit<User, 'id'>[]): Promise<void> {
+    await prisma.user.createMany({
+      data: data,
+      skipDuplicates: true, // Evita erro se algum usuário duplicado passar pela validação
+    });
+  }
+
   async encontrarUtilizadorPorId(id: string): Promise<UtilizadorCustom | null> {
     return await prisma.user.findUnique({
       where: { id },
@@ -30,6 +45,7 @@ export class UtilizadorRepository {
         email: true,
         telefone: true,
         role: true,
+        picture: true,
         //favoritoIds: true,
         alugueis: true,
         imoveis: true,

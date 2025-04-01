@@ -16,14 +16,15 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
     try {
         const existingUser = await utilizadorService.encontrarUtilizadorPorUsername(values.username);
         if (existingUser) {
-            return { error: 'User already exists', success: false };
+            return { error: 'Utilizador já existe na base de dados', success: false };
         }
         const senha = await hashPassword(values.senha);
 
         const currentDate = new Date();
         const user = await utilizadorService.criarUtilizador({
             ...values,
-            senha, 
+            senha,
+            picture: '',
             //favoritoIds: [], 
             criadoEm: currentDate, 
             atualizadoEm: currentDate 

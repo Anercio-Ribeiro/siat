@@ -42,62 +42,6 @@ export class ImovelRepository {
     });
   }
 
-  // async listarImoveis(): Promise<Imovel[]> {
-  //   return await prisma.imovel.findMany({
-  //     include: {
-  //       //proximidades: true,
-  //       proprietario: {
-  //         select: {
-  //           id: true,
-  //           nome: true,
-  //           email: true,
-  //           role: true,
-  //         },
-  //       },
-  //       imagens: {
-  //         select: {
-  //           url: true,
-  //         }
-  //       }
-  //     }
-  //   }
-  //   );
-  // }
-
-  // async listarImoveis(page: number = 1, pageSize: number = 6): Promise<{ imoveis: Imovel[], total: number }> {
-  //   const skip = (page - 1) * pageSize;
-    
-  //   const [imoveis, total] = await Promise.all([
-  //     prisma.imovel.findMany({
-  //       skip,
-  //       take: pageSize,
-  //       include: {
-  //         proprietario: {
-  //           select: {
-  //             id: true,
-  //             nome: true,
-  //             email: true,
-  //             role: true,
-  //           },
-  //         },
-  //         imagens: {
-  //           select: {
-  //             url: true,
-  //           }
-  //         }
-  //       },
-  //       orderBy: {
-  //         id: 'desc'
-  //       }
-  //     }),
-  //     prisma.imovel.count()
-  //   ]);
-    
-  //   return { imoveis, total };
-  // }
-
-
-  // In ImovelService class
   async listarImoveis(page: number = 1, pageSize: number = 6, userId?: string): Promise<{ imoveis: Imovel[], total: number }> {
     const skip = (page - 1) * pageSize;
     

@@ -47,6 +47,8 @@ export async function GET(req: NextRequest) {
     const imoveis = await imovelService.buscarImoveisBy(filters, skip, pageSize);
     const totalImoveis = await imovelService.contarImoveis(filters);
 
+    console.log('Imóveis encontrados:', imoveis);
+
     return NextResponse.json({
       imoveis,
       totalImoveis,
