@@ -3,6 +3,7 @@ import { Aluguel } from '@prisma/client';
 
 export class AluguelRepository {
   async criarAluguel(data: Omit<Aluguel, 'id' | 'criadoEm' | 'atualizadoEm'>): Promise<Aluguel> {
+    
     return await prisma.aluguel.create({ data });
   }
 

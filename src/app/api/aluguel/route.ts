@@ -12,6 +12,7 @@ export async function POST(req: NextRequest) {
       checkOut,
       periodoAluguel,
       status,
+      tipoAluguel,
     } = body;
 
     if (!imovelId || !inquilinoId || !checkIn || !checkOut) {
@@ -27,6 +28,7 @@ export async function POST(req: NextRequest) {
       periodoAluguel,
       status,
       contratoUrl: null,
+      tipoAluguel,
     });
 
     return NextResponse.json(aluguel, { status: 201 });
