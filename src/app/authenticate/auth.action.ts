@@ -29,9 +29,11 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
             criadoEm: currentDate, 
             atualizadoEm: currentDate 
         });
-        console.log(user)
+        //TODO: Remover logs em produção
+        //console.log(user)
         const session = await lucia.createSession(user.id, {});
-        console.log(session)
+        //TODO: Remover logs em produção
+        //console.log(session)
         const sessionCookie = await lucia.createSessionCookie(session.id);
         cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
         return { success: true };
@@ -45,32 +47,34 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
     const user: UtilizadorCustom | null = await utilizadorService.encontrarUtilizadorPorUsername(values.username);
 
     // Adicione um log para verificar o utilizador encontrado
-    console.log("Utilizador encontrado: ", user);
+    //TODO: Remover logs em produção
+    //console.log("Utilizador encontrado: ", user);
     
     if (!user || !user.senha) {
-        console.log("Utilizador ou senha é nulo");
+        //TODO: Remover logs em produção
+        //console.log("Utilizador ou senha é nulo");
         return { success: false, error: "Invalid Credentials!" };
     }
 
     // Adicione um log para verificar a senha fornecida e a senha do banco de dados
-    console.log("Senha inserida: ", values.senha);
-    console.log("Senha no DB (hash): ", user.senha);
+    //console.log("Senha inserida: ", values.senha);
+    //console.log("Senha no DB (hash): ", user.senha);
 
     // Verifica a correspondência entre as senhas
     const passwordMatch = await verifyPassword(values.senha, user.senha);
-    console.log("Resultado da comparação de senha: ", passwordMatch);
+    //console.log("Resultado da comparação de senha: ", passwordMatch);
 
     if (!passwordMatch) {
-        console.log("Senha inválida");
+      //  console.log("Senha inválida");
         return { success: false, error: "Invalid Credentials!" }
     }
 
-    console.log("Login bem-sucedido");
+    //console.log("Login bem-sucedido");
 
     // Continue com a criação da sessão
     const session = await lucia.createSession(user.id, {});
     const sessionCookie = await lucia.createSessionCookie(session.id);
-    console.log("Sessão: ", session);
+   // console.log("Sessão: ", session);
 
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
     return { success: true };

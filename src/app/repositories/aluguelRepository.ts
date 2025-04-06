@@ -60,5 +60,31 @@ export class AluguelRepository {
       skip,
     });
   }
+
+  async getAlugueisByProprietario(proprietarioId: string) {
+    return prisma.aluguel.findMany({
+      where: { imovel: { proprietarioId } },
+      include: { imovel: true, contrato: true },
+    });
+  }
+
+  async getAlugueisByInquilino(inquilinoId: string) {
+    return prisma.aluguel.findMany({
+      where: { inquilinoId },
+      include: { imovel: true, contrato: true },
+    });
+  }
+
+  async getPendingAlugueis(proprietarioId: string) {
+    return prisma.aluguel.findMany({
+      where: { imovel: { proprietarioId }, status: "pendente" },
+    });
+  }
+
+  async getAllAlugueis() {
+    return prisma.aluguel.findMany({
+      include: { contrato: true, imovel: true },
+    });
+  }
   
 }

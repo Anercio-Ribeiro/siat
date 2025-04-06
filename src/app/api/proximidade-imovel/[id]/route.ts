@@ -20,7 +20,8 @@ export async function GET(req: NextRequest) {
       proximidadeNome,
       //distanciaMax ? parseFloat(distanciaMax) : undefined
     );
-    console.log("Imoveis da proximidade: "+imoveis)
+    //TODO: Remover logs em produção
+    //console.log("Imoveis da proximidade: "+imoveis)
     // const totalImoveis = await imovelService.contarImoveis(filters);
     return NextResponse.json({imoveis, status: 200 });
 

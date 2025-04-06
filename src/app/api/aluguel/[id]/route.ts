@@ -33,7 +33,8 @@ export async function GET(request: Request) {
       const aluguelRepo = new RentalService();
       const { searchParams } = new URL(request.url);
       const imovelId = searchParams.get('imovelId');
-      console.log(imovelId);
+      //TODO: Remover logs em produção
+      //console.log(imovelId);
       
       if (!imovelId) {
         return NextResponse.json({ error: 'ImovelId é obrigatório' }, { status: 400 });

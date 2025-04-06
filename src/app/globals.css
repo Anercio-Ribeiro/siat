@@ -100,7 +100,30 @@
       color: #2563eb; /* blue-600 */
       fill: white;
     }
+
+    .flip-container {
+      perspective: 1000px;
+      width: 100%;
+    }
+    
+    .flip-inner {
+      position: relative;
+      width: 100%;
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    
+    .flip-container.flip .flip-inner {
+      transform: rotateY(180deg);
+    }
+    
+    /* Estilização opcional para o botão */
+    button {
+      transition: all 0.3s ease;
+    }
   }
+
+  
 
   @layer base {
     * {

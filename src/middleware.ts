@@ -80,11 +80,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { User } from "./app/model/type";
 
-async function getAuthUser(request: NextRequest): Promise<User | null> {
+export async function getAuthUser(request: NextRequest): Promise<User | null> {
   try {
     const cookies = request.cookies.getAll().map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
-    console.log('Cookies enviados para API:', cookies);
-    console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
+    
+    //TODO: Remover logs em produção
+    // console.log('Cookies enviados para API:', cookies);
+    // console.log('API URL:', process.env.NEXT_PUBLIC_API_URL);
 
     const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/getauthuser`, {
       credentials: 'include',
@@ -117,29 +119,46 @@ async function getAuthUser(request: NextRequest): Promise<User | null> {
 }
 
 export async function middleware(request: NextRequest) {
-  console.log('Rota acessada:', request.nextUrl.pathname);
+  //TODO: Remover logs em produção
+  // console.log('Rota acessada:', request.nextUrl.pathname);
   const user = await getAuthUser(request);
   const pathname = request.nextUrl.pathname;
   const protectedRoutes = ['/agendamentos', '/dashboard', '/proximidades', '/imovel'];
 
   const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
-  console.log('Usuário:', user);
-  console.log('É rota protegida?', isProtectedRoute);
+ 
+ //TODO: Remover logs em produção
+  // console.log('Usuário:', user);
+  // console.log('É rota protegida?', isProtectedRoute);
 
   if (!user && isProtectedRoute) {
-    console.log('Redirecionando para / por falta de autenticação');
+    //TODO: Remover logs em produção
+    // console.log('Redirecionando para / por falta de autenticação');
     return NextResponse.redirect(new URL('/', request.url));
   }
 
   if (user) {
     if (user.role === 'PROPRIETARIO' && pathname.startsWith('/proximidades')) {
-      console.log('Redirecionando PROPRIETARIO de /proximidades');
+    
+    //TODO: Remover logs em produção
+      // console.log('Redirecionando PROPRIETARIO de /proximidades');
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
     if (user.role === 'INQUILINO') {
       if (pathname.startsWith('/proximidades') || pathname.startsWith('/imovel')) {
-        console.log('Redirecionando INQUILINO de rota restrita');
+        
+        //TODO: Remover logs em produção
+        // console.log('Redirecionando INQUILINO de rota restrita');
         return NextResponse.redirect(new URL('/', request.url));
+      }
+    }
+
+    if (user.role === "ADMIN") {
+      if (pathname.startsWith('/agendamentos') || pathname.startsWith('/imovel')) {
+        
+        //TODO: Remover logs em produção
+        // console.log('Redirecionando INQUILINO de rota restrita');
+        return NextResponse.redirect(new URL('/dashboard', request.url));
       }
     }
   }

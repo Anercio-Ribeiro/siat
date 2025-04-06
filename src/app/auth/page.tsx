@@ -170,7 +170,7 @@ const SignInDialog = () => {
     setLoading(true);
     try {
       const res = await signIn(values);
-      console.log(values);
+      //console.log(values);
       if (res.success) {
         toast.success("Login successful");
         router.push("/dashboard");

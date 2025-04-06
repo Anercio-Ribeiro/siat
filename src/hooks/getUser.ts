@@ -43,8 +43,8 @@ export function useUser() {
     //   router.push('/');
     // }
   }, [user, loading, router]);
-
-  console.log({ user });
+//TODO: Remover logs em produção
+  //console.log({ user });
 
   return { user, loading, error, refetch };
 }

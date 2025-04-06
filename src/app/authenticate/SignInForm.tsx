@@ -42,7 +42,7 @@ const SignInForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof signInSchema>) {
-    console.log(values);
+    //console.log(values);
     const res = await signIn(values);
     if (res.success) {
       toast.success("Login successful");
@@ -50,7 +50,7 @@ const SignInForm = () => {
     } else {
       toast.error(res.error);
     }
-    console.log(values);
+    //console.log(values);
   }
 
   return (

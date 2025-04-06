@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
   const page = parseInt(searchParams.get("page") || "1", 10);
   const pageSize = 8;
 
-  console.log("Query params received:", { tipo, page });
+  //console.log("Query params received:", { tipo, page });
 
   if (!tipo) {
     return NextResponse.json(

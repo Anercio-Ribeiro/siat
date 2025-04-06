@@ -12,6 +12,10 @@ import { Button } from "@/components/ui/button";
 import RentalListings from "@/components/house-components/rental-lists";
 import Dashboard from "@/components/dashboard/dashboard";
 import EstatisticasDashboard from "@/components/dashboard/dashboard";
+import { DashboardProprietarioTuristico } from "@/components/card-dashboard/DashboardProprietarioTuristico";
+import { DashboardInquilinoTuristico } from "@/components/card-dashboard/DashboardInquilinoTuristico";
+import { DashboardProprietarioResidencial } from "@/components/card-dashboard/DashboardProprietarioResidencial";
+import { DashboardInquilinoProprietarioFlipBox } from '../../../components/card-dashboard/dashboard-component/dashboard-inquilino-proprietario-flip-box';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +42,8 @@ export default function DashboardPage() {
   const [searchTrigger, setSearchTrigger] = useState<number>(0);
   
   const { user, loading: userLoading, refetch } = useUser();
- console.log(user);
+ //TODO: Remover logs em produção
+  //console.log(user);
   
   const {
     data,
@@ -78,7 +83,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (user?.role === 'INQUILINO' || user?.role === 'PROPRIETARIO') {
+  // if (user?.role === 'INQUILINO' || user?.role === 'PROPRIETARIO') {
     return (
       <PageWithBreadcrumb
         title="Dashboard"
@@ -89,6 +94,13 @@ export default function DashboardPage() {
       >
         {/*<Dashboard/> */}
         <EstatisticasDashboard/>
+
+       {/* <DashboardProprietarioTuristico /> */}
+        {/* <DashboardProprietarioResidencial />
+        <DashboardInquilinoTuristico />  */}
+
+<DashboardInquilinoProprietarioFlipBox />
+
         {/* <RentalListings /> */}
 
       </PageWithBreadcrumb>
@@ -164,4 +176,4 @@ export default function DashboardPage() {
   //     )}
   //   </PageWithBreadcrumb>
   // );
-}
+// }

@@ -50,7 +50,7 @@ import { ImovelLDto } from "./model/type";
 // Proximity types from Prisma schema
 const proximityTypes = [
   "ESCOLA", "HOSPITAL", "SUPERMERCADO", "FARMACIA",
-  "RESTAURANTE", "BANCO", "PARQUE", "SHOPPING", "TRANSPORTE_PUBLICO",
+  "RESTAURANTE", "BANCO", "PARQUE", "SHOPPING", "TRANSPORTE PUBLICO",
 ];
 
 export interface FetchImoveisResponse {
@@ -177,10 +177,12 @@ export function AirbnbNav() {
 
       if (searchFilters.proximidades) {
         const tipo = searchFilters.proximidades.split(",")[0]; // Use the first selected proximity type
-        console.log("Fetching proximidade with tipo:", tipo, "page:", pageNum, "distanciaMax:", searchFilters.distanciaMax);
+        //TODO: Remover logs em produção
+        //console.log("Fetching proximidade with tipo:", tipo, "page:", pageNum, "distanciaMax:", searchFilters.distanciaMax);
         results = await fetchProximidadeImoveis(tipo, pageNum, searchFilters.distanciaMax);
       } else {
-        console.log("Fetching imoveis with filters:", searchFilters, "page:", pageNum);
+        //TODO: Remover logs em produção
+        //console.log("Fetching imoveis with filters:", searchFilters, "page:", pageNum);
         results = await fetchImoveis(searchFilters, pageNum);
       }
 

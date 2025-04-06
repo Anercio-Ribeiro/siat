@@ -23,7 +23,7 @@ export async function getAuthenticatedUser() {
     if (!dbUser) {
         throw new Error("Proprietário não encontrado");
     }
-
-    console.log(dbUser);
+//TODO: Remover logs em produção
+    //console.log(dbUser);
     return dbUser; // Retorna o usuário completo do banco de dados
 }

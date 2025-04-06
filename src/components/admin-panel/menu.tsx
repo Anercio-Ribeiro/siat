@@ -158,6 +158,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useUser } from "@/hooks/getUser";
 import { getMenuList } from "@/lib/menu-list";
+import SignOutButton from "../SignOutButton";
 // Adjust the import path
 
 interface MenuProps {
@@ -252,7 +253,7 @@ export function Menu({ isOpen }: MenuProps) {
             <TooltipProvider disableHoverableContent>
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
-                  <Button
+                  {/* <Button
                     onClick={() => {}}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5"
@@ -266,12 +267,17 @@ export function Menu({ isOpen }: MenuProps) {
                         isOpen === false ? "opacity-0 hidden" : "opacity-100"
                       )}
                     >
-                      Sign out
+                      Sair
                     </p>
-                  </Button>
+                  </Button> */}
+
+<SignOutButton>
+            <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
+            Sair
+          </SignOutButton>
                 </TooltipTrigger>
                 {isOpen === false && (
-                  <TooltipContent side="right">Sign out</TooltipContent>
+                  <TooltipContent side="right">Sair</TooltipContent>
                 )}
               </Tooltip>
             </TooltipProvider>

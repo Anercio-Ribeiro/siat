@@ -448,6 +448,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { useUser } from "@/hooks/getUser";
 
 ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
 
@@ -459,6 +460,8 @@ type DashboardData = {
 };
 
 export default function EstatisticasDashboard() {
+  const user = useUser(); // Hook para obter o usuário logado
+
   const [residencialData, setResidencialData] = useState<DashboardData>({
     precoZona: [],
     proximidades: [],
@@ -471,6 +474,7 @@ export default function EstatisticasDashboard() {
     precoPorMes: [],
     precoMensalZona: [],
   });
+  
   const [loading, setLoading] = useState({ residencial: true, turistico: true });
   const [loadingPrecoMensalZona, setLoadingPrecoMensalZona] = useState({ residencial: true, turistico: true });
   const [expandedChart, setExpandedChart] = useState<string | null>(null);
@@ -481,7 +485,10 @@ export default function EstatisticasDashboard() {
   const [hiddenProximidadesRes, setHiddenProximidadesRes] = useState<Set<string>>(new Set());
   const [hiddenProximidadesTur, setHiddenProximidadesTur] = useState<Set<string>>(new Set());
 
+ 
+
   // Fetch para os dados gerais (exceto Preço Mensal por Zona)
+ 
   useEffect(() => {
     const fetchResidencialData = async () => {
       setLoading((prev) => ({ ...prev, residencial: true }));
@@ -657,6 +664,10 @@ export default function EstatisticasDashboard() {
       const matchBairro = selectedBairro === "all" || item.bairro === selectedBairro;
       return matchProvincia && matchBairro;
     });
+
+    if(user?.user?.role !== "ADMIN") {
+      return false;
+    }
 
     return (
       <div className="space-y-6">

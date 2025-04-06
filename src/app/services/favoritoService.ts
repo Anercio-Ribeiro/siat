@@ -36,7 +36,7 @@ export class FavoritosService {
     return favorites.map((fav) => ({
       id: fav.imovel.id,
       titulo: fav.imovel.titulo,
-      preco: fav.imovel.preco,
+      preco: fav.imovel.preco || 0,
       provincia: fav.imovel.provincia,
       bairro: fav.imovel.bairro,
       numeroQuarto: fav.imovel.numeroQuarto,

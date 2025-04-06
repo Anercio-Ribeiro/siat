@@ -108,7 +108,9 @@ export async function POST(req: Request) {
     if(!proprietario)
 
       return NextResponse.json("Erro: user invalido");
-    console.log("User logged: "+proprietario)
+    
+    //TODO: Remover logs em produção
+      // console.log("User logged: "+proprietario)
 
     const imovelData = {
       titulo,
@@ -139,7 +141,8 @@ export async function POST(req: Request) {
     };
 
     const imovel = await imovelService.criarImovel(imovelData);
-    console.log(imovel);
+    //TODO: Remover logs em produção
+    //console.log(imovel);
     return NextResponse.json(imovel, { status: 201 });
 
   } catch (error) {

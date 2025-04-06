@@ -35,8 +35,8 @@ export const getUser = async () => {
             role: true, 
         },
     });
-
-    console.log(dbUser)
+//TODO: Remover logs em produção
+    //console.log(dbUser)
 
     return dbUser;
 };

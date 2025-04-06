@@ -122,5 +122,22 @@ export class ImovelRepository {
       where: filters,
     });
   }
+
+  async getImoveisByProprietario(proprietarioId: string) {
+    return prisma.imovel.findMany({
+      where: { proprietarioId },
+      include: { alugueis: true },
+    });
+  }
+
+  async getTotalImoveis() {
+    return prisma.imovel.count();
+  }
+
+  async getAllAlugueis() {
+    return prisma.aluguel.findMany({
+      include: { imovel: true },
+    });
+  }
 }
 
