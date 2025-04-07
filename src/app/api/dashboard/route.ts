@@ -3,131 +3,35 @@
 
 
 // export async function GET(req: NextRequest) {
-//   const tipo = req.nextUrl.searchParams.get("tipo");
-
-//   if (!tipo) {
-//     return NextResponse.json({ error: "Parâmetro 'tipo' é obrigatório" }, { status: 400 });
-//   }
-
-//   try {
-//     switch (tipo) {
-//       case "preco-por-zona":
-//         const precoZona = await estatisticasService.getPrecoPorZona();
-//         return NextResponse.json(precoZona, { status: 200 });
-
-//       case "proximidades":
-//         const proximidades = await estatisticasService.getProximidadesMaisProcuradas();
-//         return NextResponse.json(proximidades, { status: 200 });
-
-//       case "preco-por-mes":
-//         const precoPorMes = await estatisticasService.getPrecoPorMes();
-//         return NextResponse.json(precoPorMes, { status: 200 });
-
-//       default:
-//         return NextResponse.json({ error: "Tipo de estatística inválido" }, { status: 400 });
-//     }
-//   } catch (error) {
-//     console.error(`Erro ao processar ${tipo}:`, error);
-//     return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
-//   }
-// }
-
-
-
-
-
-// import { NextRequest, NextResponse } from "next/server";
-// import { estatisticasService } from "@/app/services/dashboardService";
-
-// export async function GET(req: NextRequest) {
-//   const tipo = req.nextUrl.searchParams.get("tipo");
-//   const year = req.nextUrl.searchParams.get("year");
-//   const provincia = req.nextUrl.searchParams.get("provincia");
-//   const bairro = req.nextUrl.searchParams.get("bairro");
-
-//   if (!tipo) {
-//     return NextResponse.json({ error: "Parâmetro 'tipo' é obrigatório" }, { status: 400 });
-//   }
+//   const { searchParams } = new URL(req.url);
+//   const tipo = searchParams.get("tipo");
+//   const year = searchParams.get("year");
+//   const provincia = searchParams.get("provincia");
+//   const bairro = searchParams.get("bairro");
+//   const tipoAluguel = searchParams.get("tipoAluguel");
 
 //   try {
 //     switch (tipo) {
 //       case "preco-por-zona":
-//         const precoZona = await estatisticasService.getPrecoPorZona();
-//         return NextResponse.json(precoZona, { status: 200 });
-
+//         const precoZona = await estatisticasService.getPrecoPorZona(year ?? undefined, tipoAluguel ?? undefined);
+//         return NextResponse.json(precoZona);
 //       case "proximidades":
-//         const proximidades = await estatisticasService.getProximidadesMaisProcuradas();
-//         return NextResponse.json(proximidades, { status: 200 });
-
+//         const proximidades = await estatisticasService.getProximidades(year ?? undefined, tipoAluguel ?? undefined);
+//         return NextResponse.json(proximidades);
 //       case "preco-por-mes":
-//         const precoPorMes = await estatisticasService.getPrecoPorMes();
-//         return NextResponse.json(precoPorMes, { status: 200 });
-
+//         const precoPorMes = await estatisticasService.getPrecoPorMes(year ?? undefined, tipoAluguel ?? undefined);
+//         return NextResponse.json(precoPorMes);
 //       case "preco-mensal-zona":
-//         const precoMensalZona = await estatisticasService.getPrecoMensalPorZona(provincia || undefined, bairro || undefined);
-//         return NextResponse.json(precoMensalZona, { status: 200 });
-
+//         const precoMensalZona = await estatisticasService.getPrecoMensalPorZona(year ?? undefined, tipoAluguel ?? undefined);
+//         return NextResponse.json(precoMensalZona);
 //       default:
-//         return NextResponse.json({ error: "Tipo de estatística inválido" }, { status: 400 });
+//         return NextResponse.json({ error: "Tipo de dashboard inválido" }, { status: 400 });
 //     }
 //   } catch (error) {
-//     console.error(`Erro ao processar ${tipo}:`, error);
-//     return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
+//     console.error("Erro ao buscar dados do dashboard:", error);
+//     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 });
 //   }
 // }
-
-
-
-
-
-
-
-// import { NextRequest, NextResponse } from "next/server";
-// import { estatisticasService } from "@/app/services/dashboardService";
-
-// export async function GET(req: NextRequest) {
-//   const tipo = req.nextUrl.searchParams.get("tipo");
-//   const year = req.nextUrl.searchParams.get("year");
-//   const provincia = req.nextUrl.searchParams.get("provincia");
-//   const bairro = req.nextUrl.searchParams.get("bairro");
-
-//   if (!tipo) {
-//     return NextResponse.json({ error: "Parâmetro 'tipo' é obrigatório" }, { status: 400 });
-//   }
-
-//   try {
-//     switch (tipo) {
-//       case "preco-por-zona":
-//         const precoZona = await estatisticasService.getPrecoPorZona(year || undefined);
-//         return NextResponse.json(precoZona, { status: 200 });
-
-//       case "proximidades":
-//         const proximidades = await estatisticasService.getProximidadesMaisProcuradas(year || undefined);
-//         return NextResponse.json(proximidades, { status: 200 });
-
-//       case "preco-por-mes":
-//         const precoPorMes = await estatisticasService.getPrecoPorMes(year || undefined);
-//         return NextResponse.json(precoPorMes, { status: 200 });
-
-//       case "preco-mensal-zona":
-//         const precoMensalZona = await estatisticasService.getPrecoMensalPorZona(provincia || undefined, bairro || undefined, year || undefined);
-//         return NextResponse.json(precoMensalZona, { status: 200 });
-
-//       default:
-//         return NextResponse.json({ error: "Tipo de estatística inválido" }, { status: 400 });
-//     }
-//   } catch (error) {
-//     console.error(`Erro ao processar ${tipo}:`, error);
-//     return NextResponse.json({ error: "Erro interno no servidor" }, { status: 500 });
-//   }
-// }
-
-
-
-
-
-
-
 
 
 
@@ -136,7 +40,6 @@
 import { estatisticasService } from "@/app/services/dashboardService";
 import { NextRequest, NextResponse } from "next/server";
 
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const tipo = searchParams.get("tipo");
@@ -144,21 +47,31 @@ export async function GET(req: NextRequest) {
   const provincia = searchParams.get("provincia");
   const bairro = searchParams.get("bairro");
   const tipoAluguel = searchParams.get("tipoAluguel");
+  const month = searchParams.get("month");
 
   try {
     switch (tipo) {
       case "preco-por-zona":
-        const precoZona = await estatisticasService.getPrecoPorZona(year ?? undefined, tipoAluguel ?? undefined);
+        const precoZona = await estatisticasService.getPrecoPorZona(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
         return NextResponse.json(precoZona);
       case "proximidades":
-        const proximidades = await estatisticasService.getProximidades(year ?? undefined, tipoAluguel ?? undefined);
+        const proximidades = await estatisticasService.getProximidades(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
         return NextResponse.json(proximidades);
       case "preco-por-mes":
-        const precoPorMes = await estatisticasService.getPrecoPorMes(year ?? undefined, tipoAluguel ?? undefined);
+        const precoPorMes = await estatisticasService.getPrecoPorMes(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
         return NextResponse.json(precoPorMes);
       case "preco-mensal-zona":
-        const precoMensalZona = await estatisticasService.getPrecoMensalPorZona(year ?? undefined, tipoAluguel ?? undefined);
+        const precoMensalZona = await estatisticasService.getPrecoMensalPorZona(year ?? undefined, tipoAluguel ?? undefined, provincia ?? undefined, bairro ?? undefined, month ?? undefined);
         return NextResponse.json(precoMensalZona);
+      case "total-imoveis":
+        const totalImoveis = await estatisticasService.getTotalImoveis(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
+        return NextResponse.json(totalImoveis);
+      case "total-alugados":
+        const totalAlugados = await estatisticasService.getTotalAlugados(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
+        return NextResponse.json(totalAlugados);
+      case "zonas-mais-alugadas":
+        const zonasMaisAlugadas = await estatisticasService.getZonasMaisAlugadas(year ?? undefined, tipoAluguel ?? undefined, month ?? undefined);
+        return NextResponse.json(zonasMaisAlugadas);
       default:
         return NextResponse.json({ error: "Tipo de dashboard inválido" }, { status: 400 });
     }
