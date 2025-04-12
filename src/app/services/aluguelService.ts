@@ -1,40 +1,3 @@
-// import { Aluguel } from '@prisma/client';
-// import { AluguelRepository } from '@/app/repositories/aluguelRepository';
-
-// export class RentalService {
-//   private rentalRepository = new AluguelRepository();
-
-//   async createRental(data: Omit<Aluguel, 'id' | 'criadoEm' | 'atualizadoEm'>): Promise<Aluguel> {
-//     return await this.rentalRepository.criarAluguel(data);
-//   }
-
-//   async getRentalsByProperty(imovelId: string): Promise<Aluguel[]> {
-//     return await this.rentalRepository.buscarAluguelByImovel(imovelId);
-//   }
-
-//   async getRentalsByUserId(userId: string, page: number, pageSize: number) {
-//     return await this.rentalRepository.findRentalsByUserId(userId, page, pageSize);
-//   }
-
-//   async getTotalRentalsByUserId(userId: string): Promise<number> {
-//     return await this.rentalRepository.countRentalsByUserId(userId);
-//   }
-
-//   async listarReservasPorProprietario(proprietarioId: string): Promise<Aluguel[]> {
-//     if (!proprietarioId) {
-//       throw new Error("O ID do proprietário é obrigatório.");
-//     }
-
-//     return await this.rentalRepository.obterReservasPorProprietario(proprietarioId);
-//   }
-
-
-  
-// }
-
-
-
-
 import { Aluguel } from '@prisma/client';
 import { AluguelRepository } from '@/app/repositories/aluguelRepository';
 
@@ -108,4 +71,36 @@ export class RentalService {
     }
     return await this.rentalRepository.obterReservasPorProprietario(proprietarioId);
   }
+
+
+  async updateRentalStatus(aluguelId: string, status: string): Promise<Aluguel> {
+    const validStatuses = ["pendente", "em aluguel", "cancelado", "concluído"];
+    if (!validStatuses.includes(status)) {
+      throw new Error("Status inválido");
+    }
+
+    const rental = await this.rentalRepository.findRentalById(aluguelId);
+    if (!rental) {
+      throw new Error("Aluguel não encontrado");
+    }
+
+    // Removed role and userId validation
+    // Still prevent reverting to "pendente" for logical consistency
+    if (rental.status !== "pendente" && status === "pendente") {
+      throw new Error("Não é possível reverter para 'pendente'");
+    }
+
+    return await this.rentalRepository.updateRentalStatus(aluguelId, status);
+  }
+
+  async getRentalDetails(aluguelId: string): Promise<Aluguel> {
+    const rental = await this.rentalRepository.findRentalById(aluguelId);
+    if (!rental) {
+      throw new Error("Aluguel não encontrado");
+    }
+    return rental;
+  }
+
+
+
 }

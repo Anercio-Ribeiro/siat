@@ -128,7 +128,7 @@ export const DashboardInquilinoProprietarioFlipBox: React.FC = () => {
   };
 
   const barChartDataInquilino = {
-    labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun"],
+    labels: ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
     datasets: [
       {
         label: "Gastos Mensais (AOA)",

@@ -1,7 +1,6 @@
 'use server'
 
 import { z } from "zod"
-import { signUpSchema } from "./SignUpForm"
 import { lucia } from "@/lib/lucia"
 import { cookies } from "next/headers"
 import { signInSchema } from "./SignInForm"
@@ -10,6 +9,7 @@ import { UtilizadorService } from "../services/utilizadorService"
 import { UtilizadorCustom } from "../model/type"
 import { hashPassword } from "@/lib/hashPassword"
 import { verifyPassword } from "@/lib/verifyPassword"
+import { signUpSchema } from "@/components/authentication-component/signup-component"
 
 export const signUp = async (values: z.infer<typeof signUpSchema>) => {
     const utilizadorService = new UtilizadorService();
@@ -53,7 +53,7 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
     if (!user || !user.senha) {
         //TODO: Remover logs em produção
         //console.log("Utilizador ou senha é nulo");
-        return { success: false, error: "Invalid Credentials!" };
+        return { success: false, error: "Credênciais inválidas!" };
     }
 
     // Adicione um log para verificar a senha fornecida e a senha do banco de dados
@@ -66,7 +66,7 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
 
     if (!passwordMatch) {
       //  console.log("Senha inválida");
-        return { success: false, error: "Invalid Credentials!" }
+        return { success: false, error: "Credênciais inválidas!" }
     }
 
     //console.log("Login bem-sucedido");
@@ -84,6 +84,6 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
 export const logOut = async () => {
     const sessionCookie = await lucia.createBlankSessionCookie()
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
-    return redirect('/authenticate')
+    return redirect('/login')
 }
 

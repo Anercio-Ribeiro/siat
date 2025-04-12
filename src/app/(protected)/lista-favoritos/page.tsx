@@ -83,7 +83,8 @@ export default function FavoritesList() {
         <h2 className="text-2xl font-bold">Meus Favoritos</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites.map((favorite: Favorite) => {
-            console.log("Favorite data:", favorite.imovel);
+            //TODO: Remover logs em produção
+            // console.log("Favorite data:", favorite.imovel);
             return <HouseCard key={favorite?.id} imovel={favorite.imovel} />;
 
             

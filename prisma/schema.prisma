@@ -1,182 +1,3 @@
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// model User {
-//   id           String      @id @default(uuid())
-//   nome         String
-//   username     String
-//   email        String      @unique
-//   senha        String
-//   telefone     String
-//   picture      String?
-//   role         Role
-//   criadoEm     DateTime    @default(now())
-//   atualizadoEm DateTime    @updatedAt
-//   alugueis     Aluguel[]
-//   favoritos    Favoritos[]
-//   imoveis      Imovel[]
-//   session      Session[]
-// }
-
-// model Favoritos {
-//   id             String   @id @default(uuid())
-//   userId         String
-//   criadoEm       DateTime @default(now())
-//   atualizadoEm   DateTime @updatedAt
-//   imovelId       String
-//   countFavoritos Int
-//   imovel         Imovel   @relation(fields: [imovelId], references: [id])
-//   user           User     @relation(fields: [userId], references: [id])
-
-//   @@unique([userId, imovelId])
-// }
-
-// model Session {
-//   id        String   @id
-//   userId    String
-//   expiresAt DateTime
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   user      User     @relation(fields: [userId], references: [id])
-// }
-
-// model Imovel {
-//   id              String      @id @default(uuid())
-//   titulo          String
-//   descricao       String
-//   preco           Float
-//   proprietarioId  String
-//   endereco        String
-//   provincia       String
-//   bairro          String
-//   numeroQuarto    Int
-//   numeroCasaBanho Int
-//   tipologia       String
-//   criadoEm        DateTime    @default(now())
-//   atualizadoEm    DateTime    @updatedAt
-//   garagem         Int
-//   latitude        Float
-//   longitude       Float
-//   municipio       String
-//   precoMensal     Float?
-//   tipoAluguel     TipoAluguel @default(RESIDENCIAL)
-//   alugueis        Aluguel[]
-//   Favoritos       Favoritos[]
-//   imagens         Imagem[]
-//   proprietario    User        @relation(fields: [proprietarioId], references: [id])
-//   visualizacoes Int      @default(0) // Para rastrear popularidade
-//   proximidades  ProximidadeImovel[]
-// }
-
-// // Relacionamento entre Imovel e Proximidade
-// model ProximidadeImovel {
-//   id           String    @id @default(uuid())
-//   imovelId     String
-//   proximidadeId String
-//   distancia    Float
-//   criadoEm     DateTime  @default(now())
-//   atualizadoEm DateTime  @updatedAt
-//   imovel       Imovel    @relation(fields: [imovelId], references: [id])
-//   proximidade  Proximidade @relation(fields: [proximidadeId], references: [id])
-// }
-
-// // Ajustar Proximidade para suportar tipos predefinidos
-// model Proximidade {
-//   id           String   @id @default(uuid())
-//   nome         String
-//   distancia    Float
-//   latitude     Float
-//   longitude    Float
-//   tipo         TipoProximidade
-//   criadoEm     DateTime @default(now())
-//   atualizadoEm DateTime @updatedAt
-//   imoveis      ProximidadeImovel[]
-// }
-
-// enum TipoProximidade {
-//   ESCOLA
-//   HOSPITAL
-//   SUPERMERCADO
-//   FARMACIA
-//   RESTAURANTE
-//   BANCO
-//   PARQUE
-//   SHOPPING
-//   TRANSPORTE_PUBLICO
-// }
-
-// model Imagem {
-//   id           String   @id @default(uuid())
-//   url          String
-//   imovelId     String
-//   atualizadoEm DateTime @updatedAt
-//   criadoEm     DateTime @default(now())
-//   imovel       Imovel   @relation(fields: [imovelId], references: [id])
-// }
-
-// model Contrato {
-//   id             String   @id @default(uuid())
-//   aluguelId      String   @unique
-//   dataInicio     DateTime
-//   dataFim        DateTime
-//   valorTotal     Float
-//   termosContrato String
-//   urlDocumento   String?
-//   criadoEm       DateTime @default(now())
-//   atualizadoEm   DateTime @updatedAt
-//   aluguel        Aluguel  @relation(fields: [aluguelId], references: [id])
-// }
-
-// model Aluguel {
-//   id             String    @id @default(uuid())
-//   imovelId       String
-//   inquilinoId    String
-//   periodoAluguel Int
-//   contratoUrl    String?
-//   criadoEm       DateTime  @default(now())
-//   atualizadoEm   DateTime  @updatedAt
-//   checkIn        DateTime
-//   checkOut       DateTime
-//   status         String
-//   imovel         Imovel    @relation(fields: [imovelId], references: [id])
-//   inquilino      User      @relation(fields: [inquilinoId], references: [id])
-//   contrato       Contrato?
-// }
-
-// // model Proximidade {
-// //   id           String   @id @default(uuid())
-// //   nome         String
-// //   distancia    Float
-// //   atualizadoEm DateTime @updatedAt
-// //   criadoEm     DateTime @default(now())
-// //   latitude     Float
-// //   longitude    Float
-// //   tipo         String
-// // }
-
-// enum Role {
-//   INQUILINO
-//   PROPRIETARIO
-//   ADMIN
-// }
-
-// enum TipoAluguel {
-//   RESIDENCIAL
-//   TURISTICO
-// }
-
-
-
-
-
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -193,10 +14,10 @@ model User {
   email        String      @unique
   senha        String
   telefone     String
-  picture      String?
   role         Role
   criadoEm     DateTime    @default(now())
   atualizadoEm DateTime    @updatedAt
+  picture      String?
   alugueis     Aluguel[]
   favoritos    Favoritos[]
   imoveis      Imovel[]
@@ -226,7 +47,7 @@ model Session {
 }
 
 model Imovel {
-  id              String      @id @default(uuid())
+  id              String              @id @default(uuid())
   titulo          String
   descricao       String
   preco           Float?
@@ -237,54 +58,42 @@ model Imovel {
   numeroQuarto    Int
   numeroCasaBanho Int
   tipologia       String
-  criadoEm        DateTime    @default(now())
-  atualizadoEm    DateTime    @updatedAt
+  criadoEm        DateTime            @default(now())
+  atualizadoEm    DateTime            @updatedAt
   garagem         Int
   latitude        Float
   longitude       Float
   municipio       String
   precoMensal     Float?
+  visualizacoes   Int                 @default(0)
   alugueis        Aluguel[]
   Favoritos       Favoritos[]
   imagens         Imagem[]
-  proprietario    User        @relation(fields: [proprietarioId], references: [id])
-  visualizacoes   Int         @default(0)
+  proprietario    User                @relation(fields: [proprietarioId], references: [id])
   proximidades    ProximidadeImovel[]
 }
 
 model ProximidadeImovel {
-  id           String    @id @default(uuid())
-  imovelId     String
+  id            String      @id @default(uuid())
+  imovelId      String
   proximidadeId String
-  distancia    Float
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-  imovel       Imovel    @relation(fields: [imovelId], references: [id])
-  proximidade  Proximidade @relation(fields: [proximidadeId], references: [id])
+  distancia     Float
+  criadoEm      DateTime    @default(now())
+  atualizadoEm  DateTime    @updatedAt
+  imovel        Imovel      @relation(fields: [imovelId], references: [id])
+  proximidade   Proximidade @relation(fields: [proximidadeId], references: [id])
 }
 
 model Proximidade {
-  id           String   @id @default(uuid())
+  id           String              @id @default(uuid())
   nome         String
   distancia    Float
+  atualizadoEm DateTime            @updatedAt
+  criadoEm     DateTime            @default(now())
   latitude     Float
   longitude    Float
   tipo         TipoProximidade
-  criadoEm     DateTime @default(now())
-  atualizadoEm DateTime @updatedAt
   imoveis      ProximidadeImovel[]
-}
-
-enum TipoProximidade {
-  ESCOLA
-  HOSPITAL
-  SUPERMERCADO
-  FARMACIA
-  RESTAURANTE
-  BANCO
-  PARQUE
-  SHOPPING
-  TRANSPORTE_PUBLICO
 }
 
 model Imagem {
@@ -314,16 +123,28 @@ model Aluguel {
   imovelId       String
   inquilinoId    String
   periodoAluguel Int
-  contratoUrl    String?
   criadoEm       DateTime    @default(now())
   atualizadoEm   DateTime    @updatedAt
   checkIn        DateTime
   checkOut       DateTime
   status         String
   tipoAluguel    TipoAluguel @default(RESIDENCIAL)
+  valorTotal     Float       @default(2000)
   imovel         Imovel      @relation(fields: [imovelId], references: [id])
   inquilino      User        @relation(fields: [inquilinoId], references: [id])
   contrato       Contrato?
+}
+
+enum TipoProximidade {
+  ESCOLA
+  HOSPITAL
+  SUPERMERCADO
+  FARMACIA
+  RESTAURANTE
+  BANCO
+  PARQUE
+  SHOPPING
+  TRANSPORTE_PUBLICO
 }
 
 enum Role {

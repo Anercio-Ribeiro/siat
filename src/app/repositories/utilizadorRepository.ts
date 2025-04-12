@@ -1,4 +1,3 @@
-// src/repositories/utilizadorRepository.ts
 import { prisma } from '@/lib/prisma';
 import { Role, User } from '@prisma/client';
 import { UtilizadorCustom } from '../model/type';
@@ -16,18 +15,6 @@ export class UtilizadorRepository {
       data: utilizadorData,
     });
   }
-
-  // async criarBulkUtilizador(data: Omit<User, 'id'>): Promise<User> {
-  //   const currentDate = new Date();
-  //   const utilizadorData = {
-  //     ...data,
-  //     criadoEm: currentDate,
-  //     atualizadoEm: currentDate
-  //   };
-  //   return await prisma.user.createMany({
-  //     data: utilizadorData,
-  //   });
-  // }
 
   async criarBulkUtilizador(data: Omit<User, 'id'>[]): Promise<void> {
     await prisma.user.createMany({
@@ -65,7 +52,6 @@ export class UtilizadorRepository {
         email: true,
         telefone: true,
         role: true,
-        //favoritoIds: true,
         alugueis: true,
         imoveis: true,
         session: true,
@@ -92,11 +78,6 @@ export class UtilizadorRepository {
     return await prisma.user.findMany();
   }
 
-  // async encontrarPrimeiroUtilizador(): Promise<Utilizador | null> {
-  //   const utilizador = prisma.utilizador.findFirst()
-     
-  //   return utilizador;
-  // }
   async encontrarPrimeiroUtilizador(): Promise<string | null> {
     return prisma.user.findFirst({
       select: {

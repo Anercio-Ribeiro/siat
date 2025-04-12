@@ -22,8 +22,8 @@ import {
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { signIn } from "./auth.action";
 import { toast } from "sonner";
+import { signIn } from "@/app/authenticate/auth.action";
 
 export const signInSchema = z.object({
   username: z.string(),

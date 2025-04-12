@@ -23,11 +23,15 @@ import {
 import { useUser } from "@/hooks/getUser";
 import SignOutButton from "../SignOutButton";
 import { useFavorites } from "@/hooks/useFavoritos";
+import { useRouter } from "next/navigation";
+import router from "next/router";
 
 
 export function UserNav() {
   const { user, loading } = useUser();
-  const { favorites } = useFavorites(); // Removed fetchFavorites
+  const { favorites } = useFavorites(); 
+  const router = useRouter();
+  // Removed fetchFavorites
 
   if (loading) return <p>Loading...</p>;
 
@@ -43,6 +47,10 @@ export function UserNav() {
       </div>
     );
   }
+
+  const handleRentalClick = (rentalId: string) => {
+    router.push(`/perfil/${rentalId}`);
+  };
 
   const favoritesCount = user.role === "INQUILINO" && favorites ? favorites.length : 0;
 
@@ -84,10 +92,10 @@ export function UserNav() {
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem className="hover:cursor-pointer" asChild>
-            <Link href="/account" className="flex items-center">
+            <a onClick={() => handleRentalClick(user.id)} className="flex items-center">
               <UserIcon className="w-4 h-4 mr-3 text-muted-foreground" />
               Conta
-            </Link>
+            </a>
           </DropdownMenuItem>
           {user.role === "INQUILINO" && (
             <DropdownMenuItem className="hover:cursor-pointer" asChild>

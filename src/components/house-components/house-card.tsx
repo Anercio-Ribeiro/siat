@@ -224,7 +224,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
             <Button 
               onClick={() => {
                 setIsAuthDialogOpen(false);
-                router.push('/authenticate');
+                router.push('/login');
               }}
             >
               Ir para Autenticação

@@ -80,7 +80,7 @@ export function getMenuList(pathname: string, user: User | null | undefined): Gr
           submenus: []
         },
         {
-          href: "/perfil",
+          href: `perfil/${user?.id}`,
           label: "Conta",
           active: pathname.includes("/perfil"),
           icon: Settings,

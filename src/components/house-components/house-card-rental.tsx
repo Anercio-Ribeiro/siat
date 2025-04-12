@@ -770,6 +770,8 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
     }
   };
 
+  console.log(calcularDuracaoReserva())
+
   const handleReserva = async () => {
     if (!startDate || !endDate) {
       toast.warning("Selecione as datas de reserva");
@@ -800,7 +802,7 @@ const RentalCard: React.FC<RentalCardProps> = ({ imovel }) => {
           periodoAluguel: calcularDuracaoReserva(),
           tipoAluguel: tipoReserva === 'turistico' ? TipoAluguel.TURISTICO : TipoAluguel.RESIDENCIAL, // Map to enum
           status: 'pendente',
-          preco: calcularPrecoTotal()
+          valorTotal: calcularPrecoTotal()
         }),
       });
       if (!response.ok) throw new Error('Erro ao criar aluguel');

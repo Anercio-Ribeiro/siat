@@ -13,6 +13,7 @@ export async function POST(req: NextRequest) {
       periodoAluguel,
       status,
       tipoAluguel,
+      valorTotal,
     } = body;
 
     if (!imovelId || !inquilinoId || !checkIn || !checkOut) {
@@ -27,7 +28,7 @@ export async function POST(req: NextRequest) {
       checkOut: new Date(checkOut),
       periodoAluguel,
       status,
-      contratoUrl: null,
+      valorTotal,
       tipoAluguel,
     });
 
@@ -50,6 +51,8 @@ export async function GET(request: Request) {
 
     const rentalService = new RentalService();
     const alugueis = await rentalService.getRentalsByProperty(imovelId);
+
+    console.log("Detalhe do imovel"+alugueis)
     return NextResponse.json(alugueis);
   } catch (error) {
     return NextResponse.json({ error: "Erro ao buscar alugueis" }, { status: 500 });
