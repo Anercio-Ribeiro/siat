@@ -3,11 +3,9 @@ import { ImovelService } from "@/app/services/imovelService";
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   const imovelService = new ImovelService();
-  //const { searchParams } = new URL(req.url);
-//   const id = searchParams.get("id");
+
 const { id } = params;
 
-//   if (id) 
 
   try {
     const imovel = await imovelService.deletarImovel(id);

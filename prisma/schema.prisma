@@ -66,6 +66,7 @@ model Imovel {
   municipio       String
   precoMensal     Float?
   visualizacoes   Int                 @default(0)
+  status          Boolean             @default(true)
   alugueis        Aluguel[]
   Favoritos       Favoritos[]
   imagens         Imagem[]
