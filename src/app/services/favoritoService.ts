@@ -43,6 +43,7 @@ export class FavoritosService {
       numeroCasaBanho: fav.imovel.numeroCasaBanho,
       tipologia: fav.imovel.tipologia,
       garagem: fav.imovel.garagem,
+      status: fav.imovel.status ? fav.imovel.status : true,
       imagens: fav.imovel.imagens?.map((img: { url: string }) => ({ url: img.url })) || [],
       descricao: fav.imovel.descricao || "Descrição não disponível",
       endereco: fav.imovel.endereco || "Endereço não disponível",

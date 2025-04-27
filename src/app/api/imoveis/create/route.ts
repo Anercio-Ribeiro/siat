@@ -24,6 +24,7 @@ export async function POST(req: Request) {
       imagens,
       precoMensal,
       tipoAluguel,
+      status,
     } = body;
 
  
@@ -53,6 +54,7 @@ export async function POST(req: Request) {
       precoMensal,
       tipoAluguel,
       visualizacoes: 0,
+      status: true,
       imagens: {
         create: imagens.map((imgUrl: string) => ({ url: imgUrl })),
       },

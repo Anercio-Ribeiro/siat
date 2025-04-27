@@ -61,12 +61,12 @@ model Imovel {
   criadoEm        DateTime            @default(now())
   atualizadoEm    DateTime            @updatedAt
   garagem         Int
-  latitude        Float
-  longitude       Float
+  latitude        Float?
+  longitude       Float?
   municipio       String
   precoMensal     Float?
   visualizacoes   Int                 @default(0)
-  status          Boolean             @default(true)
+  status          Boolean?             @default(true)
   alugueis        Aluguel[]
   Favoritos       Favoritos[]
   imagens         Imagem[]

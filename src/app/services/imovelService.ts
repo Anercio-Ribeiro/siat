@@ -26,10 +26,6 @@ export class ImovelService {
     return await this.imovelRepo.deletarImovel(id);
   }
 
-  // async listarImoveis(): Promise<Imovel[]> {
-  //   return await this.imovelRepo.listarImoveis();
-  // }
-
   async listarImoveis(page: number = 1, pageSize: number = 6, userId?: string): Promise<{ imoveis: Imovel[], total: number, totalPages: number }> {
     const { imoveis, total } = await this.imovelRepo.listarImoveis(page, pageSize, userId);
     const totalPages = Math.ceil(total / pageSize);
@@ -41,6 +37,14 @@ export class ImovelService {
   async buscarImoveisBy(filters: any, skip: number, take: number) {
     try {
       return await this.imovelRepo.buscarImoveis(filters, skip, take);
+    } catch (error) {
+      throw new Error('Erro ao buscar imóveis: ' + error);
+    }
+  }
+
+  async buscarOnTheMapImoveis(filters: any) {
+    try {
+      return await this.imovelRepo.buscarOnTheMapImoveis(filters);
     } catch (error) {
       throw new Error('Erro ao buscar imóveis: ' + error);
     }

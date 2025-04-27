@@ -188,7 +188,7 @@ export default function EditImovel({ params }: { params: { id: string } }) {
 
       if (response.ok) {
         toast.success('Imóvel atualizado com sucesso');
-        router.push('/imoveis');
+        router.push('/imovel');
       } else {
         const errorData = await response.json();
         toast.error(errorData.error || 'Erro ao atualizar imóvel');
@@ -218,7 +218,7 @@ export default function EditImovel({ params }: { params: { id: string } }) {
       <h1 className="text-2xl font-bold mb-6">Editar Imóvel</h1>
       <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-6">
         {/* Coluna Esquerda: Inputs do Formulário */}
-        <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
+        {/* <div className="bg-white rounded-lg shadow-md p-6 space-y-4">
           <div>
             <Label htmlFor="titulo" className="block text-sm font-medium">Título</Label>
             <Input
@@ -364,7 +364,170 @@ export default function EditImovel({ params }: { params: { id: string } }) {
               required
             />
           </div>
-        </div>
+        </div> */}
+
+<div className="bg-white rounded-lg shadow-md p-6">
+  <div className="grid grid-cols-2 gap-4">
+    <div>
+      <Label htmlFor="titulo" className="block text-sm font-medium">Título</Label>
+      <Input
+        id="titulo"
+        value={imovel.titulo || ''}
+        onChange={(e) => handleInputChange('titulo', e.target.value)}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="preco" className="block text-sm font-medium">Preço (AKZ)</Label>
+      <Input
+        id="preco"
+        type="number"
+        value={imovel.preco || 0}
+        onChange={(e) => handleInputChange('preco', Number(e.target.value))}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="precoMensal" className="block text-sm font-medium">Preço Mensal (AKZ)</Label>
+      <Input
+        id="precoMensal"
+        type="number"
+        value={imovel.precoMensal || 0}
+        onChange={(e) => handleInputChange('precoMensal', Number(e.target.value))}
+        className="mt-1"
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="endereco" className="block text-sm font-medium">Endereço</Label>
+      <Input
+        id="endereco"
+        value={imovel.endereco || ''}
+        onChange={(e) => handleInputChange('endereco', e.target.value)}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="provincia" className="block text-sm font-medium">Província</Label>
+      <Select
+        value={imovel.provincia || ''}
+        onValueChange={(value) => handleInputChange('provincia', value)}
+        required
+      >
+        <SelectTrigger id="provincia" className="mt-1">
+          <SelectValue placeholder="Selecione uma província" />
+        </SelectTrigger>
+        <SelectContent>
+          {provinciasAngola.map((provincia) => (
+            <SelectItem key={provincia} value={provincia}>
+              {provincia}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+
+    <div>
+      <Label htmlFor="bairro" className="block text-sm font-medium">Bairro</Label>
+      <Input
+        id="bairro"
+        value={imovel.bairro || ''}
+        onChange={(e) => handleInputChange('bairro', e.target.value)}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="municipio" className="block text-sm font-medium">Município</Label>
+      <Input
+        id="municipio"
+        value={imovel.municipio || ''}
+        onChange={(e) => handleInputChange('municipio', e.target.value)}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="tipologia" className="block text-sm font-medium">Tipologia</Label>
+      <Input
+        id="tipologia"
+        value={imovel.tipologia || ''}
+        onChange={(e) => handleInputChange('tipologia', e.target.value)}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="numeroQuarto" className="block text-sm font-medium">Número de Quartos</Label>
+      <Input
+        id="numeroQuarto"
+        type="number"
+        value={imovel.numeroQuarto || 0}
+        onChange={(e) => handleInputChange('numeroQuarto', Number(e.target.value))}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="numeroCasaBanho" className="block text-sm font-medium">Número de Casas de Banho</Label>
+      <Input
+        id="numeroCasaBanho"
+        type="number"
+        value={imovel.numeroCasaBanho || 0}
+        onChange={(e) => handleInputChange('numeroCasaBanho', Number(e.target.value))}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="garagem" className="block text-sm font-medium">Número de Vagas na Garagem</Label>
+      <Input
+        id="garagem"
+        type="number"
+        value={imovel.garagem || 0}
+        onChange={(e) => handleInputChange('garagem', Number(e.target.value))}
+        className="mt-1"
+        required
+      />
+    </div>
+
+    <div>
+      <Label htmlFor="status" className="block text-sm font-medium">Ativo</Label>
+      <div className="mt-1">
+        <Input
+          type="checkbox"
+          id="status"
+          checked={imovel.status || false}
+          onChange={(e) => handleInputChange('status', e.target.checked)}
+          className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div className="mt-4">
+    <Label htmlFor="descricao" className="block text-sm font-medium">Descrição</Label>
+    <Textarea
+      id="descricao"
+      value={imovel.descricao || ''}
+      onChange={(e) => handleInputChange('descricao', e.target.value)}
+      className="mt-1"
+      rows={4}
+      required
+    />
+  </div>
+</div>
 
         {/* Coluna Direita: Imagens e Mapa */}
         <div className="bg-white rounded-lg shadow-md p-6 flex flex-col gap-6">

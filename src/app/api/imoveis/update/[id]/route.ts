@@ -66,6 +66,7 @@ export async function PUT(request: Request, { params }: { params: { id: string }
         latitude: data.latitude,
         longitude: data.longitude,
         visualizacoes: data.visualizacoes,
+        status: data.status,
         imagens: {
           deleteMany: {}, // Remove imagens existentes
           create: data.imagens.map((img: { url: string }) => ({

@@ -1,11 +1,10 @@
-// src/components/AirbnbNav.tsx
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { useUser } from "@/hooks/getUser";
-import { useFavorites } from "@/hooks/useFavoritos";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useState, useEffect, useCallback } from 'react';
+import { useUser } from '@/hooks/getUser';
+import { useFavorites } from '@/hooks/useFavoritos';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,44 +13,67 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+} from '@/components/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "@/components/ui/tooltip";
+} from '@/components/ui/tooltip';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Calendar, Search, Heart, User as UserIcon, LogOut, Home, ChevronLeft, ChevronRight } from "lucide-react";
-import Link from "next/link";
-import { Calendar as ShadcnCalendar } from "@/components/ui/calendar";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { addMonths, subMonths, isWithinInterval, format, isAfter, addYears } from "date-fns";
-import { ptBR } from "date-fns/locale/pt-BR";
-import { Skeleton } from "@/components/ui/skeleton";
-import { HouseCard } from "@/components/house-components/house-card";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+  Calendar,
+  Search,
+  Heart,
+  User as UserIcon,
+  LogOut,
+  Home,
+  ChevronLeft,
+  ChevronRight,
+} from 'lucide-react';
+import Link from 'next/link';
+import { Calendar as ShadcnCalendar } from '@/components/ui/calendar';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Label } from '@/components/ui/label';
+import { addMonths, subMonths, isWithinInterval, format, isAfter, addYears } from 'date-fns';
+import { ptBR } from 'date-fns/locale/pt-BR';
+import { Skeleton } from '@/components/ui/skeleton';
+import { HouseCard } from '@/components/house-components/house-card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
-import municipiosData from "@/lib/data/municipiosData.json";
-import SignOutButton from "@/components/SignOutButton";
-import { ImovelLDto } from "../app/model/type";
+} from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
+import municipiosData from '@/lib/data/municipiosData.json';
+import SignOutButton from '@/components/SignOutButton';
+import { ImovelLDto } from '../app/model/type';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import dynamic from 'next/dynamic';
 
-// Proximity types from Prisma schema
+// Define the type for MapView props
+interface MapViewProps {
+  imoveis: ImovelLDto[];
+}
+
+const MapView = dynamic<MapViewProps>(() => import('./MapView').then((mod) => mod.default), {
+  ssr: false,
+  loading: () => <Skeleton className="h-[600px] w-full rounded-lg bg-blue-200" />,
+});
+
 const proximityTypes = [
-  "ESCOLA", "HOSPITAL", "SUPERMERCADO", "FARMACIA",
-  "RESTAURANTE", "BANCO", "PARQUE", "SHOPPING", "TRANSPORTE PÚBLICO",
+  'ESCOLA',
+  'HOSPITAL',
+  'SUPERMERCADO',
+  'FARMACIA',
+  'RESTAURANTE',
+  'BANCO',
+  'PARQUE',
+  'SHOPPING',
+  'TRANSPORTE PÚBLICO',
 ];
 
 export interface FetchImoveisResponse {
@@ -79,41 +101,46 @@ interface SearchFilters {
 
 const emptyFilters: SearchFilters = {};
 
-async function fetchImoveis(filters: SearchFilters, page: number): Promise<FetchImoveisResponse> {
+async function fetchImoveis(
+  filters: SearchFilters,
+  page: number,
+  isMapView: boolean = false
+): Promise<FetchImoveisResponse> {
   const queryParams = new URLSearchParams();
   Object.entries(filters).forEach(([key, value]) => {
     if (value) queryParams.append(key, value);
   });
-  queryParams.set("page", String(page));
-  queryParams.set("pageSize", "8");
+  queryParams.set('page', String(page));
+  queryParams.set('pageSize', isMapView ? '50' : '8');
 
-  const response = await fetch(`/api/imoveis/searchBy?${queryParams.toString()}`);
+  const endpoint = isMapView ? '/api/imoveis/map' : '/api/imoveis/map/searchBy';
+  const response = await fetch(`${endpoint}?${queryParams.toString()}`);
   if (!response.ok) {
-    throw new Error("Erro ao buscar imóveis");
+    throw new Error(`Erro ao buscar imóveis${isMapView ? ' para o mapa' : ''}`);
   }
-  
-  // Simulate 3-second delay for loading
+
   await new Promise((resolve) => setTimeout(resolve, 3000));
   return response.json();
 }
 
-async function fetchProximidadeImoveis(tipo: string, page: number, distanciaMax?: string): Promise<FetchImoveisResponse> {
+async function fetchProximidadeImoveis(
+  tipo: string,
+  page: number,
+  distanciaMax?: string
+): Promise<FetchImoveisResponse> {
   const queryParams = new URLSearchParams();
-  queryParams.set("tipo", tipo);
-  queryParams.set("page", String(page));
-  queryParams.set("pageSize", "8");
-  if (distanciaMax) queryParams.set("distanciaMax", distanciaMax);
+  queryParams.set('tipo', tipo);
+  queryParams.set('page', String(page));
+  queryParams.set('pageSize', '8');
+  if (distanciaMax) queryParams.set('distanciaMax', distanciaMax);
 
   const response = await fetch(`/api/proximidade-imovel?${queryParams.toString()}`);
   if (!response.ok) {
-    throw new Error("Erro ao buscar imóveis por proximidade");
+    throw new Error('Erro ao buscar imóveis por proximidade');
   }
 
   const data = await response.json();
-
-  // Simulate 3-second delay for loading
   await new Promise((resolve) => setTimeout(resolve, 3000));
-
   return data;
 }
 
@@ -126,7 +153,7 @@ export function AirbnbNav() {
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [filters, setFilters] = useState<SearchFilters>(emptyFilters);
   const [tempFilters, setTempFilters] = useState<SearchFilters>(emptyFilters);
-  const [selectedProvincia, setSelectedProvincia] = useState<string>("");
+  const [selectedProvincia, setSelectedProvincia] = useState<string>('');
   const [leftMonth, setLeftMonth] = useState(new Date());
   const [rightMonth, setRightMonth] = useState(addMonths(new Date(), 1));
   const [searchResults, setSearchResults] = useState<FetchImoveisResponse | null>(null);
@@ -136,11 +163,12 @@ export function AirbnbNav() {
   const [searchError, setSearchError] = useState<string | null>(null);
   const [page, setPage] = useState(1);
   const [initialLoading, setInitialLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'cards' | 'map'>('cards');
 
   const TODAY = new Date();
 
   const handleSearch = useCallback(
-    async (pageNum: number = 1) => {
+    async (pageNum: number = 1, isMapView: boolean = false) => {
       setIsSearching(true);
       setShowSkeleton(true);
       setSearchError(null);
@@ -155,11 +183,11 @@ export function AirbnbNav() {
       try {
         let results: FetchImoveisResponse;
 
-        if (searchFilters.proximidades) {
-          const tipo = searchFilters.proximidades.split(",")[0];
+        if (searchFilters.proximidades && !isMapView) {
+          const tipo = searchFilters.proximidades.split(',')[0];
           results = await fetchProximidadeImoveis(tipo, pageNum, searchFilters.distanciaMax);
         } else {
-          results = await fetchImoveis(searchFilters, pageNum);
+          results = await fetchImoveis(searchFilters, pageNum, isMapView);
         }
 
         setSearchResults(results);
@@ -191,7 +219,7 @@ export function AirbnbNav() {
     );
   }
 
-  const favoritesCount = user?.role === "INQUILINO" && favorites ? favorites.length : 0;
+  const favoritesCount = user?.role === 'INQUILINO' && favorites ? favorites.length : 0;
 
   const handleMonthChange = (increment: boolean) => {
     if (increment) {
@@ -209,7 +237,7 @@ export function AirbnbNav() {
     setPage(newPage);
 
     await handleSearch(newPage);
-    
+
     setIsLoading(false);
     setShowSkeleton(false);
   }
@@ -219,14 +247,14 @@ export function AirbnbNav() {
     setCheckOut(null);
     setFilters(emptyFilters);
     setTempFilters(emptyFilters);
-    setSelectedProvincia("");
+    setSelectedProvincia('');
     setIsFiltersOpen(false);
     handleSearch(1);
   };
 
   const clearTempFilters = () => {
     setTempFilters(emptyFilters);
-    setSelectedProvincia("");
+    setSelectedProvincia('');
   };
 
   const applyFilters = () => {
@@ -247,13 +275,13 @@ export function AirbnbNav() {
     }
 
     const pageButtons = [];
-    
+
     if (startPage > 1) {
       pageButtons.push(
         <Button
           key={1}
           onClick={() => handlePageChange(1)}
-          variant={page === 1 ? "default" : "outline"}
+          variant={page === 1 ? 'default' : 'outline'}
           size="sm"
         >
           1
@@ -269,7 +297,7 @@ export function AirbnbNav() {
         <Button
           key={i}
           onClick={() => handlePageChange(i)}
-          variant={page === i ? "default" : "outline"}
+          variant={page === i ? 'default' : 'outline'}
           size="sm"
         >
           {i}
@@ -285,7 +313,7 @@ export function AirbnbNav() {
         <Button
           key={totalPages}
           onClick={() => handlePageChange(totalPages)}
-          variant={page === totalPages ? "default" : "outline"}
+          variant={page === totalPages ? 'default' : 'outline'}
           size="sm"
         >
           Última
@@ -300,7 +328,7 @@ export function AirbnbNav() {
     <div className="flex gap-4">
       <div className="w-1/2">
         <div className="text-sm font-semibold mb-2">
-          Check-in: {checkIn ? format(checkIn, "dd/MM/yyyy") : "Selecionar"}
+          Check-in: {checkIn ? format(checkIn, 'dd/MM/yyyy') : 'Selecionar'}
         </div>
         <ShadcnCalendar
           mode="single"
@@ -317,17 +345,19 @@ export function AirbnbNav() {
           disabled={(date) => date < TODAY || date > addYears(TODAY, 1)}
           className="custom-airbnb-calendar"
           modifiers={{
-            inRange: checkIn && checkOut ? (date) => isWithinInterval(date, { start: checkIn, end: checkOut }) : [],
+            inRange: checkIn && checkOut
+              ? (date) => isWithinInterval(date, { start: checkIn, end: checkOut })
+              : [],
           }}
           modifiersStyles={{
-            inRange: { backgroundColor: "#000", color: "#fff" },
-            selected: { backgroundColor: "#000", color: "#fff" },
+            inRange: { backgroundColor: '#000', color: '#fff' },
+            selected: { backgroundColor: '#000', color: '#fff' },
           }}
         />
       </div>
       <div className="w-1/2">
         <div className="text-sm font-semibold mb-2">
-          Check-out: {checkOut ? format(checkOut, "dd/MM/yyyy") : "Selecionar"}
+          Check-out: {checkOut ? format(checkOut, 'dd/MM/yyyy') : 'Selecionar'}
         </div>
         <ShadcnCalendar
           mode="single"
@@ -344,11 +374,13 @@ export function AirbnbNav() {
           disabled={(date) => date < (checkIn || TODAY) || date > addYears(TODAY, 1)}
           className="custom-airbnb-calendar"
           modifiers={{
-            inRange: checkIn && checkOut ? (date) => isWithinInterval(date, { start: checkIn, end: checkOut }) : [],
+            inRange: checkIn && checkOut
+              ? (date) => isWithinInterval(date, { start: checkIn, end: checkOut })
+              : [],
           }}
           modifiersStyles={{
-            inRange: { backgroundColor: "#000", color: "#fff" },
-            selected: { backgroundColor: "#000", color: "#fff" },
+            inRange: { backgroundColor: '#000', color: '#fff' },
+            selected: { backgroundColor: '#000', color: '#fff' },
           }}
         />
       </div>
@@ -374,8 +406,8 @@ export function AirbnbNav() {
                 >
                   <span className="text-sm font-semibold">Datas</span>
                   <span className="text-xs text-muted-foreground block">
-                    {checkIn ? format(checkIn, "dd/MM/yyyy") : "Check-in"} -{" "}
-                    {checkOut ? format(checkOut, "dd/MM/yyyy") : "Check-out"}
+                    {checkIn ? format(checkIn, 'dd/MM/yyyy') : 'Check-in'} -{' '}
+                    {checkOut ? format(checkOut, 'dd/MM/yyyy') : 'Check-out'}
                   </span>
                 </Button>
               </DialogTrigger>
@@ -400,7 +432,14 @@ export function AirbnbNav() {
                 </div>
                 <CalendarContent />
                 <div className="flex justify-between gap-2 mt-4">
-                  <Button variant="outline" size="sm" onClick={() => { setCheckIn(null); setCheckOut(null); }}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setCheckIn(null);
+                      setCheckOut(null);
+                    }}
+                  >
                     Limpar Datas
                   </Button>
                   <Button variant="outline" size="sm" onClick={clearAllFilters}>
@@ -424,8 +463,8 @@ export function AirbnbNav() {
                   <span className="text-sm font-semibold">Filtros</span>
                   <span className="text-xs text-muted-foreground block">
                     {filters.proximidades || filters.provincia || filters.numeroQuarto
-                      ? "Filtros aplicados"
-                      : "Adicionar filtros"}
+                      ? 'Filtros aplicados'
+                      : 'Adicionar filtros'}
                   </span>
                 </Button>
               </DialogTrigger>
@@ -438,7 +477,11 @@ export function AirbnbNav() {
                       value={selectedProvincia}
                       onValueChange={(value) => {
                         setSelectedProvincia(value);
-                        setTempFilters((prev) => ({ ...prev, provincia: value, municipio: "" }));
+                        setTempFilters((prev) => ({
+                          ...prev,
+                          provincia: value,
+                          municipio: '',
+                        }));
                       }}
                     >
                       <SelectTrigger>
@@ -458,7 +501,9 @@ export function AirbnbNav() {
                     <Label>Município</Label>
                     <Select
                       value={tempFilters.municipio}
-                      onValueChange={(value) => setTempFilters((prev) => ({ ...prev, municipio: value }))}
+                      onValueChange={(value) =>
+                        setTempFilters((prev) => ({ ...prev, municipio: value }))
+                      }
                       disabled={!selectedProvincia}
                     >
                       <SelectTrigger>
@@ -466,11 +511,13 @@ export function AirbnbNav() {
                       </SelectTrigger>
                       <SelectContent>
                         {selectedProvincia &&
-                          municipiosData[selectedProvincia as keyof typeof municipiosData].map((municipio) => (
-                            <SelectItem key={municipio} value={municipio}>
-                              {municipio}
-                            </SelectItem>
-                          ))}
+                          municipiosData[selectedProvincia as keyof typeof municipiosData].map(
+                            (municipio) => (
+                              <SelectItem key={municipio} value={municipio}>
+                                {municipio}
+                              </SelectItem>
+                            )
+                          )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -478,8 +525,10 @@ export function AirbnbNav() {
                   <div className="space-y-2">
                     <Label>Preço Mínimo</Label>
                     <Input
-                      value={tempFilters.precoMin || ""}
-                      onChange={(e) => setTempFilters((prev) => ({ ...prev, precoMin: e.target.value }))}
+                      value={tempFilters.precoMin || ''}
+                      onChange={(e) =>
+                        setTempFilters((prev) => ({ ...prev, precoMin: e.target.value }))
+                      }
                       placeholder="Preço mínimo"
                       type="number"
                     />
@@ -488,8 +537,10 @@ export function AirbnbNav() {
                   <div className="space-y-2">
                     <Label>Preço Máximo</Label>
                     <Input
-                      value={tempFilters.precoMax || ""}
-                      onChange={(e) => setTempFilters((prev) => ({ ...prev, precoMax: e.target.value }))}
+                      value={tempFilters.precoMax || ''}
+                      onChange={(e) =>
+                        setTempFilters((prev) => ({ ...prev, precoMax: e.target.value }))
+                      }
                       placeholder="Preço máximo"
                       type="number"
                     />
@@ -498,8 +549,10 @@ export function AirbnbNav() {
                   <div className="space-y-2">
                     <Label>Bairro</Label>
                     <Input
-                      value={tempFilters.bairro || ""}
-                      onChange={(e) => setTempFilters((prev) => ({ ...prev, bairro: e.target.value }))}
+                      value={tempFilters.bairro || ''}
+                      onChange={(e) =>
+                        setTempFilters((prev) => ({ ...prev, bairro: e.target.value }))
+                      }
                       placeholder="Digite o bairro"
                     />
                   </div>
@@ -507,8 +560,10 @@ export function AirbnbNav() {
                   <div className="space-y-2">
                     <Label>Tipologia</Label>
                     <Input
-                      value={tempFilters.tipologia || ""}
-                      onChange={(e) => setTempFilters((prev) => ({ ...prev, tipologia: e.target.value }))}
+                      value={tempFilters.tipologia || ''}
+                      onChange={(e) =>
+                        setTempFilters((prev) => ({ ...prev, tipologia: e.target.value }))
+                      }
                       placeholder="Digite a tipologia"
                     />
                   </div>
@@ -517,7 +572,9 @@ export function AirbnbNav() {
                     <Label>Número de Quartos</Label>
                     <Select
                       value={tempFilters.numeroQuarto}
-                      onValueChange={(value) => setTempFilters((prev) => ({ ...prev, numeroQuarto: value }))}
+                      onValueChange={(value) =>
+                        setTempFilters((prev) => ({ ...prev, numeroQuarto: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o número de quartos" />
@@ -525,7 +582,7 @@ export function AirbnbNav() {
                       <SelectContent>
                         {[1, 2, 3, 4, 5].map((num) => (
                           <SelectItem key={num} value={String(num)}>
-                            {num} {num === 1 ? "quarto" : "quartos"}
+                            {num} {num === 1 ? 'quarto' : 'quartos'}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -536,7 +593,9 @@ export function AirbnbNav() {
                     <Label>Casas de Banho</Label>
                     <Select
                       value={tempFilters.numeroCasaBanho}
-                      onValueChange={(value) => setTempFilters((prev) => ({ ...prev, numeroCasaBanho: value }))}
+                      onValueChange={(value) =>
+                        setTempFilters((prev) => ({ ...prev, numeroCasaBanho: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o número de casas de banho" />
@@ -544,7 +603,7 @@ export function AirbnbNav() {
                       <SelectContent>
                         {[1, 2, 3, 4].map((num) => (
                           <SelectItem key={num} value={String(num)}>
-                            {num} {num === 1 ? "casa de banho" : "casas de banho"}
+                            {num} {num === 1 ? 'casa de banho' : 'casas de banho'}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -555,7 +614,9 @@ export function AirbnbNav() {
                     <Label>Garagem</Label>
                     <Select
                       value={tempFilters.garagem}
-                      onValueChange={(value) => setTempFilters((prev) => ({ ...prev, garagem: value }))}
+                      onValueChange={(value) =>
+                        setTempFilters((prev) => ({ ...prev, garagem: value }))
+                      }
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o número de garagens" />
@@ -563,7 +624,7 @@ export function AirbnbNav() {
                       <SelectContent>
                         {[0, 1, 2, 3].map((num) => (
                           <SelectItem key={num} value={String(num)}>
-                            {num} {num === 1 ? "garagem" : "garagens"}
+                            {num} {num === 1 ? 'garagem' : 'garagens'}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -573,8 +634,10 @@ export function AirbnbNav() {
                   <div className="space-y-2">
                     <Label>Distância Máxima (km)</Label>
                     <Input
-                      value={tempFilters.distanciaMax || ""}
-                      onChange={(e) => setTempFilters((prev) => ({ ...prev, distanciaMax: e.target.value }))}
+                      value={tempFilters.distanciaMax || ''}
+                      onChange={(e) =>
+                        setTempFilters((prev) => ({ ...prev, distanciaMax: e.target.value }))
+                      }
                       placeholder="Ex: 5"
                       type="number"
                     />
@@ -588,15 +651,17 @@ export function AirbnbNav() {
                       <div key={type} className="flex items-center space-x-2">
                         <Checkbox
                           id={type}
-                          checked={(tempFilters.proximidades?.split(",") || []).includes(type)}
+                          checked={(tempFilters.proximidades?.split(',') || []).includes(type)}
                           onCheckedChange={(checked) => {
                             setTempFilters((prev) => {
-                              const currentProximities = prev.proximidades ? prev.proximidades.split(",") : [];
+                              const currentProximities = prev.proximidades
+                                ? prev.proximidades.split(',')
+                                : [];
                               return {
                                 ...prev,
                                 proximidades: checked
-                                  ? [...currentProximities, type].join(",")
-                                  : currentProximities.filter((t) => t !== type).join(","),
+                                  ? [...currentProximities, type].join(',')
+                                  : currentProximities.filter((t) => t !== type).join(','),
                               };
                             });
                           }}
@@ -646,9 +711,9 @@ export function AirbnbNav() {
                           className="relative h-10 w-10 rounded-full border flex items-center justify-center"
                         >
                           <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.picture || ""} alt="Avatar" />
+                            <AvatarImage src={user.picture || ''} alt="Avatar" />
                             <AvatarFallback className="bg-transparent">
-                              {user.nome?.[0] || ""}
+                              {user.nome?.[0] || ''}
                             </AvatarFallback>
                           </Avatar>
                         </Button>
@@ -678,7 +743,7 @@ export function AirbnbNav() {
                         Conta
                       </Link>
                     </DropdownMenuItem>
-                    {user.role === "INQUILINO" && (
+                    {user.role === 'INQUILINO' && (
                       <DropdownMenuItem asChild className="cursor-pointer">
                         <Link href="/lista-favoritos" className="flex items-center">
                           <Heart className="w-4 h-4 mr-3 text-muted-foreground" />
@@ -728,45 +793,83 @@ export function AirbnbNav() {
             </div>
           </div>
         )}
-        
-        {showSkeleton && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {Array.from({ length: 8 }).map((_, index) => (
-              <div key={index} className="space-y-3">
-                <Skeleton className="h-48 w-full rounded-lg bg-blue-200" />
-                <Skeleton className="h-4 w-3/4 bg-blue-200" />
-                <Skeleton className="h-4 w-1/2 bg-blue-200" />
-              </div>
-            ))}
-          </div>
-        )}
 
-        {!showSkeleton && searchError ? (
-          <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
-        ) : !showSkeleton && searchResults?.imoveis.length === 0 ? (
-          <div className="flex items-center justify-center min-h-[50vh]">
-            <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
-              <div className="flex items-center justify-center mb-2">
-                <Calendar className="h-6 w-6 text-blue-600" />
+        <Tabs
+          defaultValue="cards"
+          className="w-full"
+          onValueChange={(value) => {
+            setActiveTab(value as 'cards' | 'map');
+            handleSearch(1, value === 'map');
+          }}
+        >
+          <TabsList className="grid w-[200px] grid-cols-2 mb-4">
+            <TabsTrigger value="cards">Cards</TabsTrigger>
+            <TabsTrigger value="map">Mapa</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="cards">
+            {showSkeleton ? (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {Array.from({ length: 8 }).map((_, index) => (
+                  <div key={index} className="space-y-3">
+                    <Skeleton className="h-48 w-full rounded-lg bg-blue-200" />
+                    <Skeleton className="h-4 w-3/4 bg-blue-200" />
+                    <Skeleton className="h-4 w-1/2 bg-blue-200" />
+                  </div>
+                ))}
               </div>
-              <AlertTitle className="font-bold text-lg text-gray-800">
-                Nenhum imóvel encontrado
-              </AlertTitle>
-              <AlertDescription className="text-gray-600">
-                Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
-              </AlertDescription>
-            </Alert>
-          </div>
-        ) : !showSkeleton && searchResults ? (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {searchResults.imoveis.map((imovel) => (
-              <HouseCard key={imovel.id} imovel={imovel} />
-            ))}
-          </div>
-        ) : null}
+            ) : searchError ? (
+              <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
+            ) : searchResults?.imoveis.length === 0 ? (
+              <div className="flex items-center justify-center min-h-[50vh]">
+                <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
+                  <div className="flex items-center justify-center mb-2">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <AlertTitle className="font-bold text-lg text-gray-800">
+                    Nenhum imóvel encontrado
+                  </AlertTitle>
+                  <AlertDescription className="text-gray-600">
+                    Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            ) : searchResults ? (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {searchResults.imoveis.map((imovel) => (
+                  <HouseCard key={imovel.id} imovel={imovel} />
+                ))}
+              </div>
+            ) : null}
+          </TabsContent>
+
+          <TabsContent value="map">
+            {showSkeleton ? (
+              <Skeleton className="h-[600px] w-full rounded-lg bg-blue-200" />
+            ) : searchError ? (
+              <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
+            ) : searchResults?.imoveis.length === 0 ? (
+              <div className="flex items-center justify-center min-h-[50vh]">
+                <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
+                  <div className="flex items-center justify-center mb-2">
+                    <Calendar className="h-6 w-6 text-blue-600" />
+                  </div>
+                  <AlertTitle className="font-bold text-lg text-gray-800">
+                    Nenhum imóvel encontrado
+                  </AlertTitle>
+                  <AlertDescription className="text-gray-600">
+                    Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
+                  </AlertDescription>
+                </Alert>
+              </div>
+            ) : searchResults ? (
+              <MapView imoveis={searchResults.imoveis} />
+            ) : null}
+          </TabsContent>
+        </Tabs>
       </div>
 
-      {searchResults && searchResults.imoveis.length > 0 && !showSkeleton && (
+      {searchResults && searchResults.imoveis.length > 0 && !showSkeleton && activeTab === 'cards' && (
         <div className="mt-4 flex flex-col items-center gap-4">
           <div className="flex items-center gap-2">
             <Button
@@ -778,9 +881,9 @@ export function AirbnbNav() {
               <ChevronLeft className="h-4 w-4" />
               Anterior
             </Button>
-            
+
             {renderPageButtons()}
-            
+
             <Button
               onClick={() => handlePageChange(page + 1)}
               disabled={page === searchResults.totalPages}
@@ -799,8 +902,12 @@ export function AirbnbNav() {
 
       <style jsx global>{`
         @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
         }
         .animate-spin {
           animation: spin 1s linear infinite;

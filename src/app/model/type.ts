@@ -64,6 +64,7 @@ export interface ImovelLDto {
   imagens: { url: string }[];
   latitude: number;
   longitude: number;
+  status: boolean;
   proprietario: {
     id: string;
     nome: string;
@@ -71,6 +72,7 @@ export interface ImovelLDto {
     role: string;
   
   };
+  proximidades?: string;
 }
 
 export interface Favorite {
