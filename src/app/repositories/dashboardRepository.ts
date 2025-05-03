@@ -5,26 +5,54 @@ const prisma = new PrismaClient();
 export const estatisticasRepository = {
   async getPrecoPorZona(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      alugueis: {
-        some: {
-          checkIn: year
-            ? {
-                gte: new Date(`${year}-01-01`),
-                lte: new Date(`${year}-12-31`),
-              }
-            : undefined,
-          tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
-          ...(month && month !== "all" ? { checkIn: { gte: new Date(`${year}-${months.indexOf(month) + 1}-01`), lte: new Date(`${year}-${months.indexOf(month) + 1}-31`) } } : {}),
-        },
-      },
-      preco: { not: null },
+      status: "concluído",
+      contrato: { isNot: null },
+      checkIn: year
+        ? {
+            gte: new Date(`${year}-01-01`),
+            lte: new Date(`${year}-12-31`),
+          }
+        : undefined,
+      tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
+      ...(month && month !== "all"
+        ? {
+            checkIn: {
+              gte: new Date(`${year}-${months.indexOf(month) + 1}-01`),
+              lte: new Date(`${year}-${months.indexOf(month) + 1}-31`),
+            },
+          }
+        : {}),
     };
-    return prisma.imovel.groupBy({
-      by: ["bairro", "provincia"],
-      _avg: { preco: true },
+
+    const alugueis = await prisma.aluguel.findMany({
       where: whereClause,
-      orderBy: { _avg: { preco: "asc" } },
+      select: {
+        contrato: { select: { valorTotal: true } },
+        imovel: { select: { bairro: true, provincia: true } },
+      },
     });
+
+    const precoPorZona = alugueis.reduce(
+      (acc, aluguel) => {
+        const { bairro, provincia } = aluguel.imovel;
+        const key = `${bairro}-${provincia}`;
+        if (!acc[key]) {
+          acc[key] = { bairro, provincia, total: 0, count: 0 };
+        }
+        acc[key].total += aluguel.contrato?.valorTotal || 0;
+        acc[key].count += 1;
+        return acc;
+      },
+      {} as Record<string, { bairro: string; provincia: string; total: number; count: number }>
+    );
+
+    return Object.values(precoPorZona)
+      .map((item) => ({
+        bairro: item.bairro,
+        provincia: item.provincia,
+        precoMedio: item.count > 0 ? item.total / item.count : 0,
+      }))
+      .sort((a, b) => a.precoMedio - b.precoMedio);
   },
 
   async getProximidades(year?: string, tipoAluguel?: string, month?: string) {
@@ -34,9 +62,20 @@ export const estatisticasRepository = {
             is: {
               alugueis: {
                 some: {
-                  ...(year ? { checkIn: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31`) } } : {}),
+                  ...(year
+                    ? { checkIn: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31`) } }
+                    : {}),
                   ...(tipoAluguel ? { tipoAluguel: tipoAluguel as TipoAluguel } : {}),
-                  ...(month && month !== "all" ? { checkIn: { gte: new Date(`${year}-${months.indexOf(month) + 1}-01`), lte: new Date(`${year}-${months.indexOf(month) + 1}-31`) } } : {}),
+                  status: "Concluído",
+                  contrato: { isNot: null },
+                  ...(month && month !== "all"
+                    ? {
+                        checkIn: {
+                          gte: new Date(`${year}-${months.indexOf(month) + 1}-01`),
+                          lte: new Date(`${year}-${months.indexOf(month) + 1}-31`),
+                        },
+                      }
+                    : {}),
                 },
               },
             },
@@ -69,71 +108,91 @@ export const estatisticasRepository = {
           }
         : undefined,
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
-      ...(month && month !== "all" ? { checkIn: { gte: new Date(`${year}-${months.indexOf(month) + 1}-01`), lte: new Date(`${year}-${months.indexOf(month) + 1}-31`) } } : {}),
+      status: "Concluído",
+      contrato: { isNot: null },
+      ...(month && month !== "all"
+        ? {
+            checkIn: {
+              gte: new Date(`${year}-${months.indexOf(month) + 1}-01`),
+              lte: new Date(`${year}-${months.indexOf(month) + 1}-31`),
+            },
+          }
+        : {}),
     };
     const alugueis = await prisma.aluguel.findMany({
       where: whereClause,
       select: {
         checkIn: true,
-        imovel: { select: { preco: true } },
+        contrato: { select: { valorTotal: true } },
       },
     });
-    const precoPorMes = alugueis.reduce((acc, aluguel) => {
-      const mes = aluguel.checkIn.toISOString().slice(0, 7);
-      if (!acc[mes]) acc[mes] = { total: 0, count: 0 };
-      acc[mes].total += aluguel.imovel.preco || 0;
-      acc[mes].count += 1;
-      return acc;
-    }, {} as Record<string, { total: number; count: number }>);
+    const precoPorMes = alugueis.reduce(
+      (acc, aluguel) => {
+        const mes = aluguel.checkIn.toISOString().slice(0, 7);
+        if (!acc[mes]) acc[mes] = { total: 0, count: 0 };
+        acc[mes].total += aluguel.contrato?.valorTotal || 0;
+        acc[mes].count += 1;
+        return acc;
+      },
+      {} as Record<string, { total: number; count: number }>
+    );
     return Object.entries(precoPorMes).map(([mes, { total, count }]) => ({
       mes,
-      precoMedio: total / count,
+      precoMedio: count > 0 ? total / count : 0,
     }));
   },
 
   async getPrecoMensalPorZona(year?: string, tipoAluguel?: string, provincia?: string, bairro?: string, month?: string) {
     const whereClause: any = {
+      status: "Concluído",
+      contrato: { isNot: null },
+      checkIn: year
+        ? {
+            gte: new Date(`${year}-01-01`),
+            lte: new Date(`${year}-12-31`),
+          }
+        : undefined,
+      tipoAluguel: tipoAluguel || undefined,
+      ...(month && month !== "all"
+        ? {
+            checkIn: {
+              gte: new Date(`${year}-${months.indexOf(month) + 1}-01`),
+              lte: new Date(`${year}-${months.indexOf(month) + 1}-31`),
+            },
+          }
+        : {}),
       imovel: {
-        preco: { not: null },
-        alugueis: {
-          some: {
-            checkIn: year
-              ? {
-                  gte: new Date(`${year}-01-01`),
-                  lte: new Date(`${year}-12-31`),
-                }
-              : undefined,
-            tipoAluguel: tipoAluguel || undefined,
-            ...(month && month !== "all" ? { checkIn: { gte: new Date(`${year}-${months.indexOf(month) + 1}-01`), lte: new Date(`${year}-${months.indexOf(month) + 1}-31`) } } : {}),
-          },
-        },
+        ...(provincia && provincia !== "all" ? { provincia } : {}),
+        ...(bairro && bairro !== "all" ? { bairro } : {}),
       },
     };
-    if (provincia && provincia !== "all") whereClause.imovel.provincia = provincia;
-    if (bairro && bairro !== "all") whereClause.imovel.bairro = bairro;
 
     const alugueis = await prisma.aluguel.findMany({
       select: {
         checkIn: true,
-        imovel: { select: { preco: true, provincia: true, bairro: true } },
+        contrato: { select: { valorTotal: true } },
+        imovel: { select: { provincia: true, bairro: true } },
       },
       where: whereClause,
     });
 
-    const precoPorZonaMes = alugueis.reduce((acc, aluguel) => {
-      const mes = new Date(aluguel.checkIn).toISOString().slice(0, 7);
-      const zona = `${aluguel.imovel.bairro}, ${aluguel.imovel.provincia}`;
-      const key = `${zona}-${mes}`;
-      if (!acc[key]) acc[key] = { zona, mes, total: 0, count: 0 };
-      acc[key].total += aluguel.imovel.preco || 0;
-      acc[key].count += 1;
-      return acc;
-    }, {} as Record<string, { zona: string; mes: string; total: number; count: number }>);
+    const precoPorZonaMes = alugueis.reduce(
+      (acc, aluguel) => {
+        const mes = new Date(aluguel.checkIn).toISOString().slice(0, 7);
+        const zona = `${aluguel.imovel.bairro}, ${aluguel.imovel.provincia}`;
+        const key = `${zona}-${mes}`;
+        if (!acc[key]) acc[key] = { zona, mes, total: 0, count: 0 };
+        acc[key].total += aluguel.contrato?.valorTotal || 0;
+        acc[key].count += 1;
+        return acc;
+      },
+      {} as Record<string, { zona: string; mes: string; total: number; count: number }>
+    );
 
     return Object.values(precoPorZonaMes).map((item) => ({
       zona: item.zona,
       mes: item.mes,
-      preco: item.total / item.count,
+      preco: item.count > 0 ? item.total / item.count : 0,
       provincia: item.zona.split(", ")[1],
       bairro: item.zona.split(", ")[0],
     }));
@@ -141,7 +200,28 @@ export const estatisticasRepository = {
 
   async getTotalImoveis(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      ...(tipoAluguel ? { alugueis: { some: { tipoAluguel: tipoAluguel as TipoAluguel } } } : {}),
+      ...(tipoAluguel
+        ? {
+            alugueis: {
+              some: {
+                tipoAluguel: tipoAluguel as TipoAluguel,
+                status: "Concluído",
+                contrato: { isNot: null },
+                ...(year
+                  ? { checkIn: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31`) } }
+                  : {}),
+                ...(month && month !== "all"
+                  ? {
+                      checkIn: {
+                        gte: new Date(`${year}-${months.indexOf(month) + 1}-01`),
+                        lte: new Date(`${year}-${months.indexOf(month) + 1}-31`),
+                      },
+                    }
+                  : {}),
+              },
+            },
+          }
+        : {}),
     };
     const total = await prisma.imovel.count({ where: whereClause });
     return { total };
@@ -149,8 +229,9 @@ export const estatisticasRepository = {
 
   async getTotalAlugados(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      status: "pendente",
+      status: "Concluído",
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
+      contrato: { isNot: null },
       ...(year && month && month !== "all"
         ? {
             OR: [
@@ -173,8 +254,9 @@ export const estatisticasRepository = {
 
   async getZonasMaisAlugadas(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      status: { in: ["PENDENTE", ""] },
+      status: "Concluído",
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
+      contrato: { isNot: null },
       ...(year && month && month !== "all"
         ? {
             OR: [
@@ -198,13 +280,16 @@ export const estatisticasRepository = {
         imovel: { select: { provincia: true, bairro: true } },
       },
     });
-    const zonasCount = alugueis.reduce((acc, aluguel) => {
-      const mes = new Date(aluguel.checkIn).toISOString().slice(0, 7);
-      const key = `${aluguel.imovel.provincia}-${aluguel.imovel.bairro}-${mes}`;
-      if (!acc[key]) acc[key] = { provincia: aluguel.imovel.provincia, bairro: aluguel.imovel.bairro, count: 0, mes };
-      acc[key].count += 1;
-      return acc;
-    }, {} as Record<string, { provincia: string; bairro: string; count: number; mes: string }>);
+    const zonasCount = alugueis.reduce(
+      (acc, aluguel) => {
+        const mes = new Date(aluguel.checkIn).toISOString().slice(0, 7);
+        const key = `${aluguel.imovel.provincia}-${aluguel.imovel.bairro}-${mes}`;
+        if (!acc[key]) acc[key] = { provincia: aluguel.imovel.provincia, bairro: aluguel.imovel.bairro, count: 0, mes };
+        acc[key].count += 1;
+        return acc;
+      },
+      {} as Record<string, { provincia: string; bairro: string; count: number; mes: string }>
+    );
     return Object.values(zonasCount);
   },
 };

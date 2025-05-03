@@ -6,9 +6,12 @@ import {
   LucideIcon,
   Map,
   Home,
-  CalendarCheck 
+  CalendarCheck ,
+  ListCheck,
+  ScrollText
 } from "lucide-react";
 import { User } from "@prisma/client";
+
 
 type Submenu = {
   href: string;
@@ -65,6 +68,14 @@ export function getMenuList(pathname: string, user: User | null | undefined): Gr
           label: "Agendamentos",
           active: pathname.includes("/agendamentos"),
           icon: CalendarCheck,
+          submenus: []
+        }
+        ,
+        {
+          href: "/contratos",
+          label: "Contratos",
+          active: pathname.includes("/contratos"),
+          icon: ScrollText,
           submenus: []
         }
       ]

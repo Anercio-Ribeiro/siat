@@ -113,7 +113,7 @@ async function fetchImoveis(
   queryParams.set('page', String(page));
   queryParams.set('pageSize', isMapView ? '50' : '8');
 
-  const endpoint = isMapView ? '/api/imoveis/map' : '/api/imoveis/map/searchBy';
+  const endpoint = isMapView ? '/api/imoveis/map' : '/api/imoveis/searchBy';
   const response = await fetch(`${endpoint}?${queryParams.toString()}`);
   if (!response.ok) {
     throw new Error(`Erro ao buscar imóveis${isMapView ? ' para o mapa' : ''}`);
@@ -644,7 +644,7 @@ export function AirbnbNav() {
                   </div>
                 </div>
 
-                <div className="mt-4">
+                {/* <div className="mt-4">
                   <h4 className="text-md font-semibold mb-2">Proximidades</h4>
                   <div className="grid grid-cols-2 gap-2">
                     {proximityTypes.map((type) => (
@@ -670,7 +670,7 @@ export function AirbnbNav() {
                       </div>
                     ))}
                   </div>
-                </div>
+                </div> */}
 
                 <div className="flex justify-between mt-4">
                   <Button variant="outline" size="sm" onClick={clearTempFilters}>

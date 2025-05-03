@@ -92,6 +92,13 @@
       --sidebar-ring: 217.2 91.2% 59.8%;
     }
 
+    /* Hide the toggle button */
+
+
+.go3489369143{
+  display: none !important;
+}
+
     .leaflet-container {
       z-index: 1;
     }

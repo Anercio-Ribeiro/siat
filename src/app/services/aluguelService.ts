@@ -24,8 +24,8 @@ export class RentalService {
     const proximidadesProximas = proximidades
       .map((prox) => {
         const distancia = calculateDistance(
-          imovel.latitude,
-          imovel.longitude,
+          imovel.latitude ?? 0,
+          imovel.longitude ?? 0,
           prox.latitude,
           prox.longitude
         );

@@ -70,4 +70,247 @@ export class ContractRepository {
       include: { imovel: true, inquilino: true, contrato: true },
     });
   }
-}
+
+
+//   async getContratosByInquilinoId(inquilinoId: string) {
+//     return prisma.contrato.findMany({
+//       where: {
+//         aluguel: {
+//           inquilinoId,
+//           status: "Concluído",
+//         },
+//       },
+//       include: {
+//         aluguel: {
+//           include: {
+//             imovel: {
+//               include: {
+//                 proprietario: {
+//                   select: {
+//                     id: true,
+//                     nome: true,
+//                     email: true,
+//                   },
+//                 },
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
+//   }
+
+//   async getContratosByProprietarioId(proprietarioId: string) {
+//     return prisma.contrato.findMany({
+//       where: {
+//         aluguel: {
+//           imovel: {
+//             proprietarioId,
+//           },
+//           status: "Concluído",
+//         },
+//       },
+//       include: {
+//         aluguel: {
+//           include: {
+//             imovel: {
+//               select: {
+//                 id: true,
+//                 titulo: true,
+//                 endereco: true,
+//                 bairro: true,
+//                 provincia: true,
+//               },
+//             },
+//             inquilino: {
+//               select: {
+//                 id: true,
+//                 nome: true,
+//                 email: true,
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
+//   }
+
+//   async getContratoById(id: string) {
+//     return prisma.contrato.findUnique({
+//       where: { id },
+//       include: {
+//         aluguel: {
+//           include: {
+//             imovel: {
+//               include: {
+//                 proprietario: {
+//                   select: {
+//                     id: true,
+//                     nome: true,
+//                     email: true,
+//                   },
+//                 },
+//               },
+//             },
+//             inquilino: {
+//               select: {
+//                 id: true,
+//                 nome: true,
+//                 email: true,
+//               },
+//             },
+//           },
+//         },
+//       },
+//     });
+//   }
+// }
+
+
+  async getContratosByInquilinoId(
+    inquilinoId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
+    const skip = (page - 1) * pageSize;
+    return prisma.contrato.findMany({
+      where: {
+        aluguel: {
+          inquilinoId,
+          status: "Concluído",
+        },
+      },
+      include: {
+        aluguel: {
+          include: {
+            imovel: {
+              include: {
+                proprietario: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            inquilino: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      take: pageSize,
+      skip,
+    });
+  }
+
+  async countContratosByInquilinoId(inquilinoId: string) {
+    return prisma.contrato.count({
+      where: {
+        aluguel: {
+          inquilinoId,
+          status: "Concluído",
+        },
+      },
+    });
+  }
+
+  async getContratosByProprietarioId(
+    proprietarioId: string,
+    page: number = 1,
+    pageSize: number = 10
+  ) {
+    const skip = (page - 1) * pageSize;
+    return prisma.contrato.findMany({
+      where: {
+        aluguel: {
+          imovel: {
+            proprietarioId,
+          },
+        },
+      },
+      include: {
+        aluguel: {
+          include: {
+            imovel: {
+              include: {
+                proprietario: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            inquilino: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+      take: pageSize,
+      skip,
+    });
+  }
+
+  async countContratosByProprietarioId(proprietarioId: string) {
+    return prisma.contrato.count({
+      where: {
+        aluguel: {
+          imovel: {
+            proprietarioId,
+          },
+        },
+      },
+    });
+  }
+
+  async getContratoById(id: string) {
+    return prisma.contrato.findUnique({
+      where: { id },
+      include: {
+        aluguel: {
+          include: {
+            imovel: {
+              include: {
+                proprietario: {
+                  select: {
+                    id: true,
+                    nome: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            inquilino: {
+              select: {
+                id: true,
+                nome: true,
+                email: true,
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+};
+
+
+
+
+
+
+
+
+
