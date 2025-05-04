@@ -1,169 +1,3 @@
-// generator client {
-//   provider = "prisma-client-js"
-// }
-
-// datasource db {
-//   provider = "postgresql"
-//   url      = env("DATABASE_URL")
-// }
-
-// model User {
-//   id           String      @id @default(uuid())
-//   nome         String
-//   username     String
-//   email        String      @unique
-//   senha        String
-//   telefone     String
-//   role         Role
-//   criadoEm     DateTime    @default(now())
-//   atualizadoEm DateTime    @updatedAt
-//   picture      String?
-//   alugueis     Aluguel[]
-//   favoritos    Favoritos[]
-//   imoveis      Imovel[]
-//   session      Session[]
-// }
-
-// model Favoritos {
-//   id             String   @id @default(uuid())
-//   userId         String
-//   criadoEm       DateTime @default(now())
-//   atualizadoEm   DateTime @updatedAt
-//   imovelId       String
-//   countFavoritos Int
-//   imovel         Imovel   @relation(fields: [imovelId], references: [id])
-//   user           User     @relation(fields: [userId], references: [id])
-
-//   @@unique([userId, imovelId])
-// }
-
-// model Session {
-//   id        String   @id
-//   userId    String
-//   expiresAt DateTime
-//   createdAt DateTime @default(now())
-//   updatedAt DateTime @updatedAt
-//   user      User     @relation(fields: [userId], references: [id])
-// }
-
-// model Imovel {
-//   id              String              @id @default(uuid())
-//   titulo          String
-//   descricao       String
-//   preco           Float?
-//   proprietarioId  String
-//   endereco        String
-//   provincia       String
-//   bairro          String
-//   numeroQuarto    Int
-//   numeroCasaBanho Int
-//   tipologia       String
-//   criadoEm        DateTime            @default(now())
-//   atualizadoEm    DateTime            @updatedAt
-//   garagem         Int
-//   latitude        Float?
-//   longitude       Float?
-//   municipio       String
-//   precoMensal     Float?
-//   visualizacoes   Int                 @default(0)
-//   status          Boolean?             @default(true)
-//   alugueis        Aluguel[]
-//   Favoritos       Favoritos[]
-//   imagens         Imagem[]
-//   proprietario    User                @relation(fields: [proprietarioId], references: [id])
-//   proximidades    ProximidadeImovel[]
-// }
-
-// model ProximidadeImovel {
-//   id            String      @id @default(uuid())
-//   imovelId      String
-//   proximidadeId String
-//   distancia     Float
-//   criadoEm      DateTime    @default(now())
-//   atualizadoEm  DateTime    @updatedAt
-//   imovel        Imovel      @relation(fields: [imovelId], references: [id])
-//   proximidade   Proximidade @relation(fields: [proximidadeId], references: [id])
-// }
-
-// model Proximidade {
-//   id           String              @id @default(uuid())
-//   nome         String
-//   distancia    Float
-//   atualizadoEm DateTime            @updatedAt
-//   criadoEm     DateTime            @default(now())
-//   latitude     Float
-//   longitude    Float
-//   tipo         TipoProximidade
-//   imoveis      ProximidadeImovel[]
-// }
-
-// model Imagem {
-//   id           String   @id @default(uuid())
-//   url          String
-//   imovelId     String
-//   atualizadoEm DateTime @updatedAt
-//   criadoEm     DateTime @default(now())
-//   imovel       Imovel   @relation(fields: [imovelId], references: [id])
-// }
-
-// model Contrato {
-//   id             String   @id @default(uuid())
-//   aluguelId      String   @unique
-//   dataInicio     DateTime
-//   dataFim        DateTime
-//   valorTotal     Float
-//   termosContrato String
-//   urlDocumento   String?
-//   criadoEm       DateTime @default(now())
-//   atualizadoEm   DateTime @updatedAt
-//   aluguel        Aluguel  @relation(fields: [aluguelId], references: [id])
-// }
-
-// model Aluguel {
-//   id             String      @id @default(uuid())
-//   imovelId       String
-//   inquilinoId    String
-//   periodoAluguel Int
-//   criadoEm       DateTime    @default(now())
-//   atualizadoEm   DateTime    @updatedAt
-//   checkIn        DateTime
-//   checkOut       DateTime
-//   status         String
-//   tipoAluguel    TipoAluguel @default(RESIDENCIAL)
-//   valorTotal     Float       @default(2000)
-//   imovel         Imovel      @relation(fields: [imovelId], references: [id])
-//   inquilino      User        @relation(fields: [inquilinoId], references: [id])
-//   contrato       Contrato?
-// }
-
-// enum TipoProximidade {
-//   ESCOLA
-//   HOSPITAL
-//   SUPERMERCADO
-//   FARMACIA
-//   RESTAURANTE
-//   BANCO
-//   PARQUE
-//   SHOPPING
-//   TRANSPORTE_PUBLICO
-// }
-
-// enum Role {
-//   INQUILINO
-//   PROPRIETARIO
-//   ADMIN
-// }
-
-// enum TipoAluguel {
-//   RESIDENCIAL
-//   TURISTICO
-// }
-
-
-
-
-
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -187,8 +21,8 @@ model User {
   alugueis     Aluguel[]
   favoritos    Favoritos[]
   imoveis      Imovel[]
-  session      Session[]
   messages     Message[]   @relation("SentMessages")
+  session      Session[]
 }
 
 model Favoritos {
@@ -305,14 +139,14 @@ model Aluguel {
 }
 
 model Message {
-  id           String    @id @default(uuid())
+  id           String   @id @default(uuid())
   contratoId   String
   userId       String
   content      String
-  criadoEm     DateTime  @default(now())
-  atualizadoEm DateTime  @updatedAt
-  contrato     Contrato  @relation("ContratoMessages", fields: [contratoId], references: [id])
-  user         User      @relation("SentMessages", fields: [userId], references: [id])
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  contrato     Contrato @relation("ContratoMessages", fields: [contratoId], references: [id])
+  user         User     @relation("SentMessages", fields: [userId], references: [id])
 }
 
 enum TipoProximidade {
@@ -325,6 +159,24 @@ enum TipoProximidade {
   PARQUE
   SHOPPING
   TRANSPORTE_PUBLICO
+  CLINICA
+  IGREJA
+  POSTO_DE_COMBUSTIVEL
+  MERCADO
+  ACADEMIA
+  PRACA
+  PRAIA
+  MONTANHA
+  RIO
+  LAGO
+  FLORESTA
+  ESTADIO
+  TEATRO
+  MUSEU
+  UNIVERSIDADE
+  PARQUE_DE_DIVERSAO
+  ZOOLOGICO
+  CENTRO_COMERCIAL
 }
 
 enum Role {

@@ -1,7 +1,936 @@
+// // "use client";
+
+// // import { useState, useEffect } from "react";
+// // import { useRouter, useParams } from "next/navigation";
+// // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// // import { Button } from "@/components/ui/button";
+// // import { Skeleton } from "@/components/ui/skeleton";
+// // import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+// // import { fetchContratoById } from "@/lib/api-getContracts";
+// // import dynamic from "next/dynamic";
+// // import { useUser } from "@/hooks/getUser";
+// // import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+
+// // const PDFViewer = dynamic(
+// //   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
+// //   { ssr: false, loading: () => <Skeleton className="h-96 w-full" /> }
+// // );
+
+// // type Contrato = {
+// //   id: string;
+// //   valorTotal: number;
+// //   dataInicio: string;
+// //   dataFim: string;
+// //   termosContrato: string;
+// //   urlDocumento: string;
+// //   imovel: {
+// //     id: string;
+// //     titulo: string;
+// //     endereco: string;
+// //     bairro: string;
+// //     provincia: string;
+// //   };
+// //   inquilino: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// //   proprietario: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// // };
+
+// // function parseData(data: string): Date {
+// //   const limpa = data.replace(/\//g, "-");
+// //   const partes = limpa.split("-").map((parte) => parseInt(parte, 10));
+
+// //   if (partes[0] > 31) {
+// //     return new Date(partes[0], partes[1] - 1, partes[2]);
+// //   } else if (partes[2] > 31) {
+// //     return new Date(partes[2], partes[1] - 1, partes[0]);
+// //   } else {
+// //     throw new Error("Formato de data inválido ou ambíguo.");
+// //   }
+// // }
+
+// // export default function ContratoDetalhes() {
+// //   const router = useRouter();
+// //   const { id } = useParams();
+// //   const { user } = useUser();
+// //   const [contrato, setContrato] = useState<Contrato | null>(null);
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState<string | null>(null);
+
+// //   useEffect(() => {
+// //     async function loadContrato() {
+// //       if (!id) return;
+// //       setLoading(true);
+// //       try {
+// //         const data = await fetchContratoById(id as string);
+// //         console.log("Contrato carregado:", {
+// //           id: data.id,
+// //           urlDocumentoLength: data.urlDocumento?.length,
+// //           urlDocumentoSnippet: data.urlDocumento?.substring(0, 50),
+// //           isBase64Valid: data.urlDocumento ? /^[A-Za-z0-9+/=]+$/.test(data.urlDocumento) : false,
+// //         });
+// //         if (!data.urlDocumento) {
+// //           throw new Error("No PDF document available");
+// //         }
+// //         if (!/^[A-Za-z0-9+/=]+$/.test(data.urlDocumento)) {
+// //           throw new Error("Invalid Base64 string format");
+// //         }
+// //         setContrato(data);
+// //       } catch (err: any) {
+// //         setError(err.message || "Erro ao carregar contrato");
+// //         console.error("Load contrato error:", err);
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     }
+// //     loadContrato();
+// //   }, [id]);
+
+// //   if (error) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>{error}</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   if (!user) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Usuário não autenticado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   const isProprietario = user.role === "PROPRIETARIO";
+
+// //   if (contrato && isProprietario && contrato.proprietario.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+// //   if (contrato && !isProprietario && contrato.inquilino.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   // Calcular o tempo restante até o fim do aluguel
+// //   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
+// //     try {
+// //       const dataAtual = new Date("2025-05-02");
+// //       const inicio = parseData(inicioRenda);
+// //       const fim = parseData(fimRenda);
+
+// //       const diffMs = fim.getTime() - inicio.getTime();
+// //       const duracaoDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+// //       const restanteMs = fim.getTime() - dataAtual.getTime();
+// //       const restanteDias = Math.floor(restanteMs / (1000 * 60 * 60 * 24));
+
+// //       const jaComecou = dataAtual >= inicio;
+// //       const jaTerminou = dataAtual > fim;
+
+// //       const duracaoMeses = Math.floor(duracaoDias / 30);
+// //       const duracaoRestanteMeses = Math.floor(restanteDias / 30);
+
+// //       console.log("Debug tempo restante:", {
+// //         inicioRenda,
+// //         fimRenda,
+// //         duracaoDias,
+// //         restanteDias,
+// //         jaComecou,
+// //         jaTerminou,
+// //       });
+
+// //       if (jaTerminou) {
+// //         return { texto: "A renda já terminou", verde: false };
+// //       }
+
+// //       if (!jaComecou) {
+// //         const textoDuracao = `A duração total da renda é de ${duracaoMeses} ${duracaoMeses === 1 ? "mês" : "meses"} e ${duracaoDias % 30} ${duracaoDias % 30 === 1 ? "dia" : "dias"}`;
+// //         return {
+// //           texto: `A renda ainda não começou\n${textoDuracao}`,
+// //           verde: restanteDias >= 30,
+// //         };
+// //       }
+
+// //       const textoMeses = duracaoRestanteMeses > 0 ? `${duracaoRestanteMeses} ${duracaoRestanteMeses === 1 ? "mês" : "meses"}` : "";
+// //       const textoDias = restanteDias % 30 > 0 ? `${restanteDias % 30} ${restanteDias % 30 === 1 ? "dia" : "dias"}` : "";
+// //       const texto = `Faltam ${textoMeses}${textoMeses && textoDias ? " e " : ""}${textoDias} para o término da renda`;
+
+// //       return { texto, verde: restanteDias >= 30 };
+// //     } catch (err) {
+// //       console.error("Erro ao calcular tempo restante:", err);
+// //       return { texto: "Erro ao calcular o tempo restante", verde: false };
+// //     }
+// //   };
+
+// //   const tempoRestante = contrato ? calcularTempoRestante(contrato.dataInicio, contrato.dataFim) : null;
+
+// //   return (
+// //     <PageWithBreadcrumb
+// //       title="Imóvel"
+// //       breadcrumbItems={[
+// //         { label: "Início", href: "/" },
+// //         { label: "Dashboard", href: "/dashboard" },
+// //         { label: "Contrato" },
+// //       ]}
+// //     >
+// //       <div className="container mx-auto p-6">
+// //         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Detalhes do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-4 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <div className="space-y-4">
+// //                   <Skeleton className="h-6 w-48" />
+// //                   <Skeleton className="h-6 w-64" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-80" />
+// //                 </div>
+// //               ) : contrato ? (
+// //                 <div className="space-y-4">
+// //                   <p>
+// //                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
+// //                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
+// //                   </p>
+// //                   <p>
+// //                     <strong>Valor Total:</strong>{" "}
+// //                     {contrato.valorTotal.toLocaleString("pt-BR", {
+// //                       style: "currency",
+// //                       currency: "AOA",
+// //                     })}
+// //                   </p>
+// //                   <p><strong>Data Início:</strong> {contrato.dataInicio}</p>
+// //                   <p><strong>Data Fim:</strong> {contrato.dataFim}</p>
+// //                   {tempoRestante && (
+// //                     <>
+// //                       <p>
+// //                         <strong>Tempo Restante:</strong>{" "}
+// //                         <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                           {tempoRestante.texto.split("\n")[0]}
+// //                         </span>
+// //                       </p>
+// //                       {tempoRestante.texto.includes("\n") && (
+// //                         <p>
+// //                           <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                             {tempoRestante.texto.split("\n")[1]}
+// //                           </span>
+// //                         </p>
+// //                       )}
+// //                     </>
+// //                   )}
+// //                   <p><strong>Termos do Contrato:</strong> {contrato.termosContrato}</p>
+// //                   {isProprietario ? (
+// //                     <div>
+// //                       <p><strong>Inquilino:</strong> {contrato.inquilino.nome}</p>
+// //                       <p><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</p>
+// //                     </div>
+// //                   ) : (
+// //                     <div>
+// //                       <p><strong>Proprietário:</strong> {contrato.proprietario.nome}</p>
+// //                       <p><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</p>
+// //                     </div>
+// //                   )}
+// //                 </div>
+// //               ) : (
+// //                 <p>Contrato não encontrado</p>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Documento do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-5 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <Skeleton className="h-96 w-full" />
+// //               ) : contrato && contrato.urlDocumento ? (
+// //                 <PDFViewer base64Data={contrato.urlDocumento} />
+// //               ) : (
+// //                 <Alert variant="destructive">
+// //                   <AlertTitle>Erro</AlertTitle>
+// //                   <AlertDescription>Documento não disponível</AlertDescription>
+// //                 </Alert>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+// //         </div>
+// //       </div>
+// //     </PageWithBreadcrumb>
+// //   );
+// // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // "use client";
+
+// // import { useState, useEffect } from "react";
+// // import { useRouter, useParams } from "next/navigation";
+// // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// // import { Button } from "@/components/ui/button";
+// // import { Skeleton } from "@/components/ui/skeleton";
+// // import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+// // import { fetchContratoById } from "@/lib/api-getContracts";
+// // import dynamic from "next/dynamic";
+// // import { useUser } from "@/hooks/getUser";
+// // import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// // import { Chat } from "@/components/Chat";
+
+// // const PDFViewer = dynamic(
+// //   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
+// //   { ssr: false, loading: () => <Skeleton className="h-96 w-full" /> }
+// // );
+
+// // type Contrato = {
+// //   id: string;
+// //   valorTotal: number;
+// //   dataInicio: string;
+// //   dataFim: string;
+// //   termosContrato: string;
+// //   urlDocumento: string;
+// //   imovel: {
+// //     id: string;
+// //     titulo: string;
+// //     endereco: string;
+// //     bairro: string;
+// //     provincia: string;
+// //   };
+// //   inquilino: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// //   proprietario: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// // };
+
+// // function parseData(data: string): Date {
+// //   const limpa = data.replace(/\//g, "-");
+// //   const partes = limpa.split("-").map((parte) => parseInt(parte, 10));
+
+// //   if (partes[0] > 31) {
+// //     return new Date(partes[0], partes[1] - 1, partes[2]);
+// //   } else if (partes[2] > 31) {
+// //     return new Date(partes[2], partes[1] - 1, partes[0]);
+// //   } else {
+// //     throw new Error("Formato de data inválido ou ambíguo.");
+// //   }
+// // }
+
+// // export default function ContratoDetalhes() {
+// //   const router = useRouter();
+// //   const { id } = useParams();
+// //   const { user } = useUser();
+// //   const [contrato, setContrato] = useState<Contrato | null>(null);
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState<string | null>(null);
+
+// //   useEffect(() => {
+// //     async function loadContrato() {
+// //       if (!id) return;
+// //       setLoading(true);
+// //       try {
+// //         const data = await fetchContratoById(id as string);
+// //         console.log("Contrato carregado:", {
+// //           id: data.id,
+// //           urlDocumentoLength: data.urlDocumento?.length,
+// //           urlDocumentoSnippet: data.urlDocumento?.substring(0, 50),
+// //           isBase64Valid: data.urlDocumento ? /^[A-Za-z0-9+/=]+$/.test(data.urlDocumento) : false,
+// //         });
+// //         if (!data.urlDocumento) {
+// //           throw new Error("No PDF document available");
+// //         }
+// //         if (!/^[A-Za-z0-9+/=]+$/.test(data.urlDocumento)) {
+// //           throw new Error("Invalid Base64 string format");
+// //         }
+// //         setContrato(data);
+// //       } catch (err: any) {
+// //         setError(err.message || "Erro ao carregar contrato");
+// //         console.error("Load contrato error:", err);
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     }
+// //     loadContrato();
+// //   }, [id]);
+
+// //   if (error) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>{error}</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   if (!user) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Usuário não autenticado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   const isProprietario = user.role === "PROPRIETARIO";
+
+// //   if (contrato && isProprietario && contrato.proprietario.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+// //   if (contrato && !isProprietario && contrato.inquilino.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
+// //     try {
+// //       const dataAtual = new Date("2025-05-02");
+// //       const inicio = parseData(inicioRenda);
+// //       const fim = parseData(fimRenda);
+
+// //       const diffMs = fim.getTime() - inicio.getTime();
+// //       const duracaoDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+// //       const restanteMs = fim.getTime() - dataAtual.getTime();
+// //       const restanteDias = Math.floor(restanteMs / (1000 * 60 * 60 * 24));
+
+// //       const jaComecou = dataAtual >= inicio;
+// //       const jaTerminou = dataAtual > fim;
+
+// //       const duracaoMeses = Math.floor(duracaoDias / 30);
+// //       const duracaoRestanteMeses = Math.floor(restanteDias / 30);
+
+// //       console.log("Debug tempo restante:", {
+// //         inicioRenda,
+// //         fimRenda,
+// //         duracaoDias,
+// //         restanteDias,
+// //         jaComecou,
+// //         jaTerminou,
+// //       });
+
+// //       if (jaTerminou) {
+// //         return { texto: "A renda já terminou", verde: false };
+// //       }
+
+// //       if (!jaComecou) {
+// //         const textoDuracao = `A duração total da renda é de ${duracaoMeses} ${duracaoMeses === 1 ? "mês" : "meses"} e ${duracaoDias % 30} ${duracaoDias % 30 === 1 ? "dia" : "dias"}`;
+// //         return {
+// //           texto: `A renda ainda não começou\n${textoDuracao}`,
+// //           verde: restanteDias >= 30,
+// //         };
+// //       }
+
+// //       const textoMeses = duracaoRestanteMeses > 0 ? `${duracaoRestanteMeses} ${duracaoRestanteMeses === 1 ? "mês" : "meses"}` : "";
+// //       const textoDias = restanteDias % 30 > 0 ? `${restanteDias % 30} ${restanteDias % 30 === 1 ? "dia" : "dias"}` : "";
+// //       const texto = `Faltam ${textoMeses}${textoMeses && textoDias ? " e " : ""}${textoDias} para o término da renda`;
+
+// //       return { texto, verde: restanteDias >= 30 };
+// //     } catch (err) {
+// //       console.error("Erro ao calcular tempo restante:", err);
+// //       return { texto: "Erro ao calcular o tempo restante", verde: false };
+// //     }
+// //   };
+
+// //   const tempoRestante = contrato ? calcularTempoRestante(contrato.dataInicio, contrato.dataFim) : null;
+
+// //   return (
+// //     <PageWithBreadcrumb
+// //       title="Imóvel"
+// //       breadcrumbItems={[
+// //         { label: "Início", href: "/" },
+// //         { label: "Dashboard", href: "/dashboard" },
+// //         { label: "Contrato" },
+// //       ]}
+// //     >
+// //       <div className="container mx-auto p-6">
+// //         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Detalhes do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-4 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <div className="space-y-4">
+// //                   <Skeleton className="h-6 w-48" />
+// //                   <Skeleton className="h-6 w-64" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-80" />
+// //                 </div>
+// //               ) : contrato ? (
+// //                 <div className="space-y-4">
+// //                   <p>
+// //                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
+// //                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
+// //                   </p>
+// //                   <p>
+// //                     <strong>Valor Total:</strong>{" "}
+// //                     {contrato.valorTotal.toLocaleString("pt-BR", {
+// //                       style: "currency",
+// //                       currency: "AOA",
+// //                     })}
+// //                   </p>
+// //                   <p><strong>Data Início:</strong> {contrato.dataInicio}</p>
+// //                   <p><strong>Data Fim:</strong> {contrato.dataFim}</p>
+// //                   {tempoRestante && (
+// //                     <>
+// //                       <p>
+// //                         <strong>Tempo Restante:</strong>{" "}
+// //                         <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                           {tempoRestante.texto.split("\n")[0]}
+// //                         </span>
+// //                       </p>
+// //                       {tempoRestante.texto.includes("\n") && (
+// //                         <p>
+// //                           <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                             {tempoRestante.texto.split("\n")[1]}
+// //                           </span>
+// //                         </p>
+// //                       )}
+// //                     </>
+// //                   )}
+// //                   <p><strong>Termos do Contrato:</strong> {contrato.termosContrato}</p>
+// //                   {isProprietario ? (
+// //                     <div>
+// //                       <p><strong>Inquilino:</strong> {contrato.inquilino.nome}</p>
+// //                       <p><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</p>
+// //                     </div>
+// //                   ) : (
+// //                     <div>
+// //                       <p><strong>Proprietário:</strong> {contrato.proprietario.nome}</p>
+// //                       <p><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</p>
+// //                     </div>
+// //                   )}
+// //                 </div>
+// //               ) : (
+// //                 <p>Contrato não encontrado</p>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Documento do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-5 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <Skeleton className="h-96 w-full" />
+// //               ) : contrato && contrato.urlDocumento ? (
+// //                 <PDFViewer base64Data={contrato.urlDocumento} />
+// //               ) : (
+// //                 <Alert variant="destructive">
+// //                   <AlertTitle>Erro</AlertTitle>
+// //                   <AlertDescription>Documento não disponível</AlertDescription>
+// //                 </Alert>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+// //         </div>
+// //         {contrato && (
+// //           <Chat
+// //             contratoId={contrato.id}
+// //             proprietarioId={contrato.proprietario.id}
+// //             inquilinoId={contrato.inquilino.id}
+// //           />
+// //         )}
+// //       </div>
+// //     </PageWithBreadcrumb>
+// //   );
+// // }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// // "use client";
+
+// // import { useState, useEffect } from "react";
+// // import { useParams } from "next/navigation";
+// // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// // import { Button } from "@/components/ui/button";
+// // import { Skeleton } from "@/components/ui/skeleton";
+// // import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+// // import { fetchContratoById } from "@/lib/api-getContracts";
+// // import dynamic from "next/dynamic";
+// // import { useUser } from "@/hooks/getUser";
+// // import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// // import { Chat } from "@/components/Chat";
+
+// // const PDFViewer = dynamic(
+// //   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
+// //   { ssr: false, loading: () => <Skeleton className="h-96 w-full" /> }
+// // );
+
+// // type Contrato = {
+// //   id: string;
+// //   valorTotal: number;
+// //   dataInicio: string;
+// //   dataFim: string;
+// //   termosContrato: string;
+// //   urlDocumento: string;
+// //   imovel: {
+// //     id: string;
+// //     titulo: string;
+// //     endereco: string;
+// //     bairro: string;
+// //     provincia: string;
+// //   };
+// //   inquilino: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// //   proprietario: {
+// //     id: string;
+// //     nome: string;
+// //     email: string;
+// //   };
+// // };
+
+// // function parseData(data: string): Date {
+// //   const limpa = data.replace(/\//g, "-");
+// //   const partes = limpa.split("-").map((parte) => parseInt(parte, 10));
+
+// //   if (partes[0] > 31) {
+// //     return new Date(partes[0], partes[1] - 1, partes[2]);
+// //   } else if (partes[2] > 31) {
+// //     return new Date(partes[2], partes[1] - 1, partes[0]);
+// //   } else {
+// //     throw new Error("Formato de data inválido ou ambíguo.");
+// //   }
+// // }
+
+// // export default function ContratoDetalhes() {
+// //   const { id } = useParams();
+// //   const { user } = useUser();
+// //   const [contrato, setContrato] = useState<Contrato | null>(null);
+// //   const [loading, setLoading] = useState(true);
+// //   const [error, setError] = useState<string | null>(null);
+
+// //   useEffect(() => {
+// //     async function loadContrato() {
+// //       if (!id) return;
+// //       setLoading(true);
+// //       try {
+// //         const data = await fetchContratoById(id as string);
+// //         console.log("Contrato carregado:", {
+// //           id: data.id,
+// //           urlDocumentoLength: data.urlDocumento?.length,
+// //           urlDocumentoSnippet: data.urlDocumento?.substring(0, 50),
+// //           isBase64Valid: data.urlDocumento ? /^[A-Za-z0-9+/=]+$/.test(data.urlDocumento) : false,
+// //         });
+// //         if (!data.urlDocumento) {
+// //           throw new Error("No PDF document available");
+// //         }
+// //         if (!/^[A-Za-z0-9+/=]+$/.test(data.urlDocumento)) {
+// //           throw new Error("Invalid Base64 string format");
+// //         }
+// //         setContrato(data);
+// //       } catch (err: any) {
+// //         setError(err.message || "Erro ao carregar contrato");
+// //         console.error("Load contrato error:", err);
+// //       } finally {
+// //         setLoading(false);
+// //       }
+// //     }
+// //     loadContrato();
+// //   }, [id]);
+
+// //   if (error) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>{error}</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   if (!user) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Usuário não autenticado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   const isProprietario = user.role === "PROPRIETARIO";
+
+// //   if (contrato && isProprietario && contrato.proprietario.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+// //   if (contrato && !isProprietario && contrato.inquilino.id !== user.id) {
+// //     return (
+// //       <div className="container mx-auto p-6">
+// //         <Alert variant="destructive">
+// //           <AlertTitle>Erro</AlertTitle>
+// //           <AlertDescription>Acesso não autorizado</AlertDescription>
+// //         </Alert>
+// //       </div>
+// //     );
+// //   }
+
+// //   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
+// //     try {
+// //       const dataAtual = new Date("2025-05-02");
+// //       const inicio = parseData(inicioRenda);
+// //       const fim = parseData(fimRenda);
+
+// //       const diffMs = fim.getTime() - inicio.getTime();
+// //       const duracaoDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+// //       const restanteMs = fim.getTime() - dataAtual.getTime();
+// //       const restanteDias = Math.floor(restanteMs / (1000 * 60 * 60 * 24));
+
+// //       const jaComecou = dataAtual >= inicio;
+// //       const jaTerminou = dataAtual > fim;
+
+// //       const duracaoMeses = Math.floor(duracaoDias / 30);
+// //       const duracaoRestanteMeses = Math.floor(restanteDias / 30);
+
+// //       console.log("Debug tempo restante:", {
+// //         inicioRenda,
+// //         fimRenda,
+// //         duracaoDias,
+// //         restanteDias,
+// //         jaComecou,
+// //         jaTerminou,
+// //       });
+
+// //       if (jaTerminou) {
+// //         return { texto: "A renda já terminou", verde: false };
+// //       }
+
+// //       if (!jaComecou) {
+// //         const textoDuracao = `A duração total da renda é de ${duracaoMeses} ${duracaoMeses === 1 ? "mês" : "meses"} e ${duracaoDias % 30} ${duracaoDias % 30 === 1 ? "dia" : "dias"}`;
+// //         return {
+// //           texto: `A renda ainda não começou\n${textoDuracao}`,
+// //           verde: restanteDias >= 30,
+// //         };
+// //       }
+
+// //       const textoMeses = duracaoRestanteMeses > 0 ? `${duracaoRestanteMeses} ${duracaoRestanteMeses === 1 ? "mês" : "meses"}` : "";
+// //       const textoDias = restanteDias % 30 > 0 ? `${restanteDias % 30} ${restanteDias % 30 === 1 ? "dia" : "dias"}` : "";
+// //       const texto = `Faltam ${textoMeses}${textoMeses && textoDias ? " e " : ""}${textoDias} para o término da renda`;
+
+// //       return { texto, verde: restanteDias >= 30 };
+// //     } catch (err) {
+// //       console.error("Erro ao calcular tempo restante:", err);
+// //       return { texto: "Erro ao calcular o tempo restante", verde: false };
+// //     }
+// //   };
+
+// //   const tempoRestante = contrato ? calcularTempoRestante(contrato.dataInicio, contrato.dataFim) : null;
+
+// //   return (
+// //     <PageWithBreadcrumb
+// //       title="Imóvel"
+// //       breadcrumbItems={[
+// //         { label: "Início", href: "/" },
+// //         { label: "Dashboard", href: "/dashboard" },
+// //         { label: "Contrato" },
+// //       ]}
+// //     >
+// //       <div className="container mx-auto p-6">
+// //         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Detalhes do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-4 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <div className="space-y-4">
+// //                   <Skeleton className="h-6 w-48" />
+// //                   <Skeleton className="h-6 w-64" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-32" />
+// //                   <Skeleton className="h-6 w-80" />
+// //                 </div>
+// //               ) : contrato ? (
+// //                 <div className="space-y-4">
+// //                   <p>
+// //                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
+// //                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
+// //                   </p>
+// //                   <p>
+// //                     <strong>Valor Total:</strong>{" "}
+// //                     {contrato.valorTotal.toLocaleString("pt-BR", {
+// //                       style: "currency",
+// //                       currency: "AOA",
+// //                     })}
+// //                   </p>
+// //                   <p><strong>Data Início:</strong> {contrato.dataInicio}</p>
+// //                   <p><strong>Data Fim:</strong> {contrato.dataFim}</p>
+// //                   {tempoRestante && (
+// //                     <>
+// //                       <p>
+// //                         <strong>Tempo Restante:</strong>{" "}
+// //                         <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                           {tempoRestante.texto.split("\n")[0]}
+// //                         </span>
+// //                       </p>
+// //                       {tempoRestante.texto.includes("\n") && (
+// //                         <p>
+// //                           <span className={tempoRestante.verde ? "text-green-600" : ""}>
+// //                             {tempoRestante.texto.split("\n")[1]}
+// //                           </span>
+// //                         </p>
+// //                       )}
+// //                     </>
+// //                   )}
+// //                   <p><strong>Termos do Contrato:</strong> {contrato.termosContrato}</p>
+// //                   {isProprietario ? (
+// //                     <div>
+// //                       <p><strong>Inquilino:</strong> {contrato.inquilino.nome}</p>
+// //                       <p><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</p>
+// //                     </div>
+// //                   ) : (
+// //                     <div>
+// //                       <p><strong>Proprietário:</strong> {contrato.proprietario.nome}</p>
+// //                       <p><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</p>
+// //                     </div>
+// //                   )}
+// //                 </div>
+// //               ) : (
+// //                 <p>Contrato não encontrado</p>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+
+// //           <Card>
+// //             <CardHeader>
+// //               <CardTitle className="mt-4 ml-6 mb-4">Documento do Contrato</CardTitle>
+// //               <hr className="ml-6 mb-5 mr-6" />
+// //             </CardHeader>
+// //             <CardContent>
+// //               {loading ? (
+// //                 <Skeleton className="h-96 w-full" />
+// //               ) : contrato && contrato.urlDocumento ? (
+// //                 <PDFViewer base64Data={contrato.urlDocumento} />
+// //               ) : (
+// //                 <Alert variant="destructive">
+// //                   <AlertTitle>Erro</AlertTitle>
+// //                   <AlertDescription>Documento não disponível</AlertDescription>
+// //                 </Alert>
+// //               )}
+// //             </CardContent>
+// //           </Card>
+// //         </div>
+// //         {contrato && (
+// //           <Chat
+// //             contratoId={contrato.id}
+// //             proprietarioId={contrato.proprietario.id}
+// //             inquilinoId={contrato.inquilino.id}
+// //           />
+// //         )}
+// //       </div>
+// //     </PageWithBreadcrumb>
+// //   );
+// // }
+
+
+
+
+
+
+
+
+
+
+
 // "use client";
 
 // import { useState, useEffect } from "react";
-// import { useRouter, useParams } from "next/navigation";
+// import { useParams } from "next/navigation";
 // import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Button } from "@/components/ui/button";
 // import { Skeleton } from "@/components/ui/skeleton";
@@ -10,8 +939,11 @@
 // import dynamic from "next/dynamic";
 // import { useUser } from "@/hooks/getUser";
 // import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
-// import { differenceInDays, parse, isValid } from "date-fns";
-// import { calcularDuracaoRenda } from "@/app/utils/calcularDuracaoRenda";
+// import Chat from "@/components/Chat";
+// import { NotificationBar } from "@/components/NotificationBar";
+// import { ChatPopup } from "@/components/ChatPopup";
+// import ChatSupport from "@/components/chat-components/chat-component";
+
 
 // const PDFViewer = dynamic(
 //   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
@@ -44,13 +976,26 @@
 //   };
 // };
 
+// function parseData(data: string): Date {
+//   const limpa = data.replace(/\//g, "-");
+//   const partes = limpa.split("-").map((parte) => parseInt(parte, 10));
+
+//   if (partes[0] > 31) {
+//     return new Date(partes[0], partes[1] - 1, partes[2]);
+//   } else if (partes[2] > 31) {
+//     return new Date(partes[2], partes[1] - 1, partes[0]);
+//   } else {
+//     throw new Error("Formato de data inválido ou ambíguo.");
+//   }
+// }
+
 // export default function ContratoDetalhes() {
-//   const router = useRouter();
 //   const { id } = useParams();
 //   const { user } = useUser();
 //   const [contrato, setContrato] = useState<Contrato | null>(null);
 //   const [loading, setLoading] = useState(true);
 //   const [error, setError] = useState<string | null>(null);
+//   const [chatOpen, setChatOpen] = useState(false);
 
 //   useEffect(() => {
 //     async function loadContrato() {
@@ -80,6 +1025,11 @@
 //     }
 //     loadContrato();
 //   }, [id]);
+
+//   const handleOpenChat = () => {
+//     setChatOpen(true);
+//   };
+
 
 //   if (error) {
 //     return (
@@ -126,10 +1076,57 @@
 //     );
 //   }
 
-//   // Calcular o tempo restante até o fim do aluguel
-  
+//   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
+//     try {
+//       const dataAtual = new Date("2025-05-02");
+//       const inicio = parseData(inicioRenda);
+//       const fim = parseData(fimRenda);
 
-//   const tempoRestante = contrato ? calcularDuracaoRenda(contrato.dataInicio, contrato.dataFim) : null;
+//       const diffMs = fim.getTime() - inicio.getTime();
+//       const duracaoDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+//       const restanteMs = fim.getTime() - dataAtual.getTime();
+//       const restanteDias = Math.floor(restanteMs / (1000 * 60 * 60 * 24));
+
+//       const jaComecou = dataAtual >= inicio;
+//       const jaTerminou = dataAtual > fim;
+
+//       const duracaoMeses = Math.floor(duracaoDias / 30);
+//       const duracaoRestanteMeses = Math.floor(restanteDias / 30);
+
+//       console.log("Debug tempo restante:", {
+//         inicioRenda,
+//         fimRenda,
+//         duracaoDias,
+//         restanteDias,
+//         jaComecou,
+//         jaTerminou,
+//       });
+
+//       if (jaTerminou) {
+//         return { texto: "A renda já terminou", verde: false };
+//       }
+
+//       if (!jaComecou) {
+//         const textoDuracao = `A duração total da renda é de ${duracaoMeses} ${duracaoMeses === 1 ? "mês" : "meses"} e ${duracaoDias % 30} ${duracaoDias % 30 === 1 ? "dia" : "dias"}`;
+//         return {
+//           texto: `A renda ainda não começou\n${textoDuracao}`,
+//           verde: restanteDias >= 30,
+//         };
+//       }
+
+//       const textoMeses = duracaoRestanteMeses > 0 ? `${duracaoRestanteMeses} ${duracaoRestanteMeses === 1 ? "mês" : "meses"}` : "";
+//       const textoDias = restanteDias % 30 > 0 ? `${restanteDias % 30} ${restanteDias % 30 === 1 ? "dia" : "dias"}` : "";
+//       const texto = `Faltam ${textoMeses}${textoMeses && textoDias ? " e " : ""}${textoDias} para o término da renda`;
+
+//       return { texto, verde: restanteDias >= 30 };
+//     } catch (err) {
+//       console.error("Erro ao calcular tempo restante:", err);
+//       return { texto: "Erro ao calcular o tempo restante", verde: false };
+//     }
+//   };
+
+//   const tempoRestante = contrato ? calcularTempoRestante(contrato.dataInicio, contrato.dataFim) : null;
 
 //   return (
 //     <PageWithBreadcrumb
@@ -158,40 +1155,368 @@
 //                 </div>
 //               ) : contrato ? (
 //                 <div className="space-y-4">
-//                   <p>
+//                   <div>
 //                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
 //                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
-//                   </p>
-//                   <p>
+//                   </div>
+//                   <div>
 //                     <strong>Valor Total:</strong>{" "}
 //                     {contrato.valorTotal.toLocaleString("pt-BR", {
 //                       style: "currency",
 //                       currency: "AOA",
 //                     })}
-//                   </p>
-//                   <p><strong>Data Início:</strong> {contrato.dataInicio}</p>
-//                   <p><strong>Data Fim:</strong> {contrato.dataFim}</p>
-//                   <p>
-//                     <strong>Tempo Restante:</strong>{" "}
-//                     <span className={tempoRestante ? "text-green-500" : "text-red-500"}>
-//                       {tempoRestante || "Erro ao calcular o tempo restante"}
-//                     </span>
-//                   </p>
-//                   <p><strong>Termos do Contrato:</strong> {contrato.termosContrato}</p>
+//                   </div>
+//                   <div><strong>Data Início:</strong> {contrato.dataInicio}</div>
+//                   <div><strong>Data Fim:</strong> {contrato.dataFim}</div>
+//                   {tempoRestante && (
+//                     <div>
+//                       <strong>Tempo Restante:</strong>{" "}
+//                       <span className={tempoRestante.verde ? "text-green-600" : ""}>
+//                         {tempoRestante.texto.split("\n").map((line, index) => (
+//                           <span key={index}>
+//                             {line}
+//                             {index < tempoRestante.texto.split("\n").length - 1 && <br />}
+//                           </span>
+//                         ))}
+//                       </span>
+//                     </div>
+//                   )}
+//                   <div><strong>Termos do Contrato:</strong> {contrato.termosContrato}</div>
 //                   {isProprietario ? (
 //                     <div>
-//                       <p><strong>Inquilino:</strong> {contrato.inquilino.nome}</p>
-//                       <p><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</p>
+//                       <div><strong>Inquilino:</strong> {contrato.inquilino.nome}</div>
+//                       <div><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</div>
 //                     </div>
 //                   ) : (
 //                     <div>
-//                       <p><strong>Proprietário:</strong> {contrato.proprietario.nome}</p>
-//                       <p><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</p>
+//                       <div><strong>Proprietário:</strong> {contrato.proprietario.nome}</div>
+//                       <div><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</div>
 //                     </div>
 //                   )}
 //                 </div>
 //               ) : (
-//                 <p>Contrato não encontrado</p>
+//                 <div>Contrato não encontrado</div>
+//               )}
+//             </CardContent>
+//           </Card>
+
+//           <Card>
+//             <CardHeader>
+//               <CardTitle className="mt-4 ml-6 mb-4">Documento do Contrato</CardTitle>
+//               <hr className="ml-6 mb-5 mr-6" />
+//             </CardHeader>
+//             <CardContent>
+//               {loading ? (
+//                 <Skeleton className="h-96 w-full" />
+//               ) : contrato && contrato.urlDocumento ? (
+//                 <PDFViewer base64Data={contrato.urlDocumento} />
+//               ) : (
+//                 <Alert variant="destructive">
+//                   <AlertTitle>Erro</AlertTitle>
+//                   <AlertDescription>Documento não disponível</AlertDescription>
+//                 </Alert>
+//               )}
+//             </CardContent>
+//           </Card>
+//         </div>
+//         {contrato && (
+//           // <Chat
+//           //   contratoId={contrato.id}
+//           //   proprietarioId={contrato.proprietario.id}
+//           //   inquilinoId={contrato.inquilino.id}
+//           // />
+
+//           <div className="min-h-screen">
+//           <NotificationBar
+//             contratoId={contrato.id}
+//             proprietarioId={contrato.proprietario.id}
+//             inquilinoId={contrato.inquilino.id}
+//             onOpenChat={handleOpenChat}
+//           />
+//           <main className="container mx-auto p-4">
+//             <h1>Contrato {contrato.id}</h1>
+//             {/* Other contract details */}
+//           </main>
+//           {/* <ChatPopup
+//             contratoId={contrato.id}
+//             proprietarioId={contrato.proprietario.id}
+//             inquilinoId={contrato.inquilino.id}
+//             isOpen={chatOpen}
+//             onClose={() => setChatOpen(false)}
+//           /> */}
+
+
+//         </div>
+//         )}
+//       </div>
+//     </PageWithBreadcrumb>
+//   );
+// }
+
+
+
+
+
+// "use client";
+
+// import { useState, useEffect } from "react";
+// import { useParams } from "next/navigation";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+// import { Skeleton } from "@/components/ui/skeleton";
+// import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+// import { fetchContratoById } from "@/lib/api-getContracts";
+// import dynamic from "next/dynamic";
+// import { useUser } from "@/hooks/getUser";
+// import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+// import { useContract } from "@/context/ContractContext"
+
+// const PDFViewer = dynamic(
+//   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
+//   { ssr: false, loading: () => <Skeleton className="h-96 w-full" /> }
+// );
+
+// type Contrato = {
+//   id: string;
+//   valorTotal: number;
+//   dataInicio: string;
+//   dataFim: string;
+//   termosContrato: string;
+//   urlDocumento: string;
+//   imovel: {
+//     id: string;
+//     titulo: string;
+//     endereco: string;
+//     bairro: string;
+//     provincia: string;
+//   };
+//   inquilino: {
+//     id: string;
+//     nome: string;
+//     email: string;
+//   };
+//   proprietario: {
+//     id: string;
+//     nome: string;
+//     email: string;
+//   };
+// };
+
+// function parseData(data: string): Date {
+//   const limpa = data.replace(/\//g, "-");
+//   const partes = limpa.split("-").map((parte) => parseInt(parte, 10));
+
+//   if (partes[0] > 31) {
+//     return new Date(partes[0], partes[1] - 1, partes[2]);
+//   } else if (partes[2] > 31) {
+//     return new Date(partes[2], partes[1] - 1, partes[0]);
+//   } else {
+//     throw new Error("Formato de data inválido ou ambíguo.");
+//   }
+// }
+
+// export default function ContratoDetalhes() {
+//   const { id } = useParams();
+//   const { user } = useUser();
+//   const { setContract } = useContract();
+//   const [contrato, setContrato] = useState<Contrato | null>(null);
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   useEffect(() => {
+//     async function loadContrato() {
+//       if (!id) return;
+//       setLoading(true);
+//       try {
+//         const data = await fetchContratoById(id as string);
+//         console.log("Contrato carregado:", {
+//           id: data.id,
+//           urlDocumentoLength: data.urlDocumento?.length,
+//           urlDocumentoSnippet: data.urlDocumento?.substring(0, 50),
+//           isBase64Valid: data.urlDocumento ? /^[A-Za-z0-9+/=]+$/.test(data.urlDocumento) : false,
+//         });
+//         if (!data.urlDocumento) {
+//           throw new Error("No PDF document available");
+//         }
+//         if (!/^[A-Za-z0-9+/=]+$/.test(data.urlDocumento)) {
+//           throw new Error("Invalid Base64 string format");
+//         }
+//         setContrato(data);
+//         setContract(data.id, data.proprietario.id, data.inquilino.id);
+//       } catch (err: any) {
+//         setError(err.message || "Erro ao carregar contrato");
+//         console.error("Load contrato error:", err);
+//       } finally {
+//         setLoading(false);
+//       }
+//     }
+//     loadContrato();
+//   }, [id, setContract]);
+
+//   if (error) {
+//     return (
+//       <div className="container mx-auto p-6">
+//         <Alert variant="destructive">
+//           <AlertTitle>Erro</AlertTitle>
+//           <AlertDescription>{error}</AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+
+//   if (!user) {
+//     return (
+//       <div className="container mx-auto p-6">
+//         <Alert variant="destructive">
+//           <AlertTitle>Erro</AlertTitle>
+//           <AlertDescription>Usuário não autenticado</AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+
+//   const isProprietario = user.role === "PROPRIETARIO";
+
+//   if (contrato && isProprietario && contrato.proprietario.id !== user.id) {
+//     return (
+//       <div className="container mx-auto p-6">
+//         <Alert variant="destructive">
+//           <AlertTitle>Erro</AlertTitle>
+//           <AlertDescription>Acesso não autorizado</AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+//   if (contrato && !isProprietario && contrato.inquilino.id !== user.id) {
+//     return (
+//       <div className="container mx-auto p-6">
+//         <Alert variant="destructive">
+//           <AlertTitle>Erro</AlertTitle>
+//           <AlertDescription>Acesso não autorizado</AlertDescription>
+//         </Alert>
+//       </div>
+//     );
+//   }
+
+//   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
+//     try {
+//       const dataAtual = new Date("2025-05-02");
+//       const inicio = parseData(inicioRenda);
+//       const fim = parseData(fimRenda);
+
+//       const diffMs = fim.getTime() - inicio.getTime();
+//       const duracaoDias = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+//       const restanteMs = fim.getTime() - dataAtual.getTime();
+//       const restanteDias = Math.floor(restanteMs / (1000 * 60 * 60 * 24));
+
+//       const jaComecou = dataAtual >= inicio;
+//       const jaTerminou = dataAtual > fim;
+
+//       const duracaoMeses = Math.floor(duracaoDias / 30);
+//       const duracaoRestanteMeses = Math.floor(restanteDias / 30);
+
+//       console.log("Debug tempo restante:", {
+//         inicioRenda,
+//         fimRenda,
+//         duracaoDias,
+//         restanteDias,
+//         jaComecou,
+//         jaTerminou,
+//       });
+
+//       if (jaTerminou) {
+//         return { texto: "A renda já terminou", verde: false };
+//       }
+
+//       if (!jaComecou) {
+//         const textoDuracao = `A duração total da renda é de ${duracaoMeses} ${duracaoMeses === 1 ? "mês" : "meses"} e ${duracaoDias % 30} ${duracaoDias % 30 === 1 ? "dia" : "dias"}`;
+//         return {
+//           texto: `A renda ainda não começou\n${textoDuracao}`,
+//           verde: restanteDias >= 30,
+//         };
+//       }
+
+//       const textoMeses = duracaoRestanteMeses > 0 ? `${duracaoRestanteMeses} ${duracaoRestanteMeses === 1 ? "mês" : "meses"}` : "";
+//       const textoDias = restanteDias % 30 > 0 ? `${restanteDias % 30} ${restanteDias % 30 === 1 ? "dia" : "dias"}` : "";
+//       const texto = `Faltam ${textoMeses}${textoMeses && textoDias ? " e " : ""}${textoDias} para o término da renda`;
+
+//       return { texto, verde: restanteDias >= 30 };
+//     } catch (err) {
+//       console.error("Erro ao calcular tempo restante:", err);
+//       return { texto: "Erro ao calcular o tempo restante", verde: false };
+//     }
+//   };
+
+//   const tempoRestante = contrato ? calcularTempoRestante(contrato.dataInicio, contrato.dataFim) : null;
+
+//   return (
+//     <PageWithBreadcrumb
+//       title="Imóvel"
+//       breadcrumbItems={[
+//         { label: "Início", href: "/" },
+//         { label: "Dashboard", href: "/dashboard" },
+//         { label: "Contrato" },
+//       ]}
+//     >
+//       <div className="container mx-auto p-6">
+//         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+//           <Card>
+//             <CardHeader>
+//               <CardTitle className="mt-4 ml-6 mb-4">Detalhes do Contrato</CardTitle>
+//               <hr className="ml-6 mb-4 mr-6" />
+//             </CardHeader>
+//             <CardContent>
+//               {loading ? (
+//                 <div className="space-y-4">
+//                   <Skeleton className="h-6 w-48" />
+//                   <Skeleton className="h-6 w-64" />
+//                   <Skeleton className="h-6 w-32" />
+//                   <Skeleton className="h-6 w-32" />
+//                   <Skeleton className="h-6 w-80" />
+//                 </div>
+//               ) : contrato ? (
+//                 <div className="space-y-4">
+//                   <div>
+//                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
+//                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
+//                   </div>
+//                   <div>
+//                     <strong>Valor Total:</strong>{" "}
+//                     {contrato.valorTotal.toLocaleString("pt-BR", {
+//                       style: "currency",
+//                       currency: "AOA",
+//                     })}
+//                   </div>
+//                   <div><strong>Data Início:</strong> {contrato.dataInicio}</div>
+//                   <div><strong>Data Fim:</strong> {contrato.dataFim}</div>
+//                   {tempoRestante && (
+//                     <div>
+//                       <strong>Tempo Restante:</strong>{" "}
+//                       <span className={tempoRestante.verde ? "text-green-600" : ""}>
+//                         {tempoRestante.texto.split("\n").map((line, index) => (
+//                           <span key={index}>
+//                             {line}
+//                             {index < tempoRestante.texto.split("\n").length - 1 && <br />}
+//                           </span>
+//                         ))}
+//                       </span>
+//                     </div>
+//                   )}
+//                   <div><strong>Termos do Contrato:</strong> {contrato.termosContrato}</div>
+//                   {isProprietario ? (
+//                     <div>
+//                       <div><strong>Inquilino:</strong> {contrato.inquilino.nome}</div>
+//                       <div><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</div>
+//                     </div>
+//                   ) : (
+//                     <div>
+//                       <div><strong>Proprietário:</strong> {contrato.proprietario.nome}</div>
+//                       <div><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</div>
+//                     </div>
+//                   )}
+//                 </div>
+//               ) : (
+//                 <div>Contrato não encontrado</div>
 //               )}
 //             </CardContent>
 //           </Card>
@@ -222,27 +1547,21 @@
 
 
 
-
-
-
-
-
-
-
-
-
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { fetchContratoById } from "@/lib/api-getContracts";
 import dynamic from "next/dynamic";
 import { useUser } from "@/hooks/getUser";
 import { PageWithBreadcrumb } from "@/components/PageWithBreadcrumb";
+import { useContract } from "@/context/ContractContext";
+import { FloatingChatButton } from "@/components/chat-components/FloatingChatButton";
+import ChatSupport from "@/components/chat-components/chat-component";
+import ChatComponent from "@/components/chat-components/chat-component";
 
 const PDFViewer = dynamic(
   () => import("@/components/PDFViewer").then((mod) => mod.PDFViewer),
@@ -289,12 +1608,13 @@ function parseData(data: string): Date {
 }
 
 export default function ContratoDetalhes() {
-  const router = useRouter();
   const { id } = useParams();
   const { user } = useUser();
+  const { setContract } = useContract();
   const [contrato, setContrato] = useState<Contrato | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
     async function loadContrato() {
@@ -315,6 +1635,7 @@ export default function ContratoDetalhes() {
           throw new Error("Invalid Base64 string format");
         }
         setContrato(data);
+        setContract(data.id, data.proprietario.id, data.inquilino.id);
       } catch (err: any) {
         setError(err.message || "Erro ao carregar contrato");
         console.error("Load contrato error:", err);
@@ -323,7 +1644,11 @@ export default function ContratoDetalhes() {
       }
     }
     loadContrato();
-  }, [id]);
+  }, [id, setContract]);
+
+  const handleOpenChat = () => {
+    setChatOpen(true);
+  };
 
   if (error) {
     return (
@@ -348,6 +1673,18 @@ export default function ContratoDetalhes() {
   }
 
   const isProprietario = user.role === "PROPRIETARIO";
+  const isAdmin = user.role === "ADMIN";
+
+  if (isAdmin) {
+    return (
+      <div className="container mx-auto p-6">
+        <Alert variant="destructive">
+          <AlertTitle>Erro</AlertTitle>
+          <AlertDescription>Administradores não têm acesso a esta página</AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
   if (contrato && isProprietario && contrato.proprietario.id !== user.id) {
     return (
@@ -370,7 +1707,6 @@ export default function ContratoDetalhes() {
     );
   }
 
-  // Calcular o tempo restante até o fim do aluguel
   const calcularTempoRestante = (inicioRenda: string, fimRenda: string) => {
     try {
       const dataAtual = new Date("2025-05-02");
@@ -432,7 +1768,7 @@ export default function ContratoDetalhes() {
         { label: "Contrato" },
       ]}
     >
-      <div className="container mx-auto p-6">
+      <div className="container mx-auto p-6 relative">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
@@ -450,51 +1786,47 @@ export default function ContratoDetalhes() {
                 </div>
               ) : contrato ? (
                 <div className="space-y-4">
-                  <p>
+                  <div>
                     <strong>Imóvel:</strong> {contrato.imovel.titulo} (
                     {contrato.imovel.endereco}, {contrato.imovel.bairro}, {contrato.imovel.provincia})
-                  </p>
-                  <p>
+                  </div>
+                  <div>
                     <strong>Valor Total:</strong>{" "}
                     {contrato.valorTotal.toLocaleString("pt-BR", {
                       style: "currency",
                       currency: "AOA",
                     })}
-                  </p>
-                  <p><strong>Data Início:</strong> {contrato.dataInicio}</p>
-                  <p><strong>Data Fim:</strong> {contrato.dataFim}</p>
+                  </div>
+                  <div><strong>Data Início:</strong> {contrato.dataInicio}</div>
+                  <div><strong>Data Fim:</strong> {contrato.dataFim}</div>
                   {tempoRestante && (
-                    <>
-                      <p>
-                        <strong>Tempo Restante:</strong>{" "}
-                        <span className={tempoRestante.verde ? "text-green-600" : ""}>
-                          {tempoRestante.texto.split("\n")[0]}
-                        </span>
-                      </p>
-                      {tempoRestante.texto.includes("\n") && (
-                        <p>
-                          <span className={tempoRestante.verde ? "text-green-600" : ""}>
-                            {tempoRestante.texto.split("\n")[1]}
+                    <div>
+                      <strong>Tempo Restante:</strong>{" "}
+                      <span className={tempoRestante.verde ? "text-green-600" : ""}>
+                        {tempoRestante.texto.split("\n").map((line, index) => (
+                          <span key={index}>
+                            {line}
+                            {index < tempoRestante.texto.split("\n").length - 1 && <br />}
                           </span>
-                        </p>
-                      )}
-                    </>
+                        ))}
+                      </span>
+                    </div>
                   )}
-                  <p><strong>Termos do Contrato:</strong> {contrato.termosContrato}</p>
+                  <div><strong>Termos do Contrato:</strong> {contrato.termosContrato}</div>
                   {isProprietario ? (
                     <div>
-                      <p><strong>Inquilino:</strong> {contrato.inquilino.nome}</p>
-                      <p><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</p>
+                      <div><strong>Inquilino:</strong> {contrato.inquilino.nome}</div>
+                      <div><strong>Email do Inquilino:</strong> {contrato.inquilino.email}</div>
                     </div>
                   ) : (
                     <div>
-                      <p><strong>Proprietário:</strong> {contrato.proprietario.nome}</p>
-                      <p><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</p>
+                      <div><strong>Proprietário:</strong> {contrato.proprietario.nome}</div>
+                      <div><strong>Email do Proprietário:</strong> {contrato.proprietario.email}</div>
                     </div>
                   )}
                 </div>
               ) : (
-                <p>Contrato não encontrado</p>
+                <div>Contrato não encontrado</div>
               )}
             </CardContent>
           </Card>
@@ -518,6 +1850,24 @@ export default function ContratoDetalhes() {
             </CardContent>
           </Card>
         </div>
+
+        {contrato && user && !isAdmin && (
+          <>
+            {/* <FloatingChatButton
+              contratoId={contrato.id}
+              proprietarioId={contrato.proprietario.id}
+              inquilinoId={contrato.inquilino.id}
+              onOpenChat={handleOpenChat}
+            /> */}
+            <ChatComponent
+              contratoId={contrato.id}
+              proprietarioId={contrato.proprietario.id}
+              inquilinoId={contrato.inquilino.id}
+              isOpen={chatOpen}
+              onClose={() => setChatOpen(false)}
+            />
+          </>
+        )}
       </div>
     </PageWithBreadcrumb>
   );

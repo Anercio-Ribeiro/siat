@@ -6,6 +6,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -130,6 +131,14 @@ const SignInForm = () => {
             </form>
           </Form>
         </CardContent>
+        <CardFooter>
+          <p className="text-sm text-center text-gray-500">
+            Não tem uma conta?{" "}
+            <a href="/register" className="text-blue-500 hover:underline">
+              Registre-se
+            </a>
+          </p>
+        </CardFooter>
       </Card>
 
       {/* Overlay de fundo escurecido com loading */}

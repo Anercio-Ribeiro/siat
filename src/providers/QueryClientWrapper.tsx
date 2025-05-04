@@ -8,10 +8,13 @@ import { ReactNode } from "react";
 const queryClient = new QueryClient();
 
 export default function QueryClientWrapper({ children }: { children: ReactNode }) {
+
+  const isDev = process.env.NODE_ENV === 'development' && !process.env.CI;
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={true} />
+      {/* {isDev && <ReactQueryDevtools initialIsOpen={false} />} */}
+     
     </QueryClientProvider>
   );
 }

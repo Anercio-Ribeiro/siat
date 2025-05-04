@@ -94,10 +94,9 @@
 
     /* Hide the toggle button */
 
-
-.go3489369143{
-  display: none !important;
-}
+    [aria-label="Open React Query Devtools"] {
+      display: none !important;
+    }
 
     .leaflet-container {
       z-index: 1;
@@ -144,6 +143,8 @@
   z-index: 10;
   overflow: hidden;
 }
+
+
 
 .map-container, .leaflet-container {
   position: relative !important;
