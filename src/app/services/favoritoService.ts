@@ -6,9 +6,35 @@ export class FavoritosService {
   private favoritoRepo = new FavoritosRepository();
 
 
-  async toggleFavorite(userId: string, imovelId: string) {
-    const isFavorite = await this.favoritoRepo.checkIsFavorite(userId, imovelId);
+  // async toggleFavorite(userId: string, imovelId: string) {
+  //   const isFavorite = await this.favoritoRepo.checkIsFavorite(userId, imovelId);
     
+  //   if (isFavorite) {
+  //     await this.favoritoRepo.removeFromFavorites(userId, imovelId);
+  //     return false;
+  //   } else {
+  //     await this.favoritoRepo.addToFavorites(userId, imovelId);
+  //     return true;
+  //   }
+  // }
+
+
+
+  async toggleFavorite(userId: string, imovelId: string) {
+    // Verificar se o imóvel existe e obter o proprietarioId
+    const imovel = await this.favoritoRepo.getImovelById(imovelId);
+  
+    if (!imovel) {
+      throw new Error("Imóvel não encontrado.");
+    }
+  
+    // Verificar se o usuário é o proprietário do imóvel
+    if (imovel.proprietarioId === userId) {
+      throw new Error("Você não pode adicionar seu próprio imóvel aos favoritos.");
+    }
+  
+    const isFavorite = await this.favoritoRepo.checkIsFavorite(userId, imovelId);
+  
     if (isFavorite) {
       await this.favoritoRepo.removeFromFavorites(userId, imovelId);
       return false;
@@ -17,6 +43,7 @@ export class FavoritosService {
       return true;
     }
   }
+
 
   async getUserFavorites(userId: string) {
     return await this.favoritoRepo.getFavoritesByUser(userId);
@@ -61,6 +88,7 @@ export class FavoritosService {
         nome: fav.imovel.proprietario.nome,
         email: fav.imovel.proprietario.email,
         role: fav.imovel.proprietario.role,
+        telefone: fav.imovel.proprietario.telefone || "Telefone não disponível",
       },
     }));
   }

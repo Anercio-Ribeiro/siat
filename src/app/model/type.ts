@@ -204,3 +204,12 @@ export interface DashboardStats {
     count: number;
   }[];
 }
+
+
+export interface RentalFilters {
+  imovelId?: string;
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
+}

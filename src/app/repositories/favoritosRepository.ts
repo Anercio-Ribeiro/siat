@@ -1,10 +1,16 @@
 import { prisma } from "@/lib/prisma";
 
 export class FavoritosRepository {
+  async getImovelById(imovelId: string) {
+    return await prisma.imovel.findUnique({
+      where: { id: imovelId },
+      select: { proprietarioId: true },
+    });
+  }
     async addToFavorites(userId: string, imovelId: string) {
       var countFavoritos  = 0;
       countFavoritos = countFavoritos +1 ;
-      return await prisma.favoritos.create({
+      const favorite = await prisma.favoritos.create({
         data: {
           userId,
           imovelId,
@@ -12,6 +18,8 @@ export class FavoritosRepository {
           
         },
       });
+
+      return favorite;
     }
   
     async removeFromFavorites(userId: string, imovelId: string) {
@@ -51,29 +59,6 @@ export class FavoritosRepository {
     }
 
 
-      // async getUserFavorites(userId: string) {
-      //   return await prisma.favoritos.findMany({
-      //     where: {
-      //       userId,
-      //     },
-      //     include: {
-      //       imovel: {
-      //         include: {
-      //           imagens: true, // Include property images
-      //         },
-      //       },
-      //     },
-      //   });
-      // }
-      // async checkUserRole(userId: string): Promise<string | null> {
-      //   const user = await prisma.user.findUnique({
-      //     where: { id: userId },
-      //     select: { role: true },
-      //   });
-      //   return user?.role ?? null;
-      // }
-
-
       async getUserFavorites(userId: string) {
         const favorites = await prisma.favoritos.findMany({
           where: { userId },
@@ -87,6 +72,7 @@ export class FavoritosRepository {
                     nome: true,
                     email: true,
                     role: true,
+                    telefone: true,
                   }
                 }
               }

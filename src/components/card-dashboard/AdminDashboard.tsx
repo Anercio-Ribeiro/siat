@@ -33,10 +33,10 @@ export const AdminDashboard: React.FC = () => {
       setLoading(true);
       try {
         const [precoZona, proximidades, alugueisPorMes, zonasPopulares] = await Promise.all([
-          fetch(`/api/dashboard/admin?tipo=preco-por-zona&year=${year}`).then(res => res.json()),
-          fetch(`/api/dashboard/admin?tipo=proximidades&year=${year}`).then(res => res.json()),
-          fetch(`/api/dashboard/admin?tipo=alugueis-por-mes&year=${year}`).then(res => res.json()),
-          fetch(`/api/dashboard/admin?tipo=zonas-populares&year=${year}`).then(res => res.json()),
+          fetch(`/api/dashboard?tipo=preco-por-zona&year=${year}`).then(res => res.json()),
+          fetch(`/api/dashboard?tipo=proximidades&year=${year}`).then(res => res.json()),
+          fetch(`/api/dashboard?tipo=alugueis-por-mes&year=${year}`).then(res => res.json()),
+          fetch(`/api/dashboard?tipo=zonas-populares&year=${year}`).then(res => res.json()),
         ]);
         setData({ precoZona, proximidades, alugueisPorMes, zonasPopulares });
       } catch (error) {

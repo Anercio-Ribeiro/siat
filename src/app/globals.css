@@ -123,6 +123,37 @@
       transform: rotateY(180deg);
     }
 
+
+
+    .card-content {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 100%;
+    }
+    
+    .card-content .title-price-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 24px; /* Altura fixa para evitar deslocamentos */
+    }
+    
+    .card-content .title-price-container .title {
+      flex: 0 0 70%; /* O título ocupa 70% do espaço */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .card-content .title-price-container .price {
+      flex: 0 0 30%; /* O preço ocupa 30% do espaço */
+      text-align: right;
+    }
+
+
+
     /* Ensure dialog backdrop and content are above all maps */
 .dialog-overlay, [data-radix-dialog-overlay] {
   z-index: 1000 !important;
@@ -144,7 +175,12 @@
   overflow: hidden;
 }
 
-
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
 
 .map-container, .leaflet-container {
   position: relative !important;

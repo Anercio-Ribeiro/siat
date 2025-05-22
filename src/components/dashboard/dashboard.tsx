@@ -1,465 +1,466 @@
-
 // "use client";
-
-// import { useEffect, useState } from "react";
-// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-// import { Bar, Pie } from "react-chartjs-2";
+// import { useState, useEffect } from "react";
+// import { useQuery } from "@tanstack/react-query";
+// import { Bar, Line, Pie } from "react-chartjs-2";
 // import {
 //   Chart as ChartJS,
-//   ArcElement,
-//   Tooltip,
-//   Legend,
-//   BarElement,
 //   CategoryScale,
 //   LinearScale,
+//   BarElement,
+//   LineElement,
+//   PointElement,
+//   ArcElement,
+//   Title,
+//   Tooltip,
+//   Legend,
 // } from "chart.js";
-// import { Loader2, Maximize2, Minimize2, ChevronLeft, ChevronRight } from "lucide-react";
+// import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 // import { Skeleton } from "@/components/ui/skeleton";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
 // import { Button } from "@/components/ui/button";
 // import { useUser } from "@/hooks/getUser";
+// import { cn } from "@/lib/utils";
+// import { ArrowUp, ArrowDown } from "lucide-react";
 
-// ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+// ChartJS.register(
+//   CategoryScale,
+//   LinearScale,
+//   BarElement,
+//   LineElement,
+//   PointElement,
+//   ArcElement,
+//   Title,
+//   Tooltip,
+//   Legend
+// );
 
-// type DashboardData = {
-//   precoZona: { zona: string; precoMedio: number; provincia: string; bairro: string }[];
-//   proximidades: { tipo: string; count: number }[];
-//   precoPorMes: { mes: string; precoMedio: number }[];
-//   precoMensalZona: { zona: string; mes: string; preco: number; provincia: string; bairro: string }[];
-//   totalImoveis: number;
-//   totalAlugados: number;
-//   zonasMaisAlugadas: { provincia: string; bairro: string; count: number; mes: string }[];
+// const formatCurrency = (value: number | undefined | null) => {
+//   if (value === undefined || value === null) return "AOA 0";
+//   return `${value.toLocaleString("pt-AO", {
+//     style: "currency",
+//     currency: "AOA",
+//   })}`;
 // };
 
-// export default function EstatisticasDashboard() {
-//   const { user } = useUser();
-//   const [activeDashboard, setActiveDashboard] = useState<"Residencial" | "Turístico">("Residencial");
-//   const [residencialData, setResidencialData] = useState<DashboardData>({
-//     precoZona: [],
-//     proximidades: [],
-//     precoPorMes: [],
-//     precoMensalZona: [],
-//     totalImoveis: 0,
-//     totalAlugados: 0,
-//     zonasMaisAlugadas: [],
-//   });
-//   const [turisticoData, setTuristicoData] = useState<DashboardData>({
-//     precoZona: [],
-//     proximidades: [],
-//     precoPorMes: [],
-//     precoMensalZona: [],
-//     totalImoveis: 0,
-//     totalAlugados: 0,
-//     zonasMaisAlugadas: [],
-//   });
-//   const [loading, setLoading] = useState({ residencial: true, turistico: true });
-//   const [expandedChart, setExpandedChart] = useState<string | null>(null);
-//   const [residencialYear, setResidencialYear] = useState<string>("2025");
-//   const [turisticoYear, setTuristicoYear] = useState<string>("2025");
-//   const [selectedMonth, setSelectedMonth] = useState<string>("all");
-//   const [selectedProvincia, setSelectedProvincia] = useState<string>("all");
-//   const [selectedBairro, setSelectedBairro] = useState<string>("all");
-//   const [hiddenProximidadesRes, setHiddenProximidadesRes] = useState<Set<string>>(new Set());
-//   const [hiddenProximidadesTur, setHiddenProximidadesTur] = useState<Set<string>>(new Set());
-//   const [zonasPage, setZonasPage] = useState<number>(0);
-//   const itemsPerPage = 5;
+// type TipoAluguel = "RESIDENCIAL" | "TURISTICO";
 
-//   useEffect(() => {
-//     const fetchData = async (tipoAluguel: "RESIDENCIAL" | "TURISTICO", setData: (data: DashboardData) => void, year: string) => {
-//       setLoading((prev) => ({ ...prev, [tipoAluguel.toLowerCase()]: true }));
-//       try {
-//         const [precoZona, proximidades, precoPorMes, precoMensalZona, totalImoveis, totalAlugados, zonasMaisAlugadas] = await Promise.all([
-//           fetch(`/api/dashboard?tipo=preco-por-zona&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=proximidades&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=preco-por-mes&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=preco-mensal-zona&year=${year}&tipoAluguel=${tipoAluguel}&provincia=${selectedProvincia}&bairro=${selectedBairro}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=total-imoveis&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=total-alugados&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//           fetch(`/api/dashboard?tipo=zonas-mais-alugadas&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-//         ]);
-//         setData({
-//           precoZona,
-//           proximidades,
-//           precoPorMes,
-//           precoMensalZona,
-//           totalImoveis: totalImoveis.total,
-//           totalAlugados: totalAlugados.total,
-//           zonasMaisAlugadas,
-//         });
-//       } catch (error) {
-//         console.error(`Erro ao buscar dados ${tipoAluguel.toLowerCase()}:`, error);
-//       } finally {
-//         setLoading((prev) => ({ ...prev, [tipoAluguel.toLowerCase()]: false }));
-//       }
-//     };
+// const generateTrendData = (
+//   currentValue: number | undefined,
+//   months: number = 6
+// ): number[] => {
+//   if (currentValue === undefined || currentValue === null) return Array(months).fill(0);
+//   const trend = [];
+//   const isPositive = currentValue > 0;
+//   const base = isPositive ? currentValue * 0.8 : currentValue * 1.2;
+//   for (let i = 0; i < months; i++) {
+//     const variation = (Math.random() - 0.5) * base * 0.2;
+//     trend.push(base + variation);
+//   }
+//   trend[months - 1] = currentValue; // Último valor é o atual
+//   return trend;
+// };
 
-//     fetchData("RESIDENCIAL", setResidencialData, residencialYear);
-//     fetchData("TURISTICO", setTuristicoData, turisticoYear);
-//   }, [residencialYear, turisticoYear, selectedMonth, selectedProvincia, selectedBairro]);
-
-//   const colors = [
-//     "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
-//     "#C9CBCF", "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF",
-//   ];
-
-//   const chartOptions = {
-//     maintainAspectRatio: false,
-//     plugins: { legend: { position: "top" as const } },
+// const MiniTrendChart: React.FC<{
+//   data: number[];
+//   label: string;
+//   isPositive: boolean;
+// }> = ({ data, label, isPositive }) => {
+//   const chartData = {
+//     labels: ["-6m", "-5m", "-4m", "-3m", "-2m", "-1m"],
+//     datasets: [
+//       {
+//         label,
+//         data,
+//         fill: false,
+//         borderColor: isPositive ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)",
+//         tension: 0.1,
+//         pointRadius: 0,
+//       },
+//     ],
 //   };
 
-//   const pieOptions = (data: any[], hiddenSet: Set<string>, setHidden: (set: Set<string>) => void) => ({
+//   const options = {
+//     responsive: true,
 //     maintainAspectRatio: false,
 //     plugins: {
-//       legend: {
-//         position: "bottom" as const,
-//         labels: {
-//           boxWidth: 20,
-//           padding: 10,
-//           generateLabels: (chart: any) => {
-//             const total = data.reduce((sum: number, p: { count: number }) => sum + p.count, 0);
-//             return data.map((p: { tipo: string; count: number }, index: number) => {
-//               const value = p.count;
-//               const percentage = ((value / total) * 100).toFixed(1);
-//               return {
-//                 text: `${p.tipo}: ${percentage}%`,
-//                 fillStyle: colors[index % colors.length],
-//                 hidden: hiddenSet.has(p.tipo),
-//                 index,
-//               };
-//             });
-//           },
-//         },
-//         onClick: (e: any, legendItem: any) => {
-//           const label = data[legendItem.index].tipo;
-//           const newSet = new Set(hiddenSet);
-//           if (newSet.has(label)) newSet.delete(label);
-//           else newSet.add(label);
-//           setHidden(newSet);
-//         },
-//       },
+//       legend: { display: false },
+//       tooltip: { enabled: false },
 //     },
-//   });
-
-//   const years = Array.from({ length: 10 }, (_, i) => (2025 - i).toString());
-//   const months = ["all", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-//   const provincias = [
-//     "all",
-//     ...Array.from(new Set([...residencialData.precoZona, ...turisticoData.precoZona].map((p) => p.provincia))),
-//   ];
-//   const bairros = [
-//     "all",
-//     ...Array.from(
-//       new Set(
-//         [...residencialData.precoZona, ...turisticoData.precoZona]
-//           .filter((p) => p.provincia === selectedProvincia || selectedProvincia === "all")
-//           .map((p) => p.bairro)
-//       )
-//     ),
-//   ];
-
-//   const renderDashboard = (data: DashboardData, tipo: "Residencial" | "Turístico", year: string, setYear: (year: string) => void) => {
-//     const prefix = tipo === "Residencial" ? "res" : "tur";
-//     const hiddenSet = tipo === "Residencial" ? hiddenProximidadesRes : hiddenProximidadesTur;
-//     const setHidden = tipo === "Residencial" ? setHiddenProximidadesRes : setHiddenProximidadesTur;
-
-//     const filteredPrecoMensalZona = data.precoMensalZona.filter((item) => {
-//       const matchProvincia = selectedProvincia === "all" || item.provincia === selectedProvincia;
-//       const matchBairro = selectedBairro === "all" || item.bairro === selectedBairro;
-//       return matchProvincia && matchBairro;
-//     });
-
-//     if (user?.role !== "ADMIN") return false;
-
-//     const paginatedZonas = data.zonasMaisAlugadas.slice(zonasPage * itemsPerPage, (zonasPage + 1) * itemsPerPage);
-//     const totalPages = Math.ceil(data.zonasMaisAlugadas.length / itemsPerPage);
-
-//     return (
-//       <div className="space-y-6">
-//         <div className="flex justify-between items-center">
-//           <div className="flex space-x-4">
-//             <Button
-//               onClick={() => setActiveDashboard("Residencial")}
-//               variant={activeDashboard === "Residencial" ? "default" : "outline"}
-//             >
-//               Residencial
-//             </Button>
-//             <Button
-//               onClick={() => setActiveDashboard("Turístico")}
-//               variant={activeDashboard === "Turístico" ? "default" : "outline"}
-//             >
-//               Turístico
-//             </Button>
-//           </div>
-//           <div className="flex space-x-4">
-//             <Select value={year} onValueChange={setYear}>
-//               <SelectTrigger className="w-[180px]">
-//                 <SelectValue placeholder="Selecione o ano" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {years.map((year) => (
-//                   <SelectItem key={year} value={year}>{year}</SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-//             <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-//               <SelectTrigger className="w-[180px]">
-//                 <SelectValue placeholder="Selecione o mês" />
-//               </SelectTrigger>
-//               <SelectContent>
-//                 {months.map((month) => (
-//                   <SelectItem key={month} value={month}>
-//                     {month === "all" ? "Todos" : month}
-//                   </SelectItem>
-//                 ))}
-//               </SelectContent>
-//             </Select>
-//           </div>
-//         </div>
-
-//         <div className="grid gap-6 grid-cols-4">
-//           {/* Total de Imóveis Cadastrados - 25% width, smaller height */}
-//           <Card className="col-span-1 h-[120px]">
-//             <CardHeader className="px-4 pt-4 pb-2">
-//               <CardTitle className="text-sm">Total de Imóveis Cadastrados</CardTitle>
-//             </CardHeader>
-//             <CardContent className="px-4 pt-0">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <Skeleton className="h-6 w-20" />
-//               ) : (
-//                 <p className="text-xl font-bold">{data.totalImoveis}</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Total de Alugados (Em Aluguel) - 25% width, smaller height */}
-//           <Card className="col-span-1 h-[120px]">
-//             <CardHeader className="px-4 pt-4 pb-2">
-//               <CardTitle className="text-sm">Total de Alugados (Em Aluguel)</CardTitle>
-//             </CardHeader>
-//             <CardContent className="px-4 pt-0">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <Skeleton className="h-6 w-20" />
-//               ) : (
-//                 <p className="text-xl font-bold">{data.totalAlugados}</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Preço Médio por Zona - 50% width */}
-//           <Card className={`col-span-2 ${expandedChart === `${prefix}-precoZona` ? "col-span-4" : ""}`}>
-//             <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-//               <CardTitle className="text-lg">Preço Médio por Zona</CardTitle>
-//               <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoZona` ? null : `${prefix}-precoZona`)}>
-//                 {expandedChart === `${prefix}-precoZona` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-//               </Button>
-//             </CardHeader>
-//             <CardContent className="h-[400px]">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <div className="flex flex-col items-center justify-center h-full">
-//                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-//                   <Skeleton className="w-full h-[300px] mt-4" />
-//                 </div>
-//               ) : data.precoZona.length > 0 ? (
-//                 <Bar
-//                   data={{
-//                     labels: data.precoZona.map((p) => p.zona),
-//                     datasets: [{ label: `Preço Médio (${tipo === "Residencial" ? "Mensal" : "Diário"})`, data: data.precoZona.map((p) => p.precoMedio), backgroundColor: colors.slice(0, data.precoZona.length) }],
-//                   }}
-//                   options={chartOptions}
-//                 />
-//               ) : (
-//                 <p>Sem dados</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Proximidades Mais Procuradas - 50% width */}
-//           <Card className={`col-span-2 ${expandedChart === `${prefix}-proximidades` ? "col-span-4" : ""}`}>
-//             <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-//               <CardTitle className="text-lg">Proximidades Mais Procuradas</CardTitle>
-//               <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-proximidades` ? null : `${prefix}-proximidades`)}>
-//                 {expandedChart === `${prefix}-proximidades` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-//               </Button>
-//             </CardHeader>
-//             <CardContent className="h-[400px]">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <div className="flex flex-col items-center justify-center h-full">
-//                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-//                   <Skeleton className="w-full h-[300px] mt-4" />
-//                 </div>
-//               ) : data.proximidades.length > 0 ? (
-//                 <Pie
-//                   data={{
-//                     labels: data.proximidades.map((p) => p.tipo),
-//                     datasets: [{ data: data.proximidades.map((p) => (hiddenSet.has(p.tipo) ? 0 : p.count)), backgroundColor: colors.slice(0, data.proximidades.length) }],
-//                   }}
-//                   options={pieOptions(data.proximidades, hiddenSet, setHidden)}
-//                 />
-//               ) : (
-//                 <p>Sem dados</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Variação de Preço por Mês - 50% width */}
-//           <Card className={`col-span-2 ${expandedChart === `${prefix}-precoPorMes` ? "col-span-4" : ""}`}>
-//             <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-//               <CardTitle className="text-lg">Variação de Preço por Mês</CardTitle>
-//               <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoPorMes` ? null : `${prefix}-precoPorMes`)}>
-//                 {expandedChart === `${prefix}-precoPorMes` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-//               </Button>
-//             </CardHeader>
-//             <CardContent className="h-[400px]">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <div className="flex flex-col items-center justify-center h-full">
-//                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-//                   <Skeleton className="w-full h-[300px] mt-4" />
-//                 </div>
-//               ) : data.precoPorMes.length > 0 ? (
-//                 <Bar
-//                   data={{
-//                     labels: data.precoPorMes.map((p) => p.mes),
-//                     datasets: [{ label: `Preço Médio por Mês (${tipo === "Residencial" ? "Mensal" : "Diário"})`, data: data.precoPorMes.map((p) => p.precoMedio), backgroundColor: colors.slice(0, data.precoPorMes.length) }],
-//                   }}
-//                   options={chartOptions}
-//                 />
-//               ) : (
-//                 <p>Sem dados</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Zonas com Mais Imóveis Alugados (Pendente e Em Aluguel) - 100% width */}
-//           <Card className="col-span-4">
-//             <CardHeader className="px-4 pt-4">
-//               <CardTitle>Zonas com Mais Imóveis Alugados (Pendente e Em Aluguel)</CardTitle>
-//             </CardHeader>
-//             <CardContent>
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <Skeleton className="h-[300px] w-full" />
-//               ) : data.zonasMaisAlugadas.length > 0 ? (
-//                 <div>
-//                   <table className="w-full text-left">
-//                     <thead>
-//                       <tr>
-//                         <th className="p-2">Província</th>
-//                         <th className="p-2">Bairro</th>
-//                         <th className="p-2">Quantidade</th>
-//                         <th className="p-2">Mês</th>
-//                       </tr>
-//                     </thead>
-//                     <tbody>
-//                       {paginatedZonas.map((zona, index) => (
-//                         <tr key={index} className="border-t">
-//                           <td className="p-2">{zona.provincia}</td>
-//                           <td className="p-2">{zona.bairro}</td>
-//                           <td className="p-2">{zona.count}</td>
-//                           <td className="p-2">{zona.mes}</td>
-//                         </tr>
-//                       ))}
-//                     </tbody>
-//                   </table>
-//                   <div className="flex justify-between mt-4">
-//                     <Button
-//                       onClick={() => setZonasPage((prev) => Math.max(prev - 1, 0))}
-//                       disabled={zonasPage === 0}
-//                     >
-//                       <ChevronLeft />
-//                     </Button>
-//                     <span>Página {zonasPage + 1} de {totalPages}</span>
-//                     <Button
-//                       onClick={() => setZonasPage((prev) => Math.min(prev + 1, totalPages - 1))}
-//                       disabled={zonasPage === totalPages - 1}
-//                     >
-//                       <ChevronRight />
-//                     </Button>
-//                   </div>
-//                 </div>
-//               ) : (
-//                 <p>Sem dados</p>
-//               )}
-//             </CardContent>
-//           </Card>
-
-//           {/* Preço Mensal por Zona - 100% width */}
-//           <Card className="col-span-4">
-//             <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-//               <CardTitle className="text-lg">Preço Mensal por Zona</CardTitle>
-//               <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoMensalZona` ? null : `${prefix}-precoMensalZona`)}>
-//                 {expandedChart === `${prefix}-precoMensalZona` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-//               </Button>
-//             </CardHeader>
-//             <div className="px-6 pb-4 flex space-x-4">
-//               <Select value={selectedProvincia} onValueChange={setSelectedProvincia}>
-//                 <SelectTrigger className="w-[180px]">
-//                   <SelectValue placeholder="Província" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   {provincias.map((provincia) => (
-//                     <SelectItem key={provincia} value={provincia}>
-//                       {provincia === "all" ? "Todas" : provincia}
-//                     </SelectItem>
-//                   ))}
-//                 </SelectContent>
-//               </Select>
-//               <Select value={selectedBairro} onValueChange={setSelectedBairro}>
-//                 <SelectTrigger className="w-[180px]">
-//                   <SelectValue placeholder="Bairro" />
-//                 </SelectTrigger>
-//                 <SelectContent>
-//                   {bairros.map((bairro) => (
-//                     <SelectItem key={bairro} value={bairro}>
-//                       {bairro === "all" ? "Todos" : bairro}
-//                     </SelectItem>
-//                   ))}
-//                 </SelectContent>
-//               </Select>
-//             </div>
-//             <CardContent className="h-[400px]">
-//               {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-//                 <div className="flex flex-col items-center justify-center h-full">
-//                   <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-//                   <Skeleton className="w-full h-[300px] mt-4" />
-//                 </div>
-//               ) : filteredPrecoMensalZona.length > 0 ? (
-//                 <Bar
-//                   data={{
-//                     labels: filteredPrecoMensalZona.map((item) => item.mes),
-//                     datasets: [
-//                       {
-//                         label: `Preço ${tipo === "Residencial" ? "Mensal" : "Diário"} (${
-//                           selectedBairro !== "all" ? selectedBairro : selectedProvincia !== "all" ? selectedProvincia : "Todas as Zonas"
-//                         })`,
-//                         data: filteredPrecoMensalZona.map((item) => item.preco),
-//                         backgroundColor: colors.slice(0, filteredPrecoMensalZona.length),
-//                       },
-//                     ],
-//                   }}
-//                   options={chartOptions}
-//                 />
-//               ) : (
-//                 <p>Sem dados para a seleção atual</p>
-//               )}
-//             </CardContent>
-//           </Card>
-//         </div>
-//       </div>
-//     );
+//     scales: {
+//       x: { display: false },
+//       y: { display: false },
+//     },
 //   };
 
 //   return (
-//     <div className="space-y-12 p-6">
-//       {activeDashboard === "Residencial" && renderDashboard(residencialData, "Residencial", residencialYear, setResidencialYear)}
-//       {activeDashboard === "Turístico" && renderDashboard(turisticoData, "Turístico", turisticoYear, setTuristicoYear)}
+//     <div className="h-10 w-full">
+//       <Line data={chartData} options={options} />
 //     </div>
 //   );
-// }
+// };
+
+// export const EstatisticasDashboard: React.FC = () => {
+//   const { user } = useUser();
+//   const [tipoAluguel, setTipoAluguel] = useState<TipoAluguel>("RESIDENCIAL");
+//   const [isFlipping, setIsFlipping] = useState(false);
+//   const [showLoading, setShowLoading] = useState(true);
+
+//   const toggleTipoAluguel = () => {
+//     setIsFlipping(true);
+//     setShowLoading(true);
+//     setTimeout(() => {
+//       setTipoAluguel((prev) => (prev === "RESIDENCIAL" ? "TURISTICO" : "RESIDENCIAL"));
+//       setIsFlipping(false);
+//       setTimeout(() => setShowLoading(false), 3000);
+//     }, 600);
+//   };
+
+//   const { data, isLoading } = useQuery({
+//     queryKey: [`dashboard-admin-${tipoAluguel}`, user?.id],
+//     queryFn: async () => {
+//       const year = new Date().getFullYear().toString();
+//       const response = await Promise.all([
+//         fetch(`/api/dashboard?tipo=total-imoveis&tipoAluguel=${tipoAluguel}&year=${year}`),
+//         fetch(`/api/dashboard?tipo=total-alugados&tipoAluguel=${tipoAluguel}&year=${year}`),
+//         fetch(`/api/dashboard?tipo=proximidades&tipoAluguel=${tipoAluguel}&year=${year}`),
+//         fetch(`/api/dashboard?tipo=preco-por-mes&tipoAluguel=${tipoAluguel}&year=${year}`),
+//         fetch(`/api/dashboard?tipo=zonas-mais-alugadas&tipoAluguel=${tipoAluguel}&year=${year}`),
+//         fetch(`/api/dashboard?tipo=preco-mensal-zona&tipoAluguel=${tipoAluguel}&year=${year}`),
+//       ]);
+
+//       const [
+//         totalImoveisRes,
+//         totalAlugadosRes,
+//         proximidadesRes,
+//         precoPorMesRes,
+//         zonasMaisAlugadasRes,
+//         precoMensalZonaRes,
+//       ] = response;
+
+//       if (!response.every((res) => res.ok)) {
+//         throw new Error("Erro ao carregar dados");
+//       }
+
+//       const [
+//         totalImoveis,
+//         totalAlugados,
+//         proximidades,
+//         precoPorMes,
+//         zonasMaisAlugadas,
+//         precoMensalZona,
+//       ] = await Promise.all([
+//         totalImoveisRes.json(),
+//         totalAlugadosRes.json(),
+//         proximidadesRes.json(),
+//         precoPorMesRes.json(),
+//         zonasMaisAlugadasRes.json(),
+//         precoMensalZonaRes.json(),
+//       ]);
+
+//       return {
+//         totalImoveis: totalImoveis.total || 0,
+//         totalAlugados: totalAlugados.total || 0,
+//         proximidades: proximidades || [],
+//         precoPorMes: precoPorMes || [],
+//         zonasMaisAlugadas: zonasMaisAlugadas || [],
+//         precoMensalZona: precoMensalZona || [],
+//         zonasPendentes: zonasMaisAlugadas.filter((z: any) => z.status === "PENDENTE") || [],
+//         zonasEmAluguel: zonasMaisAlugadas.filter((z: any) => z.status === "EM_ALUGUEL") || [],
+//       };
+//     },
+//     enabled: !!user && user.role === "ADMIN",
+//   });
+
+//   useEffect(() => {
+//     setShowLoading(true);
+//     const timer = setTimeout(() => setShowLoading(false), 3000);
+//     return () => clearTimeout(timer);
+//   }, [tipoAluguel]);
+
+//   if (!user) return <div>Carregando usuário...</div>;
+//   if (user.role !== "ADMIN") return false;
+
+//   if (isLoading || showLoading || !data) {
+//     return (
+//       <div className="p-6 space-y-6">
+//         <Skeleton className="h-8 w-1/4" />
+//         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+//           {Array.from({ length: 6 }).map((_, i) => (
+//             <Skeleton key={i} className="h-32 w-full" />
+//           ))}
+//         </div>
+//         <Skeleton className="h-64 w-full max-w-2xl mx-auto" />
+//       </div>
+//     );
+//   }
+
+//   // Gráfico de Proximidades Mais Procuradas
+//   const proximidadesChartData = {
+//     labels: data.proximidades.map((p: any) => p.tipo || "Desconhecido"),
+//     datasets: [
+//       {
+//         label: "Número de Imóveis",
+//         data: data.proximidades.map((p: any) => p.count || 0),
+//         backgroundColor: "rgba(54, 162, 235, 0.6)",
+//         borderColor: "rgba(54, 162, 235, 1)",
+//         borderWidth: 1,
+//       },
+//     ],
+//   };
+
+//   // Gráfico de Variação de Preço por Mês
+//   const precoPorMesChartData = {
+//     labels: data.precoPorMes.map((p: any) => p.mes || "Desconhecido"),
+//     datasets: [
+//       {
+//         label: "Preço Médio (AOA)",
+//         data: data.precoPorMes.map((p: any) => p.precoMedio || 0),
+//         fill: false,
+//         borderColor: "rgba(75, 192, 192, 1)",
+//         tension: 0.1,
+//       },
+//     ],
+//   };
+
+//   // Gráfico de Zonas com Mais Imóveis Alugados
+//   const zonasMaisAlugadasChartData = {
+//     labels: data.zonasMaisAlugadas.map((z: any) => `${z.bairro}, ${z.provincia}`),
+//     datasets: [
+//       {
+//         label: "Número de Aluguéis",
+//         data: data.zonasMaisAlugadas.map((z: any) => z.count || 0),
+//         backgroundColor: "rgba(255, 206, 86, 0.6)",
+//         borderColor: "rgba(255, 206, 86, 1)",
+//         borderWidth: 1,
+//       },
+//     ],
+//   };
+
+//   // Gráfico de Preço Mensal por Zona (Residencial e Turístico)
+//   const precoMensalZonaChartData = {
+//     labels: data.precoMensalZona.map((z: any) => z.mes || "Desconhecido"),
+//     datasets: [
+//       {
+//         label: "Preço Médio Residencial (AOA)",
+//         data: data.precoMensalZona
+//           .filter((z: any) => z.tipoAluguel === "RESIDENCIAL")
+//           .map((z: any) => z.preco || 0),
+//         fill: false,
+//         borderColor: "rgba(75, 192, 192, 1)",
+//         tension: 0.1,
+//       },
+//       {
+//         label: "Preço Médio Turístico (AOA)",
+//         data: data.precoMensalZona
+//           .filter((z: any) => z.tipoAluguel === "TURISTICO")
+//           .map((z: any) => z.preco || 0),
+//         fill: false,
+//         borderColor: "rgba(255, 99, 132, 1)",
+//         tension: 0.1,
+//       },
+//     ],
+//   };
+
+//   const chartOptions = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     plugins: {
+//       legend: { position: "top" as const },
+//       title: { display: true, text: "Visão Geral da Plataforma" },
+//     },
+//   };
+
+//   const lineBarChartOptions = {
+//     responsive: true,
+//     maintainAspectRatio: false,
+//     plugins: {
+//       legend: { position: "top" as const },
+//       title: { display: true, text: "Estatísticas por Mês" },
+//     },
+//   };
+
+//   return (
+//     <div className="p-6 space-y-6">
+//       <div className="flex justify-between items-center">
+//         <h1 className="text-2xl font-bold">
+//           Dashboard do Administrador - {tipoAluguel}
+//         </h1>
+//         <Button onClick={toggleTipoAluguel} className="relative">
+//           Alternar para {tipoAluguel === "RESIDENCIAL" ? "Turístico" : "Residencial"}
+//         </Button>
+//       </div>
+
+//       <div className="flip-container">
+//         <div className={cn("flip-inner", { flip: isFlipping })}>
+//           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Total de Imóveis</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.totalImoveis > 0 ? "text-green-600" : "text-red-600"
+//                   }`}
+//                 >
+//                   {data.totalImoveis || 0}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">Registrados na plataforma</p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.totalImoveis)}
+//                   label="Total de Imóveis"
+//                   isPositive={data.totalImoveis > 0}
+//                 />
+//               </CardContent>
+//             </Card>
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Total de Imóveis Alugados</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.totalAlugados > 0 ? "text-green-600" : "text-red-600"
+//                   }`}
+//                 >
+//                   {data.totalAlugados || 0}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">Concluídos</p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.totalAlugados)}
+//                   label="Total de Imóveis Alugados"
+//                   isPositive={data.totalAlugados > 0}
+//                 />
+//               </CardContent>
+//             </Card>
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Proximidade Mais Procurada</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.proximidades.length > 0 ? "text-green-600" : "text-red-600"
+//                   }`}
+//                 >
+//                   {data.proximidades[0]?.tipo || "Nenhuma"}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">
+//                   {data.proximidades[0]?.count || 0} imóveis
+//                 </p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.proximidades[0]?.count)}
+//                   label="Proximidade Mais Procurada"
+//                   isPositive={data.proximidades[0]?.count > 0}
+//                 />
+//               </CardContent>
+//             </Card>
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Zona com Mais Imóveis Alugados</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.zonasMaisAlugadas.length > 0 ? "text-green-600" : "text-red-600"
+//                   }`}
+//                 >
+//                   {data.zonasMaisAlugadas[0]?.bairro
+//                     ? `${data.zonasMaisAlugadas[0].bairro}, ${data.zonasMaisAlugadas[0].provincia}`
+//                     : "Nenhuma"}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">
+//                   {data.zonasMaisAlugadas[0]?.count || 0} aluguéis
+//                 </p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.zonasMaisAlugadas[0]?.count)}
+//                   label="Zona com Mais Imóveis Alugados"
+//                   isPositive={data.zonasMaisAlugadas[0]?.count > 0}
+//                 />
+//               </CardContent>
+//             </Card>
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Preço Médio Mensal</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.precoPorMes.length > 0 ? "text-green-600" : "text-red-600"
+//                   }`}
+//                 >
+//                   {formatCurrency(data.precoPorMes[0]?.precoMedio || 0)}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">Este ano</p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.precoPorMes[0]?.precoMedio)}
+//                   label="Preço Médio Mensal"
+//                   isPositive={data.precoPorMes[0]?.precoMedio > 0}
+//                 />
+//               </CardContent>
+//             </Card>
+//             <Card>
+//               <CardHeader className="p-4">
+//                 <CardTitle>Zonas Pendentes</CardTitle>
+//               </CardHeader>
+//               <CardContent className="p-4">
+//                 <p
+//                   className={`text-2xl font-semibold ${
+//                     data.zonasPendentes.length > 0 ? "text-red-600" : "text-green-600"
+//                   }`}
+//                 >
+//                   {data.zonasPendentes.length || 0}
+//                 </p>
+//                 <p className="text-sm text-muted-foreground">Solicitações pendentes</p>
+//                 <MiniTrendChart
+//                   data={generateTrendData(data.zonasPendentes.length)}
+//                   label="Zonas Pendentes"
+//                   isPositive={false}
+//                 />
+//               </CardContent>
+//             </Card>
+//           </div>
+//           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+//             <Card className="w-full h-[400px]">
+//               <CardHeader className="p-4">
+//                 <CardTitle>Proximidades Mais Procuradas</CardTitle>
+//               </CardHeader>
+//               <CardContent className="h-[300px] p-4">
+//                 <Bar data={proximidadesChartData} options={chartOptions} />
+//               </CardContent>
+//             </Card>
+//             <Card className="w-full h-[400px]">
+//               <CardHeader className="p-4">
+//                 <CardTitle>Variação de Preço por Mês</CardTitle>
+//               </CardHeader>
+//               <CardContent className="h-[300px] p-4">
+//                 <Line data={precoPorMesChartData} options={lineBarChartOptions} />
+//               </CardContent>
+//             </Card>
+//             <Card className="w-full h-[400px]">
+//               <CardHeader className="p-4">
+//                 <CardTitle>Zonas com Mais Imóveis Alugados</CardTitle>
+//               </CardHeader>
+//               <CardContent className="h-[300px] p-4">
+//                 <Bar data={zonasMaisAlugadasChartData} options={chartOptions} />
+//               </CardContent>
+//             </Card>
+//             <Card className="w-full h-[400px]">
+//               <CardHeader className="p-4">
+//                 <CardTitle>Preço Mensal por Zona</CardTitle>
+//               </CardHeader>
+//               <CardContent className="h-[300px] p-4">
+//                 <Line data={precoMensalZonaChartData} options={lineBarChartOptions} />
+//               </CardContent>
+//             </Card>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// };
+
+
+
 
 
 
@@ -467,470 +468,643 @@
 
 
 "use client";
-
-import { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bar, Pie } from "react-chartjs-2";
+import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { Bar, Line, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  ArcElement,
-  Tooltip,
-  Legend,
-  BarElement,
   CategoryScale,
   LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
 } from "chart.js";
-import { Loader2, Maximize2, Minimize2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { useUser } from "@/hooks/getUser";
+import { cn } from "@/lib/utils";
+import { ArrowUp, ArrowDown, Maximize2, Minimize2 } from "lucide-react";
 
-ChartJS.register(ArcElement, Tooltip, Legend, BarElement, CategoryScale, LinearScale);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  LineElement,
+  PointElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-type DashboardData = {
-  precoZona: { zona: string; precoMedio: number; provincia: string; bairro: string }[];
-  proximidades: { tipo: string; count: number }[];
-  precoPorMes: { mes: string; precoMedio: number }[];
-  precoMensalZona: { zona: string; mes: string; preco: number; provincia: string; bairro: string }[];
-  totalImoveis: number;
-  totalAlugados: number;
-  zonasMaisAlugadas: { provincia: string; bairro: string; count: number; mes: string }[];
+const formatCurrency = (value: number | undefined | null) => {
+  if (value === undefined || value === null) return "AOA 0";
+  return `${value.toLocaleString("pt-AO", {
+    style: "currency",
+    currency: "AOA",
+  })}`;
 };
 
-export default function EstatisticasDashboard() {
-  const { user } = useUser();
-  const [activeDashboard, setActiveDashboard] = useState<"Residencial" | "Turístico">("Residencial");
-  const [residencialData, setResidencialData] = useState<DashboardData>({
-    precoZona: [],
-    proximidades: [],
-    precoPorMes: [],
-    precoMensalZona: [],
-    totalImoveis: 0,
-    totalAlugados: 0,
-    zonasMaisAlugadas: [],
-  });
-  const [turisticoData, setTuristicoData] = useState<DashboardData>({
-    precoZona: [],
-    proximidades: [],
-    precoPorMes: [],
-    precoMensalZona: [],
-    totalImoveis: 0,
-    totalAlugados: 0,
-    zonasMaisAlugadas: [],
-  });
-  const [loading, setLoading] = useState({ residencial: true, turistico: true });
-  const [error, setError] = useState<string | null>(null);
-  const [expandedChart, setExpandedChart] = useState<string | null>(null);
-  const [residencialYear, setResidencialYear] = useState<string>("2025");
-  const [turisticoYear, setTuristicoYear] = useState<string>("2025");
-  const [selectedMonth, setSelectedMonth] = useState<string>("all");
-  const [selectedProvincia, setSelectedProvincia] = useState<string>("all");
-  const [selectedBairro, setSelectedBairro] = useState<string>("all");
-  const [hiddenProximidadesRes, setHiddenProximidadesRes] = useState<Set<string>>(new Set());
-  const [hiddenProximidadesTur, setHiddenProximidadesTur] = useState<Set<string>>(new Set());
-  const [zonasPage, setZonasPage] = useState<number>(0);
-  const itemsPerPage = 5;
+type TipoAluguel = "RESIDENCIAL" | "TURISTICO";
 
-  useEffect(() => {
-    const fetchData = async (tipoAluguel: "RESIDENCIAL" | "TURISTICO", setData: (data: DashboardData) => void, year: string) => {
-      setLoading((prev) => ({ ...prev, [tipoAluguel.toLowerCase()]: true }));
-      setError(null);
-      try {
-        const [precoZona, proximidades, precoPorMes, precoMensalZona, totalImoveis, totalAlugados, zonasMaisAlugadas] = await Promise.all([
-          fetch(`/api/dashboard?tipo=preco-por-zona&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=proximidades&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=preco-por-mes&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=preco-mensal-zona&year=${year}&tipoAluguel=${tipoAluguel}&provincia=${selectedProvincia}&bairro=${selectedBairro}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=total-imoveis&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=total-alugados&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-          fetch(`/api/dashboard?tipo=zonas-mais-alugadas&year=${year}&tipoAluguel=${tipoAluguel}&month=${selectedMonth}`).then((res) => res.json()),
-        ]);
-        setData({
-          precoZona: precoZona || [],
-          proximidades: proximidades || [],
-          precoPorMes: precoPorMes || [],
-          precoMensalZona: precoMensalZona || [],
-          totalImoveis: totalImoveis?.total || 0,
-          totalAlugados: totalAlugados?.total || 0,
-          zonasMaisAlugadas: zonasMaisAlugadas || [],
-        });
-      } catch (error) {
-        console.error(`Erro ao buscar dados ${tipoAluguel.toLowerCase()}:`, error);
-        setError(`Falha ao carregar dados ${tipoAluguel.toLowerCase()}.`);
-      } finally {
-        setLoading((prev) => ({ ...prev, [tipoAluguel.toLowerCase()]: false }));
-      }
-    };
+const months = ["Todos", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
+const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).sort((a, b) => b - a);
 
-    fetchData("RESIDENCIAL", setResidencialData, residencialYear);
-    fetchData("TURISTICO", setTuristicoData, turisticoYear);
-  }, [residencialYear, turisticoYear, selectedMonth, selectedProvincia, selectedBairro]);
+const generateTrendData = (
+  currentValue: number | undefined,
+  monthsCount: number = 6
+): number[] => {
+  if (currentValue === undefined || currentValue === null) return Array(monthsCount).fill(0);
+  const trend = [];
+  const isPositive = currentValue > 0;
+  const base = isPositive ? currentValue * 0.8 : currentValue * 1.2;
+  for (let i = 0; i < monthsCount; i++) {
+    const variation = (Math.random() - 0.5) * base * 0.2;
+    trend.push(base + variation);
+  }
+  trend[monthsCount - 1] = currentValue;
+  return trend;
+};
 
-  const colors = [
-    "#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0", "#9966FF", "#FF9F40",
-    "#C9CBCF", "#FF5733", "#33FF57", "#3357FF", "#FF33A1", "#A133FF",
-  ];
-
-  const chartOptions = {
-    maintainAspectRatio: false,
-    plugins: { legend: { position: "top" as const } },
+const MiniTrendChart: React.FC<{
+  data: number[];
+  label: string;
+  isPositive: boolean;
+}> = ({ data, label, isPositive }) => {
+  const chartData = {
+    labels: ["-6m", "-5m", "-4m", "-3m", "-2m", "-1m"],
+    datasets: [
+      {
+        label,
+        data,
+        fill: false,
+        borderColor: isPositive ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)",
+        tension: 0.1,
+        pointRadius: 0,
+      },
+    ],
   };
 
-  const pieOptions = (data: any[], hiddenSet: Set<string>, setHidden: (set: Set<string>) => void) => ({
+  const options = {
+    responsive: true,
     maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        position: "bottom" as const,
-        labels: {
-          boxWidth: 20,
-          padding: 10,
-          generateLabels: (chart: any) => {
-            const total = data.reduce((sum: number, p: { count: number }) => sum + p.count, 0);
-            return data.map((p: { tipo: string; count: number }, index: number) => {
-              const value = p.count;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return {
-                text: `${p.tipo}: ${percentage}%`,
-                fillStyle: colors[index % colors.length],
-                hidden: hiddenSet.has(p.tipo),
-                index,
-              };
-            });
-          },
-        },
-        onClick: (e: any, legendItem: any) => {
-          const label = data[legendItem.index].tipo;
-          const newSet = new Set(hiddenSet);
-          if (newSet.has(label)) newSet.delete(label);
-          else newSet.add(label);
-          setHidden(newSet);
-        },
-      },
-    },
-  });
-
-  const years = Array.from({ length: 10 }, (_, i) => (2025 - i).toString());
-  const months = ["all", "Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"];
-  const provincias = [
-    "all",
-    ...Array.from(
-      new Set(
-        [
-          ...(residencialData.precoZona || []),
-          ...(turisticoData.precoZona || []),
-        ].map((p) => p.provincia)
-      )
-    ),
-  ];
-  const bairros = [
-    "all",
-    ...Array.from(
-      new Set(
-        [
-          ...(residencialData.precoZona || []),
-          ...(turisticoData.precoZona || []),
-        ]
-          .filter((p) => selectedProvincia === "all" || p.provincia === selectedProvincia)
-          .map((p) => p.bairro)
-      )
-    ),
-  ];
-
-  const renderDashboard = (data: DashboardData, tipo: "Residencial" | "Turístico", year: string, setYear: (year: string) => void) => {
-    const prefix = tipo === "Residencial" ? "res" : "tur";
-    const hiddenSet = tipo === "Residencial" ? hiddenProximidadesRes : hiddenProximidadesTur;
-    const setHidden = tipo === "Residencial" ? setHiddenProximidadesRes : setHiddenProximidadesTur;
-
-    const filteredPrecoMensalZona = data.precoMensalZona.filter((item) => {
-      const matchProvincia = selectedProvincia === "all" || item.provincia === selectedProvincia;
-      const matchBairro = selectedBairro === "all" || item.bairro === selectedBairro;
-      return matchProvincia && matchBairro;
-    });
-
-    if (user?.role !== "ADMIN") return false;
-
-    const paginatedZonas = data.zonasMaisAlugadas.slice(zonasPage * itemsPerPage, (zonasPage + 1) * itemsPerPage);
-    const totalPages = Math.ceil(data.zonasMaisAlugadas.length / itemsPerPage);
-
-    return (
-      <div className="space-y-6">
-        {error && <p className="text-red-500">{error}</p>}
-        <div className="flex justify-between items-center">
-          <div className="flex space-x-4">
-            <Button
-              onClick={() => setActiveDashboard("Residencial")}
-              variant={activeDashboard === "Residencial" ? "default" : "outline"}
-            >
-              Residencial
-            </Button>
-            <Button
-              onClick={() => setActiveDashboard("Turístico")}
-              variant={activeDashboard === "Turístico" ? "default" : "outline"}
-            >
-              Turístico
-            </Button>
-          </div>
-          <div className="flex space-x-4">
-            <Select value={year} onValueChange={setYear}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Selecione o ano" />
-              </SelectTrigger>
-              <SelectContent>
-                {years.map((year) => (
-                  <SelectItem key={year} value={year}>{year}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Selecione o mês" />
-              </SelectTrigger>
-              <SelectContent>
-                {months.map((month) => (
-                  <SelectItem key={month} value={month}>
-                    {month === "all" ? "Todos" : month}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        <div className="grid gap-6 grid-cols-4">
-          <Card className="col-span-1 h-[120px]">
-            <CardHeader className="px-4 pt-4 pb-2">
-              <CardTitle className="text-sm">Total de Imóveis Cadastrados</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pt-0">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <Skeleton className="h-6 w-20" />
-              ) : (
-                <p className="text-xl font-bold">{data.totalImoveis}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-1 h-[120px]">
-            <CardHeader className="px-4 pt-4 pb-2">
-              <CardTitle className="text-sm">Total de Alugados (Em Aluguel)</CardTitle>
-            </CardHeader>
-            <CardContent className="px-4 pt-0">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <Skeleton className="h-6 w-20" />
-              ) : (
-                <p className="text-xl font-bold">{data.totalAlugados}</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className={`col-span-2 ${expandedChart === `${prefix}-precoZona` ? "col-span-4" : ""}`}>
-            <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-              <CardTitle className="text-lg">Preço Médio por Zona</CardTitle>
-              <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoZona` ? null : `${prefix}-precoZona`)}>
-                {expandedChart === `${prefix}-precoZona` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-              </Button>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  <Skeleton className="w-full h-[300px] mt-4" />
-                </div>
-              ) : data.precoZona.length > 0 ? (
-                <Bar
-                  data={{
-                    labels: data.precoZona.map((p) => p.zona),
-                    datasets: [{ label: `Preço Médio (${tipo === "Residencial" ? "Mensal" : "Diário"})`, data: data.precoZona.map((p) => p.precoMedio), backgroundColor: colors.slice(0, data.precoZona.length) }],
-                  }}
-                  options={chartOptions}
-                />
-              ) : (
-                <p>Sem dados</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className={`col-span-2 ${expandedChart === `${prefix}-proximidades` ? "col-span-4" : ""}`}>
-            <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-              <CardTitle className="text-lg">Proximidades Mais Procuradas</CardTitle>
-              <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-proximidades` ? null : `${prefix}-proximidades`)}>
-                {expandedChart === `${prefix}-proximidades` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-              </Button>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  <Skeleton className="w-full h-[300px] mt-4" />
-                </div>
-              ) : data.proximidades.length > 0 ? (
-                <Pie
-                  data={{
-                    labels: data.proximidades.map((p) => p.tipo),
-                    datasets: [{ data: data.proximidades.map((p) => (hiddenSet.has(p.tipo) ? 0 : p.count)), backgroundColor: colors.slice(0, data.proximidades.length) }],
-                  }}
-                  options={pieOptions(data.proximidades, hiddenSet, setHidden)}
-                />
-              ) : (
-                <p>Sem dados</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className={`col-span-2 ${expandedChart === `${prefix}-precoPorMes` ? "col-span-4" : ""}`}>
-            <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-              <CardTitle className="text-lg">Variação de Preço por Mês</CardTitle>
-              <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoPorMes` ? null : `${prefix}-precoPorMes`)}>
-                {expandedChart === `${prefix}-precoPorMes` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-              </Button>
-            </CardHeader>
-            <CardContent className="h-[400px]">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  <Skeleton className="w-full h-[300px] mt-4" />
-                </div>
-              ) : data.precoPorMes.length > 0 ? (
-                <Bar
-                  data={{
-                    labels: data.precoPorMes.map((p) => p.mes),
-                    datasets: [{ label: `Preço Médio por Mês (${tipo === "Residencial" ? "Mensal" : "Diário"})`, data: data.precoPorMes.map((p) => p.precoMedio), backgroundColor: colors.slice(0, data.precoPorMes.length) }],
-                  }}
-                  options={chartOptions}
-                />
-              ) : (
-                <p>Sem dados</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-4">
-            <CardHeader className="px-4 pt-4">
-              <CardTitle>Zonas com Mais Imóveis Alugados (Pendente e Em Aluguel)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <Skeleton className="h-[300px] w-full" />
-              ) : data.zonasMaisAlugadas.length > 0 ? (
-                <div>
-                  <table className="w-full text-left">
-                    <thead>
-                      <tr>
-                        <th className="p-2">Província</th>
-                        <th className="p-2">Bairro</th>
-                        <th className="p-2">Quantidade</th>
-                        <th className="p-2">Mês</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {paginatedZonas.map((zona, index) => (
-                        <tr key={index} className="border-t">
-                          <td className="p-2">{zona.provincia}</td>
-                          <td className="p-2">{zona.bairro}</td>
-                          <td className="p-2">{zona.count}</td>
-                          <td className="p-2">{zona.mes}</td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <div className="flex justify-between mt-4">
-                    <Button
-                      onClick={() => setZonasPage((prev) => Math.max(prev - 1, 0))}
-                      disabled={zonasPage === 0}
-                    >
-                      <ChevronLeft />
-                    </Button>
-                    <span>Página {zonasPage + 1} de {totalPages}</span>
-                    <Button
-                      onClick={() => setZonasPage((prev) => Math.min(prev + 1, totalPages - 1))}
-                      disabled={zonasPage === totalPages - 1}
-                    >
-                      <ChevronRight />
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <p>Sem dados</p>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card className="col-span-4">
-            <CardHeader className="flex flex-row justify-between items-center px-4 pt-4">
-              <CardTitle className="text-lg">Preço Mensal por Zona</CardTitle>
-              <Button onClick={() => setExpandedChart(expandedChart === `${prefix}-precoMensalZona` ? null : `${prefix}-precoMensalZona`)}>
-                {expandedChart === `${prefix}-precoMensalZona` ? <Minimize2 className="w-5 h-5 text-blue-500" /> : <Maximize2 className="w-5 h-5 text-blue-500" />}
-              </Button>
-            </CardHeader>
-            <div className="px-6 pb-4 flex space-x-4">
-              <Select value={selectedProvincia} onValueChange={setSelectedProvincia}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Província" />
-                </SelectTrigger>
-                <SelectContent>
-                  {provincias.map((provincia) => (
-                    <SelectItem key={provincia} value={provincia}>
-                      {provincia === "all" ? "Todas" : provincia}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <Select value={selectedBairro} onValueChange={setSelectedBairro}>
-                <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Bairro" />
-                </SelectTrigger>
-                <SelectContent>
-                  {bairros.map((bairro) => (
-                    <SelectItem key={bairro} value={bairro}>
-                      {bairro === "all" ? "Todos" : bairro}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <CardContent className="h-[400px]">
-              {loading[tipo.toLowerCase() as "residencial" | "turistico"] ? (
-                <div className="flex flex-col items-center justify-center h-full">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
-                  <Skeleton className="w-full h-[300px] mt-4" />
-                </div>
-              ) : filteredPrecoMensalZona.length > 0 ? (
-                <Bar
-                  data={{
-                    labels: filteredPrecoMensalZona.map((item) => item.mes),
-                    datasets: [
-                      {
-                        label: `Preço ${tipo === "Residencial" ? "Mensal" : "Diário"} (${
-                          selectedBairro !== "all" ? selectedBairro : selectedProvincia !== "all" ? selectedProvincia : "Todas as Zonas"
-                        })`,
-                        data: filteredPrecoMensalZona.map((item) => item.preco),
-                        backgroundColor: colors.slice(0, filteredPrecoMensalZona.length),
-                      },
-                    ],
-                  }}
-                  options={chartOptions}
-                />
-              ) : (
-                <p>Sem dados para a seleção atual</p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-    );
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    scales: { x: { display: false }, y: { display: false } },
   };
 
   return (
-    <div className="space-y-12 p-6">
-      {activeDashboard === "Residencial" && renderDashboard(residencialData, "Residencial", residencialYear, setResidencialYear)}
-      {activeDashboard === "Turístico" && renderDashboard(turisticoData, "Turístico", turisticoYear, setTuristicoYear)}
+    <div className="h-10 w-full">
+      <Line data={chartData} options={options} />
     </div>
   );
-}
+};
+
+export const DashboardAdmin: React.FC = () => {
+  const { user } = useUser();
+  const [tipoAluguel, setTipoAluguel] = useState<TipoAluguel>("RESIDENCIAL");
+  const [isFlipping, setIsFlipping] = useState(false);
+  const [showLoading, setShowLoading] = useState(true);
+  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
+  const [selectedMonth, setSelectedMonth] = useState<string>("Todos");
+  const [chartSizes, setChartSizes] = useState({
+    proximidades: 400,
+    precoPorMes: 400,
+    zonasMaisAlugadas: 400,
+    precoMensalZona: 400,
+  });
+
+  const toggleChartSize = (chart: keyof typeof chartSizes) => {
+    setChartSizes((prev) => ({
+      ...prev,
+      [chart]: prev[chart] === 400 ? 600 : 400,
+    }));
+  };
+
+  const toggleTipoAluguel = () => {
+    setIsFlipping(true);
+    setShowLoading(true);
+    setTimeout(() => {
+      setTipoAluguel((prev) => (prev === "RESIDENCIAL" ? "TURISTICO" : "RESIDENCIAL"));
+      setIsFlipping(false);
+      setTimeout(() => setShowLoading(false), 3000);
+    }, 600);
+  };
+
+  const { data, isLoading } = useQuery({
+    queryKey: [`dashboard-admin-${tipoAluguel}-${selectedYear}-${selectedMonth}`, user?.id],
+    queryFn: async () => {
+      const monthParam = selectedMonth === "Todos" ? undefined : selectedMonth;
+      const response = await Promise.all([
+        fetch(`/api/dashboard?tipo=total-imoveis&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+        fetch(`/api/dashboard?tipo=total-imoveis&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`), // Total global
+        fetch(`/api/dashboard?tipo=total-alugados&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+        fetch(`/api/dashboard?tipo=proximidades&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+        fetch(`/api/dashboard?tipo=preco-por-mes&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+        fetch(`/api/dashboard?tipo=zonas-mais-alugadas&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+        fetch(`/api/dashboard?tipo=preco-mensal-zona&tipoAluguel=${tipoAluguel}&year=${selectedYear}${monthParam ? `&month=${monthParam}` : ""}`),
+      ]);
+
+      const [
+        totalImoveisRes,
+        totalImoveisGlobalRes,
+        totalAlugadosRes,
+        proximidadesRes,
+        precoPorMesRes,
+        zonasMaisAlugadasRes,
+        precoMensalZonaRes,
+      ] = response;
+
+      if (!response.every((res) => res.ok)) {
+        throw new Error("Erro ao carregar dados");
+      }
+
+      const [
+        totalImoveis,
+        totalImoveisGlobal,
+        totalAlugados,
+        proximidades,
+        precoPorMes,
+        zonasMaisAlugadas,
+        precoMensalZona,
+      ] = await Promise.all([
+        totalImoveisRes.json(),
+        totalImoveisGlobalRes.json(),
+        totalAlugadosRes.json(),
+        proximidadesRes.json(),
+        precoPorMesRes.json(),
+        zonasMaisAlugadasRes.json(),
+        precoMensalZonaRes.json(),
+      ]);
+
+      return {
+        totalImoveis: totalImoveis.total || 0,
+        totalImoveisGlobal: totalImoveisGlobal.total || 0,
+        totalAlugados: totalAlugados.total || 0,
+        proximidades: proximidades || [],
+        precoPorMes: precoPorMes || [],
+        zonasMaisAlugadas: zonasMaisAlugadas || [],
+        precoMensalZona: precoMensalZona || [],
+        zonasPendentes: zonasMaisAlugadas.filter((z: any) => z.status === "PENDENTE") || [],
+        zonasEmAluguel: zonasMaisAlugadas.filter((z: any) => z.status === "EM_ALUGUEL") || [],
+      };
+    },
+    enabled: !!user && user.role === "ADMIN",
+  });
+
+  useEffect(() => {
+    setShowLoading(true);
+    const timer = setTimeout(() => setShowLoading(false), 3000);
+    return () => clearTimeout(timer);
+  }, [tipoAluguel, selectedYear, selectedMonth]);
+
+  if (!user) return <div>Carregando usuário...</div>;
+  if (user.role !== "ADMIN") return false;
+
+  if (isLoading || showLoading || !data) {
+    return (
+      <div className="p-6 space-y-6">
+        <Skeleton className="h-8 w-1/4" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-32 w-full" />
+          ))}
+        </div>
+        <Skeleton className="h-64 w-full max-w-2xl mx-auto" />
+      </div>
+    );
+  }
+
+  const proximidadesChartData = {
+    labels: data.proximidades.map((p: any) => p.tipo || "Desconhecido"),
+    datasets: [
+      {
+        label: "Número de Imóveis",
+        data: data.proximidades.map((p: any) => p.count || 0),
+        backgroundColor: data.proximidades.map((p: any) =>
+          (p.count || 0) > 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
+        ),
+        borderColor: data.proximidades.map((p: any) =>
+          (p.count || 0) > 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)"
+        ),
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const precoPorMesChartData = {
+    labels: data.precoPorMes.map((p: any) => p.mes || "Desconhecido"),
+    datasets: [
+      {
+        label: "Preço Médio (AOA)",
+        data: data.precoPorMes.map((p: any) => p.precoMedio || 0),
+        fill: false,
+        borderColor: data.precoPorMes.some((p: any) => (p.precoMedio || 0) < 0)
+          ? "rgba(255, 99, 132, 1)"
+          : "rgba(75, 192, 192, 1)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const zonasMaisAlugadasChartData = {
+    labels: data.zonasMaisAlugadas.map((z: any) => `${z.bairro}, ${z.provincia}`),
+    datasets: [
+      {
+        label: "Número de Aluguéis",
+        data: data.zonasMaisAlugadas.map((z: any) => z.count || 0),
+        backgroundColor: data.zonasMaisAlugadas.map((z: any) =>
+          (z.count || 0) > 0 ? "rgba(75, 192, 192, 0.6)" : "rgba(255, 99, 132, 0.6)"
+        ),
+        borderColor: data.zonasMaisAlugadas.map((z: any) =>
+          (z.count || 0) > 0 ? "rgba(75, 192, 192, 1)" : "rgba(255, 99, 132, 1)"
+        ),
+        borderWidth: 1,
+      },
+    ],
+  };
+
+  const precoMensalZonaChartData = {
+    labels: data.precoMensalZona.map((z: any) => z.mes || "Desconhecido"),
+    datasets: [
+      {
+        label: "Preço Médio Residencial (AOA)",
+        data: data.precoMensalZona
+          .filter((z: any) => z.tipoAluguel === "RESIDENCIAL")
+          .map((z: any) => z.preco || 0),
+        fill: false,
+        borderColor: data.precoMensalZona.some((z: any) => (z.preco || 0) < 0)
+          ? "rgba(255, 99, 132, 1)"
+          : "rgba(75, 192, 192, 1)",
+        tension: 0.1,
+      },
+      {
+        label: "Preço Médio Turístico (AOA)",
+        data: data.precoMensalZona
+          .filter((z: any) => z.tipoAluguel === "TURISTICO")
+          .map((z: any) => z.preco || 0),
+        fill: false,
+        borderColor: data.precoMensalZona.some((z: any) => (z.preco || 0) < 0)
+          ? "rgba(255, 99, 132, 1)"
+          : "rgba(255, 99, 132, 1)",
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top" as const },
+      title: { display: true, text: "Visão Geral da Plataforma" },
+    },
+  };
+
+  const lineBarChartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { position: "top" as const },
+      title: { display: true, text: "Estatísticas por Mês" },
+    },
+  };
+
+  return (
+    <div className="p-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold">
+          Dashboard do Administrador - {tipoAluguel}
+        </h1>
+        <Button onClick={toggleTipoAluguel} className="relative">
+          Alternar para {tipoAluguel === "RESIDENCIAL" ? "Turístico" : "Residencial"}
+        </Button>
+      </div>
+
+      <div className="flip-container">
+        <div className={cn("flip-inner", { flip: isFlipping })}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Total de Imóveis</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    data.totalImoveis >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {data.totalImoveis} ({data.totalImoveisGlobal})
+                </p>
+                <p className="text-sm text-muted-foreground">Registrados na plataforma</p>
+                <MiniTrendChart
+                  data={generateTrendData(data.totalImoveis)}
+                  label="Total de Imóveis"
+                  isPositive={data.totalImoveis >= 0}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Total de Imóveis Alugados</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    data.totalAlugados >= 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {data.totalAlugados || 0}
+                </p>
+                <p className="text-sm text-muted-foreground">Concluídos</p>
+                <MiniTrendChart
+                  data={generateTrendData(data.totalAlugados)}
+                  label="Total de Imóveis Alugados"
+                  isPositive={data.totalAlugados >= 0}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Proximidade Mais Procurada</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    data.proximidades.length > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {data.proximidades[0]?.tipo || "Nenhuma"}
+                </p>
+                <p
+                  className={`text-sm ${
+                    (data.proximidades[0]?.count || 0) >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {data.proximidades[0]?.count || 0} imóveis
+                </p>
+                <MiniTrendChart
+                  data={generateTrendData(data.proximidades[0]?.count)}
+                  label="Proximidade Mais Procurada"
+                  isPositive={(data.proximidades[0]?.count || 0) >= 0}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Zona com Mais Imóveis Alugados</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    data.zonasMaisAlugadas.length > 0 ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {data.zonasMaisAlugadas[0]?.bairro
+                    ? `${data.zonasMaisAlugadas[0].bairro}, ${data.zonasMaisAlugadas[0].provincia}`
+                    : "Nenhuma"}
+                </p>
+                <p
+                  className={`text-sm ${
+                    (data.zonasMaisAlugadas[0]?.count || 0) >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {data.zonasMaisAlugadas[0]?.count || 0} aluguéis
+                </p>
+                <MiniTrendChart
+                  data={generateTrendData(data.zonasMaisAlugadas[0]?.count)}
+                  label="Zona com Mais Imóveis Alugados"
+                  isPositive={(data.zonasMaisAlugadas[0]?.count || 0) >= 0}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Preço Médio Mensal</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    (data.precoPorMes[0]?.precoMedio || 0) >= 0
+                      ? "text-green-600"
+                      : "text-red-600"
+                  }`}
+                >
+                  {formatCurrency(data.precoPorMes[0]?.precoMedio || 0)}
+                </p>
+                <p className="text-sm text-muted-foreground">Este ano</p>
+                <MiniTrendChart
+                  data={generateTrendData(data.precoPorMes[0]?.precoMedio)}
+                  label="Preço Médio Mensal"
+                  isPositive={(data.precoPorMes[0]?.precoMedio || 0) >= 0}
+                />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="p-4">
+                <CardTitle>Zonas Pendentes</CardTitle>
+              </CardHeader>
+              <CardContent className="p-4">
+                <p
+                  className={`text-2xl font-semibold ${
+                    data.zonasPendentes.length > 0 ? "text-red-600" : "text-green-600"
+                  }`}
+                >
+                  {data.zonasPendentes.length || 0}
+                </p>
+                <p className="text-sm text-muted-foreground">Solicitações pendentes</p>
+                <MiniTrendChart
+                  data={generateTrendData(data.zonasPendentes.length)}
+                  label="Zonas Pendentes"
+                  isPositive={false}
+                />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            <Card className="w-full" style={{ height: `${chartSizes.proximidades}px` }}>
+              <CardHeader className="p-4 flex justify-between items-center">
+                <CardTitle>Proximidades Mais Procuradas</CardTitle>
+                <div className="flex space-x-2">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {months.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleChartSize("proximidades")}
+                  >
+                    {chartSizes.proximidades === 400 ? (
+                      <Maximize2 className="h-4 w-4" />
+                    ) : (
+                      <Minimize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[calc(100%-4rem)] p-4">
+                <Bar data={proximidadesChartData} options={chartOptions} />
+              </CardContent>
+            </Card>
+            <Card className="w-full" style={{ height: `${chartSizes.precoPorMes}px` }}>
+              <CardHeader className="p-4 flex justify-between items-center">
+                <CardTitle>Variação de Preço por Mês</CardTitle>
+                <div className="flex space-x-2">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {months.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleChartSize("precoPorMes")}
+                  >
+                    {chartSizes.precoPorMes === 400 ? (
+                      <Maximize2 className="h-4 w-4" />
+                    ) : (
+                      <Minimize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[calc(100%-4rem)] p-4">
+                <Line data={precoPorMesChartData} options={lineBarChartOptions} />
+              </CardContent>
+            </Card>
+            <Card className="w-full" style={{ height: `${chartSizes.zonasMaisAlugadas}px` }}>
+              <CardHeader className="p-4 flex justify-between items-center">
+                <CardTitle>Zonas com Mais Imóveis Alugados</CardTitle>
+                <div className="flex space-x-2">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {months.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleChartSize("zonasMaisAlugadas")}
+                  >
+                    {chartSizes.zonasMaisAlugadas === 400 ? (
+                      <Maximize2 className="h-4 w-4" />
+                    ) : (
+                      <Minimize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[calc(100%-4rem)] p-4">
+                <Bar data={zonasMaisAlugadasChartData} options={chartOptions} />
+              </CardContent>
+            </Card>
+            <Card className="w-full" style={{ height: `${chartSizes.precoMensalZona}px` }}>
+              <CardHeader className="p-4 flex justify-between items-center">
+                <CardTitle>Preço Mensal por Zona</CardTitle>
+                <div className="flex space-x-2">
+                  <select
+                    value={selectedYear}
+                    onChange={(e) => setSelectedYear(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {years.map((year) => (
+                      <option key={year} value={year}>
+                        {year}
+                      </option>
+                    ))}
+                  </select>
+                  <select
+                    value={selectedMonth}
+                    onChange={(e) => setSelectedMonth(e.target.value)}
+                    className="border rounded p-1"
+                  >
+                    {months.map((month) => (
+                      <option key={month} value={month}>
+                        {month}
+                      </option>
+                    ))}
+                  </select>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => toggleChartSize("precoMensalZona")}
+                  >
+                    {chartSizes.precoMensalZona === 400 ? (
+                      <Maximize2 className="h-4 w-4" />
+                    ) : (
+                      <Minimize2 className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="h-[calc(100%-4rem)] p-4">
+                <Line data={precoMensalZonaChartData} options={lineBarChartOptions} />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};

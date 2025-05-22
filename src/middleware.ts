@@ -114,8 +114,7 @@ export async function middleware(request: NextRequest) {
     if (user.role === 'INQUILINO' && 
         (pathname.startsWith('/proximidades') || 
          pathname.startsWith('/imovel') || 
-         pathname.startsWith('/utilizadores') || 
-         pathname.startsWith('/contratos'))) {
+         pathname.startsWith('/utilizadores') )) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
