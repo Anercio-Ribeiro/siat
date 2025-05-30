@@ -126,6 +126,10 @@ export function getMenuList(pathname: string, user: User | null | undefined): Gr
           if (menu.href === "/agendamentos" && userRole === "ADMIN") {
             return false;
           }
+
+          if (menu.href === "/contratos" && userRole === "ADMIN") {
+            return false;
+          }
           return true;
         })
       };

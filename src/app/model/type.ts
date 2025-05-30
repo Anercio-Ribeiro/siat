@@ -69,6 +69,7 @@ export interface ImovelLDto {
     id: string;
     nome: string;
     email: string;
+    telefone: string;
     role: string;
   
   };
@@ -202,4 +203,13 @@ export interface DashboardStats {
     type: string;
     count: number;
   }[];
+}
+
+
+export interface RentalFilters {
+  imovelId?: string;
+  name?: string;
+  startDate?: string;
+  endDate?: string;
+  status?: string;
 }

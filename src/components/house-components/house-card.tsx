@@ -38,6 +38,8 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
   // Verifica se os botões "Ver Detalhes" e "Editar" devem ser exibidos
   const showButtons = user && user.role === 'PROPRIETARIO' && pathname.includes('/imovel');
 
+  const isOwner = user && user.id === imovel.proprietario.id;
+
   useEffect(() => {
     if (isModalOpen) {
       setIsLoading(true);
@@ -140,7 +142,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               fill
               style={{ objectFit: "cover" }}
             />
-
+{!isOwner && (
             <div
               onClick={toggleFavorite}
               className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${
@@ -153,6 +155,7 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
                 }`}
               />
             </div>
+)}
             {Array.isArray(imovel.imagens) && imovel.imagens.length > 1 && (
               <>
                 <Button
@@ -185,9 +188,12 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
           </CardContent>
           <div className="p-2">
             <div className="flex justify-between items-center">
-              <div className="text-sm font-bold">{imovel.titulo}</div>
+              {/* <div className="text-sm font-bold">{imovel.titulo}</div> */}
+              <div className="text-sm font-bold truncate max-w-[70%]">{imovel.titulo}</div>
               <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold pointer-events-none">
-                {imovel.preco} AKZ
+                
+
+                {imovel.preco.toLocaleString("pt-BR", { style: "currency", currency: "AOA" })}
               </Badge>
             </div>
             <div className="flex items-center text-sm text-muted-foreground mt-1">

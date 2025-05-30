@@ -1,7 +1,7 @@
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Bath, Bed, DollarSign, Flag, Home, Map, ParkingCircle, Mail, Calendar } from 'lucide-react';
+import { Bath, Bed, DollarSign, Flag, Home, Map, ParkingCircle, Mail, Calendar, Phone, User } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
 import { ImovelLDto } from '@/app/model/type';
@@ -171,6 +171,7 @@ const DialogContentComponent = ({ isLoading, imovel }: {
               <TabsTrigger value="localizacao">Localização</TabsTrigger>
               <TabsTrigger value="proximidades">Proximidades</TabsTrigger>
               <TabsTrigger value="reserva">Reserva</TabsTrigger>
+              <TabsTrigger value="contacto">Contactos</TabsTrigger>
             </TabsList>
 
             <TabsContent value="descricao">
@@ -188,8 +189,8 @@ const DialogContentComponent = ({ isLoading, imovel }: {
                   </div>
                   <div className="grid grid-cols-2 gap-6 -mt-4">
                     <div className="flex items-center space-x-2">
-                      <DollarSign className="h-5 w-5 text-primary text-blue-600" />
-                      <p><strong>Preço:</strong> <span className="text-sm">{imovel.preco} AKZ</span></p>
+                      {/* <DollarSign className="h-5 w-5 text-primary text-blue-600" /> */}
+                      <p><strong>Preço:</strong> <span className="text-sm">{imovel.preco} AOA</span></p>
                     </div>
                     <div className="flex items-center space-x-2">
                       <Home className="h-5 w-5 text-primary text-blue-600" />
@@ -232,9 +233,8 @@ const DialogContentComponent = ({ isLoading, imovel }: {
               ) : (
                 <div className="space-y-4">
                   <PropertyLocationMap 
-                    latitude={imovel.latitude} 
-                    longitude={imovel.longitude}
-                  />
+                      latitude={imovel.latitude}
+                      longitude={imovel.longitude} titulo={imovel.titulo} preco={imovel.preco} precoMensal={imovel.precoMensal || 0}                  />
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="flex items-center space-x-2">
                       <Map className="h-5 w-5 text-primary text-blue-600" />
@@ -275,14 +275,14 @@ const DialogContentComponent = ({ isLoading, imovel }: {
     proprietarioId: imovel.proprietario?.id ?? '',
   }} 
 />
-                  <Button 
+                  {/* <Button 
                     className="w-full" 
                     disabled={!startDate || !endDate}
                     onClick={() => window.location.href = `mailto:${imovel.proprietario.email}?subject=Reserva do imóvel ${imovel.id}`}
                   >
                     <Mail className="mr-2 h-4 w-4" />
                     Contactar Proprietário
-                  </Button>
+                  </Button> */}
                 </div>
               )}
             </TabsContent>
@@ -300,10 +300,9 @@ const DialogContentComponent = ({ isLoading, imovel }: {
               ) : (
                 <div className="space-y-4">
                   <PropertyLocationMap 
-                    latitude={imovel.latitude} 
-                    longitude={imovel.longitude}
-                    proximidades={proximidades}
-                  />
+                      latitude={imovel.latitude}
+                      longitude={imovel.longitude}
+                      proximidades={proximidades} titulo={imovel.titulo} preco={imovel.preco} precoMensal={imovel.precoMensal || 0}                  />
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
                     {proximidades?.map((proximidade: Proximidade) => (
                       <div 
@@ -323,6 +322,46 @@ const DialogContentComponent = ({ isLoading, imovel }: {
                       </div>
                     )}
                   </div>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="contacto">
+              {isTabLoading && activeTab === 'contacto' ? (
+                <DescricaoSkeleton />
+              ) : (
+                <div className="grid grid-cols-1 gap-8">
+                  <div>
+                                        <p className="text-lg font-semibold">Contato do Proprietário</p>
+                                        <p className="mt-2 text-sm text-muted-foreground">
+                                          Informações para contato com o proprietário do imóvel
+                                        </p>
+                                      </div>
+                                      <div className="space-y-4">
+                                        <div className="flex items-center space-x-2">
+                                          <User className="h-5 w-5 text-primary text-blue-600" />
+                                          <p>
+                                            <strong>Nome:</strong>{" "}
+                                            <span className="text-sm">{imovel.proprietario.nome}</span>
+                                          </p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                          <Mail className="h-5 w-5 text-primary text-blue-600" />
+                                          <p>
+                                            <strong>Email:</strong>{" "}
+                                            <span className="text-sm">{imovel.proprietario.email}</span>
+                                          </p>
+                                        </div>
+                                        <div className="flex items-center space-x-2">
+                                          <Phone className="h-5 w-5 text-primary text-blue-600" />
+                                          <p>
+                                            <strong>Telefone:</strong>{" "}
+                                            <span className="text-sm">
+                                              {imovel.proprietario.telefone || "Não informado"}
+                                            </span>
+                                          </p>
+                                        </div>
+                                      </div>
                 </div>
               )}
             </TabsContent>

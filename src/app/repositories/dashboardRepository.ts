@@ -66,7 +66,7 @@ export const estatisticasRepository = {
                     ? { checkIn: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31`) } }
                     : {}),
                   ...(tipoAluguel ? { tipoAluguel: tipoAluguel as TipoAluguel } : {}),
-                  status: "Concluído",
+                  status: "concluído",
                   contrato: { isNot: null },
                   ...(month && month !== "all"
                     ? {
@@ -108,7 +108,7 @@ export const estatisticasRepository = {
           }
         : undefined,
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
-      status: "Concluído",
+      status: "concluído",
       contrato: { isNot: null },
       ...(month && month !== "all"
         ? {
@@ -144,7 +144,7 @@ export const estatisticasRepository = {
 
   async getPrecoMensalPorZona(year?: string, tipoAluguel?: string, provincia?: string, bairro?: string, month?: string) {
     const whereClause: any = {
-      status: "Concluído",
+      status: "concluído",
       contrato: { isNot: null },
       checkIn: year
         ? {
@@ -205,7 +205,7 @@ export const estatisticasRepository = {
             alugueis: {
               some: {
                 tipoAluguel: tipoAluguel as TipoAluguel,
-                status: "Concluído",
+                status: "concluído",
                 contrato: { isNot: null },
                 ...(year
                   ? { checkIn: { gte: new Date(`${year}-01-01`), lte: new Date(`${year}-12-31`) } }
@@ -229,7 +229,7 @@ export const estatisticasRepository = {
 
   async getTotalAlugados(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      status: "Concluído",
+      status: "concluído",
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
       contrato: { isNot: null },
       ...(year && month && month !== "all"
@@ -254,7 +254,7 @@ export const estatisticasRepository = {
 
   async getZonasMaisAlugadas(year?: string, tipoAluguel?: string, month?: string) {
     const whereClause = {
-      status: "Concluído",
+      status: "concluído",
       tipoAluguel: tipoAluguel ? (tipoAluguel as TipoAluguel) : undefined,
       contrato: { isNot: null },
       ...(year && month && month !== "all"

@@ -71,102 +71,6 @@ export class ContractRepository {
     });
   }
 
-
-//   async getContratosByInquilinoId(inquilinoId: string) {
-//     return prisma.contrato.findMany({
-//       where: {
-//         aluguel: {
-//           inquilinoId,
-//           status: "Concluído",
-//         },
-//       },
-//       include: {
-//         aluguel: {
-//           include: {
-//             imovel: {
-//               include: {
-//                 proprietario: {
-//                   select: {
-//                     id: true,
-//                     nome: true,
-//                     email: true,
-//                   },
-//                 },
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-//   }
-
-//   async getContratosByProprietarioId(proprietarioId: string) {
-//     return prisma.contrato.findMany({
-//       where: {
-//         aluguel: {
-//           imovel: {
-//             proprietarioId,
-//           },
-//           status: "Concluído",
-//         },
-//       },
-//       include: {
-//         aluguel: {
-//           include: {
-//             imovel: {
-//               select: {
-//                 id: true,
-//                 titulo: true,
-//                 endereco: true,
-//                 bairro: true,
-//                 provincia: true,
-//               },
-//             },
-//             inquilino: {
-//               select: {
-//                 id: true,
-//                 nome: true,
-//                 email: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-//   }
-
-//   async getContratoById(id: string) {
-//     return prisma.contrato.findUnique({
-//       where: { id },
-//       include: {
-//         aluguel: {
-//           include: {
-//             imovel: {
-//               include: {
-//                 proprietario: {
-//                   select: {
-//                     id: true,
-//                     nome: true,
-//                     email: true,
-//                   },
-//                 },
-//               },
-//             },
-//             inquilino: {
-//               select: {
-//                 id: true,
-//                 nome: true,
-//                 email: true,
-//               },
-//             },
-//           },
-//         },
-//       },
-//     });
-//   }
-// }
-
-
   async getContratosByInquilinoId(
     inquilinoId: string,
     page: number = 1,
@@ -177,7 +81,7 @@ export class ContractRepository {
       where: {
         aluguel: {
           inquilinoId,
-          status: "Concluído",
+          status: "concluído",
         },
       },
       include: {
