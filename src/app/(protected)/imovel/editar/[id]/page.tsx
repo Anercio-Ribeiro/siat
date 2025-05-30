@@ -443,8 +443,7 @@ export default function EditImovel({ params }: { params: { id: string } }) {
             <PropertyLocationMap
               latitude={imovel.latitude}
               longitude={imovel.longitude}
-              onMapClick={handleMapClick}
-            />
+              onMapClick={handleMapClick} titulo={imovel.titulo} preco={imovel.preco} precoMensal={imovel.precoMensal || 0}            />
             <div className="grid grid-cols-2 gap-4 mt-2">
               <div>
                 <Label htmlFor="latitude">Latitude</Label>
