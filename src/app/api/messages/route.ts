@@ -3,15 +3,17 @@ import prisma from "@/lib/prisma";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const contratoId = searchParams.get("contratoId");
+  const aluguelId = searchParams.get("aluguelId");
 
-  if (!contratoId) {
+  console.log("GET request received at /api/messages:", req.url);
+
+  if (!aluguelId) {
     return new NextResponse(JSON.stringify({ error: "contratoId is required" }), { status: 400 });
   }
 
   try {
     const messages = await prisma.message.findMany({
-      where: { contratoId },
+      where: { aluguelId },
       orderBy: { criadoEm: "asc" },
       select: {
         userId: true,
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest) {
       },
     });
 
-    console.log(`Loaded ${messages.length} messages for contratoId ${contratoId}`);
+    console.log(`Loaded ${messages.length} messages for contratoId ${aluguelId}`);
     return NextResponse.json(
       messages.map((msg) => ({
         userId: msg.userId,

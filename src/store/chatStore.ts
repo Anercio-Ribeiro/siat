@@ -14,25 +14,25 @@ export const useChatStore = create<ChatState>()(
     (set) => ({
       unreadCounts: {},
       isChatOpen: {},
-      incrementUnread: (contratoId) =>
+      incrementUnread: (AluguelId) =>
         set((state) => ({
           unreadCounts: {
             ...state.unreadCounts,
-            [contratoId]: (state.unreadCounts[contratoId] || 0) + 1,
+            [AluguelId]: (state.unreadCounts[AluguelId] || 0) + 1,
           },
         })),
-      resetUnread: (contratoId) =>
+      resetUnread: (AluguelId) =>
         set((state) => ({
           unreadCounts: {
             ...state.unreadCounts,
-            [contratoId]: 0,
+            [AluguelId]: 0,
           },
         })),
-      setChatOpen: (contratoId, isOpen) =>
+      setChatOpen: (AluguelId, isOpen) =>
         set((state) => ({
           isChatOpen: {
             ...state.isChatOpen,
-            [contratoId]: isOpen,
+            [AluguelId]: isOpen,
           },
         })),
     }),

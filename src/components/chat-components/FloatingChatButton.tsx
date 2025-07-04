@@ -4,21 +4,21 @@ import { Button } from "@/components/ui/button";
 import { useChatStore } from "@/store/chatStore";
 
 interface FloatingChatButtonProps {
-  contratoId?: string;
+  AluguelId?: string;
   proprietarioId?: string;
   inquilinoId?: string;
   onOpenChat: () => void;
 }
 
 export function FloatingChatButton({
-  contratoId,
+  AluguelId,
   proprietarioId,
   inquilinoId,
   onOpenChat,
 }: FloatingChatButtonProps) {
   const { unreadCounts } = useChatStore();
 
-  if (!contratoId || !proprietarioId || !inquilinoId) {
+  if (!AluguelId || !proprietarioId || !inquilinoId) {
     return null;
   }
 
@@ -30,12 +30,12 @@ export function FloatingChatButton({
       onClick={onOpenChat}
     >
       <MessageCircle className="h-6 w-6" />
-      {unreadCounts[contratoId] > 0 && (
+      {unreadCounts[AluguelId] > 0 && (
         <Badge
           variant="destructive"
           className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center rounded-full"
         >
-          {unreadCounts[contratoId]}
+          {unreadCounts[AluguelId]}
         </Badge>
       )}
     </Button>

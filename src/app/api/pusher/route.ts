@@ -52,32 +52,32 @@ import prisma from "@/lib/prisma";
 export async function POST(req: NextRequest) {
   console.log("POST request received at /api/pusher:", req.url);
 
-  const { contratoId, userId, message } = await req.json();
+  const { aluguelId, userId, message } = await req.json();
 
   try {
     const newMessage = await prisma.message.create({
       data: {
-        contratoId,
+        aluguelId,
         userId,
         content: message,
       },
     });
 
     const pusher = new Pusher({
-      appId: process.env.PUSHER_APP_ID!,
-      key: process.env.PUSHER_KEY!,
-      secret: process.env.PUSHER_SECRET!,
-      cluster: process.env.PUSHER_CLUSTER!,
+      appId: process.env.NEXT_PUBLIC_PUSHER_APP_ID!,
+      key: process.env.NEXT_PUBLIC_PUSHER_KEY!,
+      secret: process.env.NEXT_PUBLIC_PUSHER_SECRET!,
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
       useTLS: true,
     });
 
-    await pusher.trigger(contratoId, "message", {
+    await pusher.trigger(aluguelId, "message", {
       userId,
       message,
       timestamp: newMessage.criadoEm.toISOString(),
     });
 
-    console.log(`Message sent via Pusher in room ${contratoId}: ${message}`);
+    console.log(`Message sent via Pusher in room ${aluguelId}: ${message}`);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error("Error sending Pusher message:", error);

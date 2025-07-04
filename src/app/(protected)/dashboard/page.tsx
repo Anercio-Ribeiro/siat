@@ -14,7 +14,7 @@ import { DashboardProprietarioTuristico } from "@/components/card-dashboard/Dash
 import { DashboardInquilinoTuristico } from "@/components/card-dashboard/DashboardInquilinoTuristico";
 import { DashboardProprietarioResidencial } from "@/components/card-dashboard/DashboardProprietarioResidencial";
 import { DashboardInquilinoProprietarioFlipBox } from '../../../components/card-dashboard/dashboard-component/dashboard-inquilino-proprietario-flip-box';
-import { DashboardAdmin } from "@/components/dashboard/dashboard";
+import { DashboardAdmin } from "@/components/dashboard-admin/dashboard";
 
 
 

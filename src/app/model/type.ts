@@ -6,6 +6,7 @@ export type UtilizadorCustom = {
     username: string;
     email: string;
     telefone: string;
+    estado: boolean;
     role: Role;
     //favoritoIds: string[];
     alugueis: Aluguel[];  // Use o tipo correto para 'alugueis'
@@ -48,7 +49,8 @@ export interface ImovelLDto {
   titulo: string;
   descricao: string;
   preco: number;
-  precoMensal?: number;
+
+  precoMensal?: number | null;
   tipoAluguel?: string;
   endereco: string;
   provincia: string;

@@ -25,5 +25,5 @@ export async function getAuthenticatedUser() {
     }
 //TODO: Remover logs em produção
     //console.log(dbUser);
-    return dbUser; // Retorna o usuário completo do banco de dados
+    return dbUser; // Retorna o usuário completo da base de dados
 }

@@ -7,7 +7,7 @@ import {
   CardTitle
 } from "@/components/ui/card";
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useState } from "react";
 import { useForm } from "react-hook-form";
 import {
   Form,
@@ -30,20 +30,46 @@ import {
   SelectTrigger,
   SelectValue
 } from "@/components/ui/select";
-import BulkUserUpload from "@/components/user-bulk-create";
 import { signUp } from "@/app/authenticate/auth.action";
+import { Moon, Sun } from "lucide-react";
 
 export const signUpSchema = z.object({
-  nome: z.string().min(5),
-  email: z.string().email(),
-  senha: z.string().min(8),
-  role: z.enum(["INQUILINO", "PROPRIETARIO", "ADMIN"]),
-  username: z.string().min(5),
-  telefone: z.string().max(12)
+  nome: z
+    .string()
+    .min(5, { message: "O nome deve ter pelo menos 5 caracteres." })
+    .nonempty({ message: "O nome é obrigatório." }),
+
+  email: z
+    .string()
+    .email({ message: "Email inválido." })
+    .nonempty({ message: "O email é obrigatório." }),
+
+  senha: z
+    .string()
+    .min(8, { message: "A senha deve ter pelo menos 8 caracteres." })
+    .nonempty({ message: "A senha é obrigatória." }),
+
+  role: z.enum(["INQUILINO", "PROPRIETARIO", "ADMIN"], {
+    errorMap: () => ({ message: "Selecione um perfil válido." })
+  }),
+
+  username: z
+    .string()
+    .min(5, { message: "O nome de utilizador deve ter pelo menos 5 caracteres." })
+    .nonempty({ message: "O nome de utilizador é obrigatório." }),
+
+  telefone: z
+    .string()
+    .regex(/^\(244\)\s(91|92|93|94|95|97|22)\d\s\d{3}\s\d{3}$/, {
+      message: "O telefone deve estar no formato (244) 933 444 333"
+    })
 });
+
 
 const SignUpForm = () => {
   const router = useRouter();
+
+    const [darkMode, setDarkMode] = useState(false);
   const form = useForm<z.infer<typeof signUpSchema>>({
     resolver: zodResolver(signUpSchema),
     defaultValues: {
@@ -55,6 +81,13 @@ const SignUpForm = () => {
       telefone: ""
     }
   });
+
+    const toggleTheme = () => {
+    setDarkMode(!darkMode);
+    if (typeof window !== "undefined") {
+      document.documentElement.classList.toggle("dark", !darkMode);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof signUpSchema>) {
     const currentDate = new Date();
@@ -77,6 +110,16 @@ const SignUpForm = () => {
   return (
     <>
     <div className="relative min-h-screen flex items-center justify-center">
+        <Button
+                variant="outline"
+                onClick={toggleTheme}
+                className="absolute top-4 right-4"
+              >
+                {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                <span className="ml-2">
+                  Tema {darkMode ? "claro" : "escuro"}
+                </span>
+              </Button>
     <Card className="min-w-[500px]">
       <CardHeader className="text-center mt-2">
         <CardTitle>Autenticação</CardTitle>
@@ -95,7 +138,7 @@ const SignUpForm = () => {
                 <FormItem>
                   <FormLabel>Nome</FormLabel>
                   <FormControl>
-                    <Input placeholder="Digite o nome" {...field} />
+                    <Input placeholder="Nome completo" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

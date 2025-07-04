@@ -1859,13 +1859,13 @@ export default function ContratoDetalhes() {
               inquilinoId={contrato.inquilino.id}
               onOpenChat={handleOpenChat}
             /> */}
-            <ChatComponent
-              contratoId={contrato.id}
+            {/* <ChatComponent
+              AluguelId={contrato.id}
               proprietarioId={contrato.proprietario.id}
               inquilinoId={contrato.inquilino.id}
               isOpen={chatOpen}
               onClose={() => setChatOpen(false)}
-            />
+            /> */}
           </>
         )}
       </div>

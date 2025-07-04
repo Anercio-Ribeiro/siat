@@ -125,19 +125,19 @@ interface Message {
   timestamp: string;
 }
 
-export function useSocket(contratoId: string, userId: string) {
+export function useSocket(aluguelId: string, userId: string) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isConnected, setIsConnected] = useState(false);
   const { isChatOpen, incrementUnread } = useChatStore();
 
   useEffect(() => {
-    console.log("Initializing Pusher client for contratoId:", contratoId);
+    console.log("Initializing Pusher client for contratoId:", aluguelId);
 
     async function loadMessages() {
       let retries = 3;
       while (retries > 0) {
         try {
-          const response = await fetch(`/api/messages?contratoId=${contratoId}`);
+          const response = await fetch(`/api/messages?aluguelId=${aluguelId}`);
           if (!response.ok) {
             throw new Error(`Failed to fetch messages: ${response.statusText}`);
           }
@@ -161,19 +161,19 @@ export function useSocket(contratoId: string, userId: string) {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
       forceTLS: true,
     });
-    console.log("Pusher connecting to channel:", contratoId);
+    console.log("Pusher connecting to channel:", aluguelId);
 
-    const channel = pusher.subscribe(contratoId);
+    const channel = pusher.subscribe(aluguelId);
     channel.bind("message", (data: Message) => {
       console.log("Message received via Pusher:", data);
       setMessages((prev) => [...prev, data]);
-      if (!isChatOpen[contratoId]) {
-        incrementUnread(contratoId);
+      if (!isChatOpen[aluguelId]) {
+        incrementUnread(aluguelId);
       }
     });
 
     channel.bind("pusher:subscription_succeeded", () => {
-      console.log("Pusher subscription succeeded for contratoId:", contratoId);
+      console.log("Pusher subscription succeeded for contratoId:", aluguelId);
       setIsConnected(true);
     });
 
@@ -184,11 +184,11 @@ export function useSocket(contratoId: string, userId: string) {
 
     return () => {
       console.log("Cleaning up Pusher client...");
-      pusher.unsubscribe(contratoId);
+      pusher.unsubscribe(aluguelId);
       pusher.disconnect();
       setIsConnected(false);
     };
-  }, [contratoId, userId, isChatOpen, incrementUnread]);
+  }, [aluguelId, userId, isChatOpen, incrementUnread]);
 
   const sendMessage = async (message: string) => {
     if (!isConnected) {
@@ -196,12 +196,12 @@ export function useSocket(contratoId: string, userId: string) {
       return;
     }
 
-    console.log("Sending message via Pusher:", { contratoId, userId, message });
+    console.log("Sending message via Pusher:", { aluguelId, userId, message });
     try {
       const response = await fetch("/api/pusher", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ contratoId, userId, message }),
+        body: JSON.stringify({ aluguelId, userId, message }),
       });
 
       if (!response.ok) {

@@ -1,4 +1,3 @@
-
 'use client';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -38,14 +37,14 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
   // Verifica se os botões "Ver Detalhes" e "Editar" devem ser exibidos
   const showButtons = user && user.role === 'PROPRIETARIO' && pathname.includes('/imovel');
 
-  const isOwner = user && user.id === imovel.proprietario.id;
+  const isOwner = user && user.id === imovel.proprietarioId;
 
   useEffect(() => {
     if (isModalOpen) {
       setIsLoading(true);
       const timer = setTimeout(() => {
         setIsLoading(false);
-      }, 1500);
+      }, 1000);
       return () => clearTimeout(timer);
     }
   }, [isModalOpen]);
@@ -142,20 +141,20 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
               fill
               style={{ objectFit: "cover" }}
             />
-{!isOwner && (
-            <div
-              onClick={toggleFavorite}
-              className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${
-                isFavorited ? "bg-white" : ""
-              }`}
-            >
-              <Heart
-                className={`w-6 h-6 ${
-                  isFavorited ? "fill-red-600 text-red-600" : "text-red-600"
+            {!isOwner && (
+              <div
+                onClick={toggleFavorite}
+                className={`absolute top-2 right-2 cursor-pointer p-1 rounded-md ${
+                  isFavorited ? "bg-white" : ""
                 }`}
-              />
-            </div>
-)}
+              >
+                <Heart
+                  className={`w-6 h-6 ${
+                    isFavorited ? "fill-red-600 text-red-600" : "text-red-600"
+                  }`}
+                />
+              </div>
+            )}
             {Array.isArray(imovel.imagens) && imovel.imagens.length > 1 && (
               <>
                 <Button
@@ -187,14 +186,16 @@ export function HouseCard({ imovel, onClick }: HouseCardProps) {
             )}
           </CardContent>
           <div className="p-2">
-            <div className="flex justify-between items-center">
-              {/* <div className="text-sm font-bold">{imovel.titulo}</div> */}
-              <div className="text-sm font-bold truncate max-w-[70%]">{imovel.titulo}</div>
-              <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold pointer-events-none">
-                
-
-                {imovel.preco.toLocaleString("pt-BR", { style: "currency", currency: "AOA" })}
-              </Badge>
+            <div className="flex flex-col gap-1">
+              <div className="text-sm font-bold truncate max-w-[100%]">{imovel.titulo}</div>
+              <div className="flex justify-between items-center gap-2">
+                <Badge className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full font-bold pointer-events-none w-[50%]">
+                  {(imovel.precoMensal ?? 0).toLocaleString("pt-BR", { style: "currency", currency: "AOA" })} / mês
+                </Badge>
+                <Badge className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full font-bold pointer-events-none w-[50%]">
+                  {imovel.preco.toLocaleString("pt-BR", { style: "currency", currency: "AOA" })} / dia
+                </Badge>
+              </div>
             </div>
             <div className="flex items-center text-sm text-muted-foreground mt-1">
               <Pin className="w-4 h-4 mr-1" />

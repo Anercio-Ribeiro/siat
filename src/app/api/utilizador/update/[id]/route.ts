@@ -16,6 +16,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     // Preparar dados para atualização
     const updatedData = { ...body };
+    console.log("Dados recebidos para atualização:", updatedData);
     
     // Se há nova senha, faz o hash da nova senha
     if (body.novaSenha) {
@@ -28,6 +29,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
     // Atualiza os dados do utilizador
     const utilizadorAtualizado = await utilizadorService.atualizarUtilizador(id, updatedData);
+    console.log("Utilizador atualizado:", utilizadorAtualizado);
     
     // Determinar mensagem com base nos campos atualizados
     const mensagem = updatedData.senha 

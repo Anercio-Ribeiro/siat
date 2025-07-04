@@ -18,6 +18,7 @@ model User {
   criadoEm     DateTime    @default(now())
   atualizadoEm DateTime    @updatedAt
   picture      String?
+  estado       Boolean?    @default(true)
   alugueis     Aluguel[]
   favoritos    Favoritos[]
   imoveis      Imovel[]
@@ -108,17 +109,16 @@ model Imagem {
 }
 
 model Contrato {
-  id             String    @id @default(uuid())
-  aluguelId      String    @unique
+  id             String   @id @default(uuid())
+  aluguelId      String   @unique
   dataInicio     DateTime
   dataFim        DateTime
   valorTotal     Float
   termosContrato String
   urlDocumento   String?
-  criadoEm       DateTime  @default(now())
-  atualizadoEm   DateTime  @updatedAt
-  aluguel        Aluguel   @relation(fields: [aluguelId], references: [id])
-  messages       Message[] @relation("ContratoMessages")
+  criadoEm       DateTime @default(now())
+  atualizadoEm   DateTime @updatedAt
+  aluguel        Aluguel  @relation(fields: [aluguelId], references: [id])
 }
 
 model Aluguel {
@@ -136,16 +136,17 @@ model Aluguel {
   imovel         Imovel      @relation(fields: [imovelId], references: [id])
   inquilino      User        @relation(fields: [inquilinoId], references: [id])
   contrato       Contrato?
+  messages       Message[]   @relation("AluguelMessages")
 }
 
 model Message {
   id           String   @id @default(uuid())
-  contratoId   String
   userId       String
   content      String
   criadoEm     DateTime @default(now())
   atualizadoEm DateTime @updatedAt
-  contrato     Contrato @relation("ContratoMessages", fields: [contratoId], references: [id])
+  aluguelId    String
+  Aluguel      Aluguel  @relation("AluguelMessages", fields: [aluguelId], references: [id])
   user         User     @relation("SentMessages", fields: [userId], references: [id])
 }
 

@@ -178,7 +178,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useChatStore } from "@/store/chatStore";
 
 interface ChatSupportProps {
-  contratoId: string;
+  AluguelId: string;
   proprietarioId: string;
   inquilinoId: string;
   isOpen: boolean;
@@ -192,7 +192,7 @@ interface UserInfo {
 }
 
 export default function ChatComponent({
-  contratoId,
+  AluguelId,
   proprietarioId,
   inquilinoId,
   isOpen,
@@ -200,7 +200,7 @@ export default function ChatComponent({
 }: ChatSupportProps) {
   const { user } = useUser();
   const [message, setMessage] = useState("");
-  const { messages, sendMessage, isConnected } = useSocket(contratoId, user?.id || "");
+  const { messages, sendMessage, isConnected } = useSocket(AluguelId, user?.id || "");
   const [isLoading, setIsLoading] = useState(true);
   const [users, setUsers] = useState<{ proprietario?: UserInfo; inquilino?: UserInfo }>({});
   const { resetUnread, setChatOpen } = useChatStore();
@@ -232,10 +232,10 @@ export default function ChatComponent({
 
   useEffect(() => {
     if (isOpen) {
-      resetUnread(contratoId);
+      resetUnread(AluguelId);
     }
-    setChatOpen(contratoId, isOpen);
-  }, [isOpen, contratoId, resetUnread, setChatOpen]);
+    setChatOpen(AluguelId, isOpen);
+  }, [isOpen, AluguelId, resetUnread, setChatOpen]);
 
   const handleSendMessage = () => {
     if (message.trim() && user) {

@@ -15,8 +15,16 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
     const utilizadorService = new UtilizadorService();
     try {
         const existingUser = await utilizadorService.encontrarUtilizadorPorUsername(values.username);
-        if (existingUser) {
+         if (existingUser) {
             return { error: 'Utilizador já existe na base de dados', success: false };
+        }
+        const existingUserEmail = await utilizadorService.encontrarUtilizadorPorEmail(values.email);
+        if (existingUserEmail) {
+            return { error: 'Já existe um utilizador com esse email registado', success: false };
+        }
+         const existingTelefone = await utilizadorService.encontrarUtilizadorPorTelefone(values.telefone);
+        if (existingTelefone) {
+            return { error: 'Já existe um utilizador com esse número de telefone registado', success: false };
         }
         const senha = await hashPassword(values.senha);
 
@@ -25,6 +33,7 @@ export const signUp = async (values: z.infer<typeof signUpSchema>) => {
             ...values,
             senha,
             picture: '',
+            estado: true, // Adicionando estado como true por padrão
             //favoritoIds: [], 
             criadoEm: currentDate, 
             atualizadoEm: currentDate 
@@ -55,6 +64,9 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
         //console.log("Utilizador ou senha é nulo");
         return { success: false, error: "Credênciais inválidas!" };
     }
+    if (!user.estado) {
+        return { success: false, error: "Utilizador desabilitado!" };
+    }
 
     // Adicione um log para verificar a senha fornecida e a senha do banco de dados
     //console.log("Senha inserida: ", values.senha);
@@ -84,6 +96,6 @@ export const signIn = async (values: z.infer<typeof signInSchema>) => {
 export const logOut = async () => {
     const sessionCookie = await lucia.createBlankSessionCookie()
     cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes)
-    return redirect('/login')
+    return redirect('/')
 }
 

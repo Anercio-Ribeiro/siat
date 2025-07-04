@@ -51,7 +51,7 @@ function ClusterGroup({ imoveis, setSelectedImovel, setIsLoading }: MapViewProps
         marker.bindTooltip(`
           <div class="p-2">
             <h3 class="font-bold">${imovel.titulo}</h3>
-            <p>Preço: ${imovel.preco} AKZ</p>
+            <p>Preço diário: ${imovel.preco} AKZ</p>
             <p>Preço Mensal: ${imovel.precoMensal} AKZ</p>
           </div>
         `);

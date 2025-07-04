@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
     });
 
     // Retornar o PDF como resposta para download imediato
-    return new NextResponse(pdfBytes, {
+    return new NextResponse(Buffer.from(pdfBytes), {
       status: 201,
       headers: {
         "Content-Type": "application/pdf",

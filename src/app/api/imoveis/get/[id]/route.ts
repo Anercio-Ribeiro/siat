@@ -68,7 +68,7 @@ export async function GET(
 
     console.log('Fetching nearby locations for imovel:', imovelId);
     const nearbyLocations = await getNearbyLocations(imovelId);
-    //console.log('Found nearby locations:', nearbyLocations.length);
+    console.log('Found nearby locations:', nearbyLocations);
     
     return Response.json(nearbyLocations);
   } catch (error) {

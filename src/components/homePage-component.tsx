@@ -119,9 +119,15 @@ async function fetchImoveis(
     throw new Error(`Erro ao buscar imóveis${isMapView ? ' para o mapa' : ''}`);
   }
 
-  await new Promise((resolve) => setTimeout(resolve, 3000));
-  return response.json();
+  const data = await response.json();
+  // Ensure imoveis is always an array
+  return {
+    ...data,
+    imoveis: data.imoveis || [], // Fallback to empty array if imoveis is undefined
+  };
 }
+
+
 
 async function fetchProximidadeImoveis(
   tipo: string,
@@ -168,39 +174,43 @@ export function AirbnbNav() {
   const TODAY = new Date();
 
   const handleSearch = useCallback(
-    async (pageNum: number = 1, isMapView: boolean = false) => {
-      setIsSearching(true);
-      setShowSkeleton(true);
-      setSearchError(null);
-      setPage(pageNum);
+  async (pageNum: number = 1, isMapView: boolean = false) => {
+    setIsSearching(true);
+    setShowSkeleton(true);
+    setSearchError(null);
+    setPage(pageNum);
 
-      const searchFilters: SearchFilters = {
-        ...filters,
-        checkIn: checkIn ? checkIn.toISOString() : undefined,
-        checkOut: checkOut ? checkOut.toISOString() : undefined,
-      };
+    const searchFilters: SearchFilters = {
+      ...filters,
+      checkIn: checkIn ? checkIn.toISOString() : undefined,
+      checkOut: checkOut ? checkOut.toISOString() : undefined,
+    };
 
-      try {
-        let results: FetchImoveisResponse;
+    try {
+      let results: FetchImoveisResponse;
 
-        if (searchFilters.proximidades && !isMapView) {
-          const tipo = searchFilters.proximidades.split(',')[0];
-          results = await fetchProximidadeImoveis(tipo, pageNum, searchFilters.distanciaMax);
-        } else {
-          results = await fetchImoveis(searchFilters, pageNum, isMapView);
-        }
-
-        setSearchResults(results);
-      } catch (err) {
-        setSearchError((err as Error).message);
-      } finally {
-        setIsSearching(false);
-        setShowSkeleton(false);
-        setInitialLoading(false);
+      if (searchFilters.proximidades && !isMapView) {
+        const tipo = searchFilters.proximidades.split(',')[0];
+        results = await fetchProximidadeImoveis(tipo, pageNum, searchFilters.distanciaMax);
+      } else {
+        results = await fetchImoveis(searchFilters, pageNum, isMapView);
       }
-    },
-    [filters, checkIn, checkOut]
-  );
+
+      // Ensure results.imoveis is an array
+      setSearchResults({
+        ...results,
+        imoveis: results.imoveis || [],
+      });
+    } catch (err) {
+      setSearchError((err as Error).message);
+    } finally {
+      setIsSearching(false);
+      setShowSkeleton(false);
+      setInitialLoading(false);
+    }
+  },
+  [filters, checkIn, checkOut]
+);
 
   useEffect(() => {
     if (!userLoading && initialLoading) {
@@ -644,34 +654,6 @@ export function AirbnbNav() {
                   </div>
                 </div>
 
-                {/* <div className="mt-4">
-                  <h4 className="text-md font-semibold mb-2">Proximidades</h4>
-                  <div className="grid grid-cols-2 gap-2">
-                    {proximityTypes.map((type) => (
-                      <div key={type} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={type}
-                          checked={(tempFilters.proximidades?.split(',') || []).includes(type)}
-                          onCheckedChange={(checked) => {
-                            setTempFilters((prev) => {
-                              const currentProximities = prev.proximidades
-                                ? prev.proximidades.split(',')
-                                : [];
-                              return {
-                                ...prev,
-                                proximidades: checked
-                                  ? [...currentProximities, type].join(',')
-                                  : currentProximities.filter((t) => t !== type).join(','),
-                              };
-                            });
-                          }}
-                        />
-                        <Label htmlFor={type}>{type.toLowerCase()}</Label>
-                      </div>
-                    ))}
-                  </div>
-                </div> */}
-
                 <div className="flex justify-between mt-4">
                   <Button variant="outline" size="sm" onClick={clearTempFilters}>
                     Limpar Filtros
@@ -807,65 +789,67 @@ export function AirbnbNav() {
             <TabsTrigger value="map">Mapa</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="cards">
-            {showSkeleton ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {Array.from({ length: 8 }).map((_, index) => (
-                  <div key={index} className="space-y-3">
-                    <Skeleton className="h-48 w-full rounded-lg bg-blue-200" />
-                    <Skeleton className="h-4 w-3/4 bg-blue-200" />
-                    <Skeleton className="h-4 w-1/2 bg-blue-200" />
-                  </div>
-                ))}
-              </div>
-            ) : searchError ? (
-              <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
-            ) : searchResults?.imoveis.length === 0 ? (
-              <div className="flex items-center justify-center min-h-[50vh]">
-                <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
-                  <div className="flex items-center justify-center mb-2">
-                    <Calendar className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <AlertTitle className="font-bold text-lg text-gray-800">
-                    Nenhum imóvel encontrado
-                  </AlertTitle>
-                  <AlertDescription className="text-gray-600">
-                    Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            ) : searchResults ? (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                {searchResults.imoveis.map((imovel) => (
-                  <HouseCard key={imovel.id} imovel={imovel} />
-                ))}
-              </div>
-            ) : null}
-          </TabsContent>
+<TabsContent value="cards">
+  {showSkeleton ? (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {Array.from({ length: 8 }).map((_, index) => (
+        <div key={index} className="space-y-3">
+          <Skeleton className="h-48 w-full rounded-lg bg-blue-200" />
+          <Skeleton className="h-4 w-3/4 bg-blue-200" />
+          <Skeleton className="h-4 w-1/2 bg-blue-200" />
+        </div>
+      ))}
+    </div>
+  ) : searchError ? (
+    <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
+  ) : !searchResults || !searchResults.imoveis || searchResults.imoveis.length === 0 ? (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
+        <div className="flex items-center justify-center mb-2">
+          <Calendar className="h-6 w-6 text-blue-600" />
+        </div>
+        <AlertTitle className="font-bold text-lg text-gray-800">
+          Nenhum imóvel encontrado
+        </AlertTitle>
+        <AlertDescription className="text-gray-600">
+          Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
+        </AlertDescription>
+      </Alert>
+    </div>
+  ) : (
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      {searchResults.imoveis.map((imovel) => (
+        <HouseCard key={imovel.id} imovel={imovel} />
+      ))}
+    </div>
+  )}
+</TabsContent>
 
-          <TabsContent value="map">
-            {showSkeleton ? (
-              <Skeleton className="h-[600px] w-full rounded-lg bg-blue-200" />
-            ) : searchError ? (
-              <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
-            ) : searchResults?.imoveis.length === 0 ? (
-              <div className="flex items-center justify-center min-h-[50vh]">
-                <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
-                  <div className="flex items-center justify-center mb-2">
-                    <Calendar className="h-6 w-6 text-blue-600" />
-                  </div>
-                  <AlertTitle className="font-bold text-lg text-gray-800">
-                    Nenhum imóvel encontrado
-                  </AlertTitle>
-                  <AlertDescription className="text-gray-600">
-                    Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
-                  </AlertDescription>
-                </Alert>
-              </div>
-            ) : searchResults ? (
-              <MapView imoveis={searchResults.imoveis} />
-            ) : null}
-          </TabsContent>
+<TabsContent value="map">
+  {showSkeleton ? (
+    <Skeleton className="h-[600px] w-full rounded-lg bg-blue-200" />
+  ) : searchError ? (
+    <div className="text-red-500">Erro ao carregar imóveis: {searchError}</div>
+  ) : !searchResults || !searchResults.imoveis || searchResults.imoveis.length === 0 ? (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <Alert className="w-full max-w-md border border-gray-300 shadow-lg rounded-lg p-4 bg-white">
+        <div className="flex items-center justify-center mb-2">
+          <Calendar className="h-6 w-6 text-blue-600" />
+        </div>
+        <AlertTitle className="font-bold text-lg text-gray-800">
+          Nenhum imóvel encontrado
+        </AlertTitle>
+        <AlertDescription className="text-gray-600">
+          Não encontramos imóveis com os critérios selecionados. Tente ajustar seus filtros de busca.
+        </AlertDescription>
+      </Alert>
+    </div>
+  ) : (
+    <MapView imoveis={searchResults.imoveis} />
+  )}
+</TabsContent>
+
+
         </Tabs>
       </div>
 

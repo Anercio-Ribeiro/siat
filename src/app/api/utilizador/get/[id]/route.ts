@@ -19,3 +19,17 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
+
+export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+  const { id } = params;
+  const data = await req.json();
+  const utilizadorService = new UtilizadorService();
+
+  try {
+    const utilizador = await utilizadorService.atualizarUtilizador(id, data);
+    return NextResponse.json({ utilizador }, { status: 200 });
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error: 'Erro ao atualizar utilizador' }, { status: 500 });
+  }
+}

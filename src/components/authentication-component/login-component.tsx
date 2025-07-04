@@ -25,6 +25,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { signIn } from "@/app/authenticate/auth.action";
+import { Moon, Sun } from "lucide-react";
 
 export const signInSchema = z.object({
   username: z.string(),
@@ -34,6 +35,7 @@ export const signInSchema = z.object({
 const SignInForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false); // Estado para controlar o loading
+  const [darkMode, setDarkMode] = useState(false);
 
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
@@ -42,6 +44,13 @@ const SignInForm = () => {
       senha: "",
     },
   });
+
+      const toggleTheme = () => {
+    setDarkMode(!darkMode);
+    if (typeof window !== "undefined") {
+      document.documentElement.classList.toggle("dark", !darkMode);
+    }
+  };
 
   // Função para simular atraso
   const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -63,6 +72,16 @@ const SignInForm = () => {
 
   return (
     <div className="relative min-h-screen flex items-center justify-center">
+       <Button
+                      variant="outline"
+                      onClick={toggleTheme}
+                      className="absolute top-4 right-4"
+                    >
+                      {darkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+                      <span className="ml-2">
+                        Tema {darkMode ? "claro" : "escuro"}
+                      </span>
+                    </Button>
       <Card className="w-full max-w-md">
         <CardHeader className="text-center mt-2">
           <CardTitle>Autenticação</CardTitle>

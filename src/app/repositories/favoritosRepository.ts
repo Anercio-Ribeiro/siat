@@ -40,7 +40,19 @@ export class FavoritosRepository {
         },
         include: {
           imovel: {
-            include: { imagens: true },
+            include: { 
+              imagens: true,
+              proprietario: {
+                select: {
+                  id: true,
+                  nome: true,
+                  email: true,
+                  telefone: true,
+                  role: true,
+                }
+              }
+
+             },
           }
         },
       });
